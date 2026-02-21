@@ -3,66 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>سوق عكاز | متجر متكامل بالكميات</title>
+    <title>سوق عكاز | المتجر المتكامل</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
 
     <style>
         :root { --primary: #e67e22; --dark: #121212; --card-bg: #1e1e1e; --text-light: #ecf0f1; }
         body { font-family: 'Cairo', sans-serif; background-color: var(--dark); background-image: radial-gradient(circle at 50% 0%, #3e2714 0%, #0a0a0a 80%); color: var(--text-light); text-align: center; margin: 0; padding: 0; min-height: 100vh; }
         
-        /* شريط التنقل */
+        /* الهيدر */
         .top-nav { position: sticky; top: 0; background: rgba(10, 10, 10, 0.95); border-bottom: 2px solid var(--primary); padding: 10px 20px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); }
         .nav-logo { color:var(--primary); text-decoration:none; font-family:'Reem Kufi'; font-size:1.4em; cursor: pointer; }
-        .cart-icon-nav { position: relative; cursor: pointer; font-size: 1.3em; color: #fff; width: 40px; }
-        .cart-count { position: absolute; top: -8px; right: -5px; background: var(--primary); color: #000; font-size: 0.7em; font-weight: bold; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #000; }
+        
+        .cart-btn-nav { position: relative; cursor: pointer; color: #fff; font-size: 1.3em; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
+        .cart-count { position: absolute; top: 2px; right: 2px; background: var(--primary); color: #000; font-size: 0.65em; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #000; }
 
         .container { max-width: 900px; margin: auto; padding: 15px; }
 
-        /* الأقسام والمنتجات */
-        .category-grid, .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .category-card, .product-card { background: var(--card-bg); border: 1px solid #333; border-radius: 12px; overflow: hidden; position: relative; transition: 0.3s; display: flex; flex-direction: column; }
-        .category-card img, .main-img { width: 100%; height: 150px; object-fit: cover; cursor: pointer; border-bottom: 2px solid #222; }
+        /* الأقسام (الرئيسية) */
+        .category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px; }
+        .category-card { background: var(--card-bg); border: 1px solid #333; border-radius: 15px; overflow: hidden; cursor: pointer; transition: 0.3s; }
+        .category-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .category-card img { width: 100%; height: 130px; object-fit: cover; border-bottom: 2px solid var(--primary); }
+        .category-card h3 { margin: 12px 0; font-size: 1em; color: var(--text-light); }
+
+        /* المنتجات (داخل القسم) */
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .product-card { background: var(--card-bg); border-radius: 12px; padding: 10px; border: 1px solid #333; position: relative; text-align: right; display: flex; flex-direction: column; }
         
-        .p-info { padding: 12px; text-align: right; display: flex; flex-direction: column; flex-grow: 1; }
-        .p-name { font-weight: bold; color: var(--primary); font-size: 0.95em; margin-bottom: 5px; height: 40px; overflow: hidden; }
+        /* حاوية الصورة */
+        .img-wrap { position: relative; width: 100%; height: 160px; overflow: hidden; border-radius: 8px; cursor: pointer; background: #000; }
+        .img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .album-label { position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.7); color: #fff; padding: 2px 7px; border-radius: 5px; font-size: 0.7em; z-index: 5; }
+        .badge { position: absolute; top: 10px; right: 10px; background: #e74c3c; color: #fff; font-size: 0.65em; padding: 3px 8px; border-radius: 4px; font-weight: bold; z-index: 10; }
+
+        .p-name { font-weight: bold; color: var(--primary); font-size: 0.9em; margin: 10px 0 5px; height: 40px; overflow: hidden; line-height: 1.2; }
         .p-price { color: #fff; font-size: 1.1em; font-weight: bold; margin-bottom: 12px; }
-        
-        .btn-add-cart { background: none; border: 1px solid var(--primary); color: var(--primary); padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85em; transition: 0.3s; margin-top: auto; }
-        .btn-add-cart:hover { background: var(--primary); color: #000; }
+        .btn-add { background: none; border: 1px solid var(--primary); color: var(--primary); padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8em; transition: 0.3s; margin-top: auto; }
+        .btn-add:hover { background: var(--primary); color: #000; }
 
-        /* مودال السلة */
-        #cart-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .cart-content { background: #1a1a1a; width: 95%; max-width: 450px; border-radius: 20px; padding: 20px; border: 1px solid var(--primary); max-height: 85vh; display: flex; flex-direction: column; }
-        #cart-items-list { overflow-y: auto; flex-grow: 1; margin: 15px 0; }
-        
-        /* تصميم السطر الواحد في السلة */
-        .cart-item { display: flex; align-items: center; border-bottom: 1px solid #333; padding: 12px 0; gap: 10px; }
-        .cart-item-info { flex-grow: 1; text-align: right; }
-        .cart-item-name { display: block; font-size: 0.9em; color: var(--primary); font-weight: bold; }
-        .cart-item-price { font-size: 0.85em; color: #bbb; }
-        
-        /* أزرار التحكم في الكمية */
-        .qty-controls { display: flex; align-items: center; gap: 8px; background: #222; padding: 5px 10px; border-radius: 10px; border: 1px solid #444; }
-        .qty-btn { background: var(--primary); color: #000; border: none; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-        .qty-num { min-width: 20px; font-weight: bold; font-size: 0.9em; }
-
-        .cart-footer { border-top: 2px solid #333; padding-top: 15px; }
-        .cart-total { font-size: 1.3em; color: var(--primary); font-weight: 900; margin-bottom: 15px; }
-        .btn-order-wa { display: flex; align-items: center; justify-content: center; gap: 10px; background: #25D366; color: #fff; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 1.1em; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }
-        .close-cart { cursor: pointer; color: #888; font-size: 1.2em; display: block; text-align: left; }
+        /* السلة */
+        #cart-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        .cart-box { background: #1a1a1a; width: 90%; max-width: 450px; border-radius: 20px; padding: 20px; border: 1px solid var(--primary); }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding: 10px 0; }
+        .qty-controls { display: flex; align-items: center; gap: 10px; background: #222; padding: 5px 10px; border-radius: 10px; }
+        .qty-btn { background: var(--primary); border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-weight: bold; }
 
         .hidden { display: none; }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <nav class="top-nav">
         <div class="nav-logo" onclick="window.location.reload()">سوق عكاز</div>
-        <div class="cart-icon-nav" onclick="toggleCart()">
+        <div class="cart-btn-nav" onclick="toggleCart()">
             <i class="fas fa-shopping-basket"></i>
             <span class="cart-count" id="cart-count">0</span>
         </div>
@@ -70,29 +68,24 @@
 
     <div class="container">
         <div id="home-view" class="fade-in">
-            <h2 style="font-family: 'Reem Kufi'; color: var(--primary);">تصفح أقسامنا</h2>
+            <h2 style="font-family:'Reem Kufi'; color:var(--primary);">أقسام المتجر</h2>
             <div class="category-grid" id="category-list"></div>
         </div>
 
         <div id="category-view" class="hidden fade-in">
-            <div style="text-align:right; margin-bottom:15px; cursor:pointer; color:#ccc;" onclick="showHome()">← العودة للأقسام</div>
-            <h2 id="current-category-name" style="color: var(--primary); font-family: 'Reem Kufi';"></h2>
+            <div style="text-align:right; margin-bottom:15px; cursor:pointer; color:#ccc;" onclick="showHome()">← رجوع للأقسام</div>
+            <h2 id="current-category-name" style="color:var(--primary); font-family:'Reem Kufi';"></h2>
             <div class="product-grid" id="product-list"></div>
         </div>
     </div>
 
     <div id="cart-modal">
-        <div class="cart-content">
-            <div class="close-cart" onclick="toggleCart()"><i class="fas fa-times"></i></div>
-            <h3 style="color:var(--primary); margin-top:0;">مشترياتك</h3>
-            
-            <div id="cart-items-list">
-                </div>
-
-            <div class="cart-footer">
-                <div class="cart-total" id="cart-total">الإجمالي: 0 ج.م</div>
-                <a href="#" class="btn-order-wa" onclick="sendOrder()">تأكيد الطلب (واتساب) <i class="fab fa-whatsapp"></i></a>
-            </div>
+        <div class="cart-box">
+            <div style="text-align:left; cursor:pointer; color:#888;" onclick="toggleCart()"><i class="fas fa-times"></i> إغلاق</div>
+            <h3 style="color:var(--primary); margin-top:5px;">طلباتك</h3>
+            <div id="cart-items" style="max-height: 45vh; overflow-y: auto; margin: 15px 0;"></div>
+            <div id="cart-total" style="font-size:1.3em; color:var(--primary); margin-bottom:15px; font-weight:bold;"></div>
+            <button onclick="sendOrder()" style="width:100%; background:#25D366; color:#fff; border:none; padding:15px; border-radius:12px; font-weight:bold; font-size:1.1em; cursor:pointer;">تأكيد الطلب عبر واتساب <i class="fab fa-whatsapp"></i></button>
         </div>
     </div>
 
@@ -100,16 +93,15 @@
     <script>
         let storeData = null;
         let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
+        let lightboxes = []; // لتخزين كائنات الجاليري
 
-        async function initStore() {
+        async function init() {
             try {
                 const res = await fetch('data.json');
                 storeData = await res.json();
                 renderCategories();
                 updateCartUI();
-            } catch (e) { 
-                console.error("خطأ في البيانات");
-            }
+            } catch (e) { console.log("جاري إعداد البيانات..."); }
         }
 
         function renderCategories() {
@@ -119,7 +111,7 @@
                 list.innerHTML += `
                     <div class="category-card" onclick="showCategory('${cat.title}')">
                         <img src="${cat.image}" onerror="this.src='https://via.placeholder.com/300x150'">
-                        <h3 style="margin:12px 0; font-size:1em;">${cat.title}</h3>
+                        <h3>${cat.title}</h3>
                     </div>`;
             });
         }
@@ -128,117 +120,119 @@
             document.getElementById('home-view').classList.add('hidden');
             document.getElementById('category-view').classList.remove('hidden');
             document.getElementById('current-category-name').innerText = catName;
+            
             const list = document.getElementById('product-list');
             list.innerHTML = '';
             
+            // تنظيف أي جاليري قديم قبل إنشاء جديد
+            lightboxes.forEach(l => l.destroy());
+            lightboxes = [];
+
             const filtered = storeData.products.filter(p => p.category === catName);
             filtered.forEach((p, idx) => {
-                const firstImg = p.gallery && p.gallery.length > 0 ? p.gallery[0].image : 'https://via.placeholder.com/200';
+                const hasGallery = p.gallery && p.gallery.length > 0;
+                const coverImg = hasGallery ? p.gallery[0].image : 'https://via.placeholder.com/200';
                 
-                let galleryHtml = '';
-                if(p.gallery) p.gallery.forEach(img => galleryHtml += `<a href="${img.image}" class="lb-${idx}" style="display:none"></a>`);
+                // إنشاء روابط الألبوم المخفية
+                let galleryLinks = '';
+                if(hasGallery) {
+                    p.gallery.forEach(imgObj => {
+                        galleryLinks += `<a href="${imgObj.image}" class="glightbox-${idx}" style="display:none"></a>`;
+                    });
+                }
 
                 list.innerHTML += `
-                    <div class="product-card">
-                        <img src="${firstImg}" class="main-img" onclick="document.querySelector('.lb-${idx}').click()">
-                        <div class="p-info">
-                            <span class="p-name">${p.title}</span>
-                            <span class="p-price">${p.price} ج.م</span>
-                            <button class="btn-add-cart" onclick="addToCart('${p.title}', ${p.price})">أضف للسلة <i class="fas fa-plus-circle"></i></button>
+                    <div class="product-card fade-in">
+                        ${p.badge && p.badge !== 'لا يوجد' ? `<div class="badge">${p.badge}</div>` : ''}
+                        <div class="img-wrap" onclick="openProductGallery(${idx})">
+                            <img src="${coverImg}">
+                            ${hasGallery ? `<div class="album-label"><i class="fas fa-images"></i> ${p.gallery.length}</div>` : ''}
                         </div>
-                        ${galleryHtml}
+                        <div class="p-name">${p.title}</div>
+                        <div class="p-price">${p.price} ج.م</div>
+                        <button class="btn-add" onclick="addToCart('${p.title}', ${p.price})">أضف للسلة <i class="fas fa-plus"></i></button>
+                        ${galleryLinks}
                     </div>`;
-                GLightbox({ selector: `.lb-${idx}` });
+                
+                // تفعيل الجاليري للمنتج ده فوراً
+                setTimeout(() => {
+                    const lb = GLightbox({ selector: `.glightbox-${idx}` });
+                    lightboxes.push(lb);
+                }, 50);
             });
+            window.scrollTo(0,0);
         }
 
-        // --- وظائف السلة المتطورة ---
-        
+        // دالة فتح الألبوم عند الضغط على الصورة
+        function openProductGallery(idx) {
+            const firstImg = document.querySelector(`.glightbox-${idx}`);
+            if(firstImg) firstImg.click();
+        }
+
+        // --- نظام السلة ---
         function addToCart(title, price) {
-            const existingItem = cart.find(item => item.title === title);
-            if (existingItem) {
-                existingItem.qty += 1;
-            } else {
-                cart.push({ title, price, qty: 1 });
-            }
-            saveAndUpdate();
-            // اهتزاز خفيف للموبايل عند الإضافة
-            if (navigator.vibrate) navigator.vibrate(50);
+            const item = cart.find(i => i.title === title);
+            if(item) item.qty++; else cart.push({title, price, qty: 1});
+            saveCart();
+            alert("تمت الإضافة للسلة ✅");
         }
 
-        function changeQty(index, delta) {
-            cart[index].qty += delta;
-            if (cart[index].qty < 1) {
-                cart.splice(index, 1);
-            }
-            saveAndUpdate();
+        function changeQty(idx, delta) {
+            cart[idx].qty += delta;
+            if(cart[idx].qty <= 0) cart.splice(idx, 1);
+            saveCart();
         }
 
-        function saveAndUpdate() {
+        function saveCart() {
             localStorage.setItem('okaz_cart', JSON.stringify(cart));
             updateCartUI();
         }
 
         function updateCartUI() {
-            const countElem = document.getElementById('cart-count');
-            const listElem = document.getElementById('cart-items-list');
-            const totalElem = document.getElementById('cart-total');
-            
+            const list = document.getElementById('cart-items');
+            const totalBox = document.getElementById('cart-total');
+            const countLabel = document.getElementById('cart-count');
             let total = 0;
-            let totalItems = 0;
-            listElem.innerHTML = '';
-            
+            let totalQty = 0;
+            list.innerHTML = '';
+
             cart.forEach((item, idx) => {
-                const itemTotal = item.price * item.qty;
-                total += itemTotal;
-                totalItems += item.qty;
-                
-                listElem.innerHTML += `
-                    <div class="cart-item fade-in">
-                        <div class="cart-item-info">
-                            <span class="cart-item-name">${item.title}</span>
-                            <span class="cart-item-price">${item.price} ج.م</span>
+                total += item.price * item.qty;
+                totalQty += item.qty;
+                list.innerHTML += `
+                    <div class="cart-item">
+                        <div style="text-align:right">
+                            <div style="color:var(--primary); font-weight:bold">${item.title}</div>
+                            <div style="font-size:0.8em; color:#888">${item.price} ج.م</div>
                         </div>
                         <div class="qty-controls">
                             <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
-                            <span class="qty-num">${item.qty}</span>
+                            <span style="font-weight:bold">${item.qty}</span>
                             <button class="qty-btn" onclick="changeQty(${idx}, -1)">-</button>
                         </div>
                     </div>`;
             });
-            
-            countElem.innerText = totalItems;
-            totalElem.innerText = `الإجمالي: ${total} ج.م`;
-            
-            if(cart.length === 0) {
-                listElem.innerHTML = '<p style="color:#666; margin-top:20px;">السلة فارغة حالياً</p>';
-            }
+
+            countLabel.innerText = totalQty;
+            totalBox.innerText = `الإجمالي: ${total} ج.م`;
+            if(cart.length === 0) list.innerHTML = "<p style='color:#666'>السلة فارغة</p>";
         }
 
         function toggleCart() {
-            const modal = document.getElementById('cart-modal');
-            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+            const m = document.getElementById('cart-modal');
+            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
         }
 
         function sendOrder() {
-            if (cart.length === 0) return alert("السلة فارغة!");
-            
-            let message = "طلب جديد من سوق عكاز 🛒\n";
-            message += "--------------------------\n";
-            let grandTotal = 0;
-            
-            cart.forEach((item, idx) => {
-                const subTotal = item.price * item.qty;
-                message += `• ${item.title}\n  الكمية: ${item.qty} × ${item.price} = ${subTotal} ج.م\n\n`;
-                grandTotal += subTotal;
+            if(cart.length === 0) return;
+            let msg = "طلب جديد من سوق عكاز 🛒\n--------------------\n";
+            let total = 0;
+            cart.forEach(i => {
+                msg += `• ${i.title}\n  الكمية: ${i.qty} × ${i.price} = ${i.qty*i.price} ج.م\n\n`;
+                total += i.qty * i.price;
             });
-            
-            message += "--------------------------\n";
-            message += `💰 الإجمالي النهائي: ${grandTotal} ج.م\n`;
-            message += "برجاء مراجعة الطلب وتأكيده.";
-            
-            const waUrl = `https://wa.me/201550912888?text=${encodeURIComponent(message)}`;
-            window.open(waUrl, '_blank');
+            msg += `--------------------\n💰 الإجمالي: ${total} ج.م`;
+            window.open(`https://wa.me/201550912888?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         function showHome() {
@@ -247,7 +241,7 @@
             window.scrollTo(0,0);
         }
 
-        initStore();
+        init();
     </script>
 </body>
 </html>
