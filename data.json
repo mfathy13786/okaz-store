@@ -48,6 +48,13 @@
       "price": 88888,
       "category": "نبوت",
       "image": "/assets/images/fb_img_1771496038151.jpg"
+    },
+    {
+      "badge": "طبي",
+      "title": "نبوت صلاح",
+      "price": 5555,
+      "category": "نبوت",
+      "image": "/assets/images/img-20260219-wa0012.jpg"
     }
   ]
 }
