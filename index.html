@@ -3,179 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سوق عكاز | للقطاعي والطلبات الشخصية</title>
+    <title>سوق عكاز | الرئيسية</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; }
-        header { background-color: #2c3e50; color: white; padding: 20px; text-align: center; border-bottom: 4px solid #d35400; display: flex; justify-content: space-between; align-items: center; }
-        .header-titles { flex-grow: 1; text-align: center; }
-        header h1 { margin: 0; font-size: 32px; }
-        header p { margin: 5px 0 0; font-size: 16px; color: #ecf0f1; }
-        
-        /* زر سلة المشتريات */
-        .cart-btn { background-color: #d35400; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        
-        /* الأقسام */
-        .categories { text-align: center; margin: 20px 0; }
-        .cat-btn { background-color: #e0e0e0; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
-        .cat-btn.active, .cat-btn:hover { background-color: #2c3e50; color: white; }
-
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .product-card { background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); overflow: hidden; text-align: center; padding-bottom: 20px; }
-        .product-card img { width: 100%; height: 250px; object-fit: cover; }
-        .product-info { padding: 15px; }
-        .product-title { font-size: 20px; font-weight: bold; margin: 0 0 10px; color: #333; }
-        .product-price { color: #27ae60; font-size: 24px; font-weight: bold; margin-bottom: 15px; }
-        
-        /* زر الإضافة للسلة */
-        .add-to-cart-btn { background-color: #2980b9; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 80%; }
-        .add-to-cart-btn:hover { background-color: #2471a3; }
-
-        /* نافذة السلة (Modal) */
-        .cart-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .cart-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
-        .cart-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0; }
-        .cart-total { font-size: 20px; font-weight: bold; margin: 20px 0; text-align: left; }
-        
-        /* أزرار السلة */
-        .checkout-btn { background-color: #25D366; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; }
-        .close-cart-btn { background-color: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 15px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; text-align: center; }
+        h1 { color: #333; }
+        /* تصميم شبكة المنتجات */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; max-width: 1000px; margin: 20px auto; }
+        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+        .card img { max-width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
+        .product-title { font-size: 1.2em; font-weight: bold; margin: 10px 0 5px; color: #444; }
+        .category { font-size: 0.9em; color: #777; margin: 0 0 10px; }
+        .price { color: #28a745; font-weight: bold; font-size: 1.3em; margin: 0; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div style="width: 100px;"></div> <div class="header-titles">
-            <h1>سوق عكاز</h1>
-            <p>بإدارة أ. صلاح الفصيح - للقطع الفريدة والطلبات الشخصية</p>
-        </div>
-        <button class="cart-btn" onclick="toggleCart()">🛒 السلة (<span id="cart-count">0</span>)</button>
-    </header>
+    <h1>مرحباً بكم في فاترينة "سوق عكاز" 🛍️</h1>
+    <p>هذه المنتجات يتم سحبها تلقائياً من لوحة التحكم</p>
 
-    <div class="categories" id="categories-container"></div>
-
-    <div class="container">
-        <div class="products-grid" id="products-container"></div>
-    </div>
-
-    <div class="cart-modal" id="cart-modal">
-        <div class="cart-content">
-            <button class="close-cart-btn" onclick="toggleCart()">إغلاق ❌</button>
-            <h2>سلة المشتريات</h2>
-            <div id="cart-items"></div>
-            <div class="cart-total">الإجمالي: <span id="cart-total-price">0</span> ج.م</div>
-            <button class="checkout-btn" onclick="checkout()">إتمام الطلب عبر واتساب 💬</button>
-        </div>
+    <div id="products-container" class="grid">
+        <h3 style="color:#666; grid-column: 1 / -1;">جارِ تحميل البضاعة من المخزن... ⏳</h3>
     </div>
 
     <script>
-        const waNumber = "201550912888";
-        
-        // المنتجات المبدئية
-        const products = [
-            { id: 1, title: "شومة زان بمسامير صلب", price: 350, category: "قسم الشوم", image: "https://images.unsplash.com/photo-1590204207604-0d7031149957?w=500&q=80" },
-            { id: 2, title: "عكاز أبنوس مطعم بالنحاس", price: 850, category: "قسم العكاكيز", image: "https://images.unsplash.com/photo-1585250005221-a477de771e8c?w=500&q=80" },
-            { id: 3, title: "طقم خلاطات مياه تركي", price: 1200, category: "قسم السباكة", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=500&q=80" }
-        ];
+        async function fetchProducts() {
+            try {
+                // الكود ده بيروح يقرأ ملف المنتجات اللي اللوحة عملته
+                const response = await fetch('products.json');
+                if (!response.ok) throw new Error('لا يوجد ملف منتجات حتى الآن');
+                
+                const data = await response.json();
+                const container = document.getElementById('products-container');
+                container.innerHTML = ''; // تفريغ رسالة التحميل
 
-        let cart = [];
+                // لو الملف فاضي
+                if (!data.items || data.items.length === 0) {
+                    container.innerHTML = '<h3 style="color:#e74c3c; grid-column: 1 / -1;">المتجر خالي حالياً. برجاء إضافة منتجات من اللوحة!</h3>';
+                    return;
+                }
 
-        // عرض الأقسام والفلترة
-        const categories = ["الكل", ...new Set(products.map(p => p.category))];
-        const categoriesContainer = document.getElementById('categories-container');
-        const productsContainer = document.getElementById('products-container');
+                // عرض المنتجات في الفاترينة
+                data.items.forEach(product => {
+                    // معالجة الصورة (عشان تظهر صح لو مسارها اتغير)
+                    const imgSrc = product.image ? product.image : 'https://via.placeholder.com/250?text=لا+توجد+صورة';
+                    
+                    // رسم الكارت
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <img src="${imgSrc}" alt="${product.title}">
+                        <div class="product-title">${product.title}</div>
+                        <div class="category">قسم: ${product.category}</div>
+                        <div class="price">${product.price} ج.م</div>
+                    `;
+                    container.appendChild(card);
+                });
 
-        function renderCategories() {
-            categoriesContainer.innerHTML = '';
-            categories.forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = `cat-btn ${cat === 'الكل' ? 'active' : ''}`;
-                btn.innerText = cat;
-                btn.onclick = () => {
-                    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    renderProducts(cat);
-                };
-                categoriesContainer.appendChild(btn);
-            });
-        }
-
-        function renderProducts(filterCategory = 'الكل') {
-            productsContainer.innerHTML = '';
-            const filtered = filterCategory === 'الكل' ? products : products.filter(p => p.category === filterCategory);
-            
-            filtered.forEach(product => {
-                const card = `
-                    <div class="product-card">
-                        <img src="${product.image}" alt="${product.title}">
-                        <div class="product-info">
-                            <h3 class="product-title">${product.title}</h3>
-                            <div class="product-price">${product.price} ج.م</div>
-                            <button class="add-to-cart-btn" onclick="addToCart(${product.id})">أضف إلى السلة 🛒</button>
-                        </div>
-                    </div>
-                `;
-                productsContainer.innerHTML += card;
-            });
-        }
-
-        // نظام سلة المشتريات
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            cart.push(product);
-            updateCartUI();
-            alert(`تم إضافة (${product.title}) للسلة بنجاح!`);
-        }
-
-        function updateCartUI() {
-            document.getElementById('cart-count').innerText = cart.length;
-            const cartItemsContainer = document.getElementById('cart-items');
-            cartItemsContainer.innerHTML = '';
-            let total = 0;
-
-            cart.forEach((item, index) => {
-                total += item.price;
-                cartItemsContainer.innerHTML += `
-                    <div class="cart-item">
-                        <span>${item.title}</span>
-                        <span>${item.price} ج.م</span>
-                        <button onclick="removeFromCart(${index})" style="color:red; border:none; background:none; cursor:pointer;">❌</button>
-                    </div>
-                `;
-            });
-            document.getElementById('cart-total-price').innerText = total;
-        }
-
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            updateCartUI();
-        }
-
-        function toggleCart() {
-            const modal = document.getElementById('cart-modal');
-            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        // إتمام الطلب للواتساب
-        function checkout() {
-            if (cart.length === 0) {
-                alert("السلة فارغة!");
-                return;
+            } catch (error) {
+                document.getElementById('products-container').innerHTML = 
+                    '<h3 style="color:#e74c3c; grid-column: 1 / -1;">لم يتم إنشاء قاعدة البيانات بعد. برجاء الدخول للوحة التحكم وإضافة أول منتج لبرمجة الموقع!</h3>';
+                console.error("Error loading products:", error);
             }
-            let message = "أهلاً أ. صلاح الفصيح، أريد طلب المنتجات التالية من سوق عكاز:\n\n";
-            let total = 0;
-            cart.forEach((item, index) => {
-                message += `${index + 1}- ${item.title} (${item.price} ج.م)\n`;
-                total += item.price;
-            });
-            message += `\nإجمالي الحساب: ${total} ج.م\n\nبرجاء تأكيد الطلب.`;
-            
-            const waLink = `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
-            window.open(waLink, '_blank');
         }
 
-        renderCategories();
-        renderProducts();
+        // تشغيل المحرك
+        fetchProducts();
     </script>
+
 </body>
 </html>
