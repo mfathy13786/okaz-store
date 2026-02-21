@@ -19,7 +19,12 @@
       "category": "عكاز",
       "title": "عكاز خشب",
       "price": 55,
-      "image": "/assets/images/fb_img_1771496074046.jpg"
+      "image": "/assets/images/fb_img_1771496074046.jpg",
+      "gallery": [
+        {
+          "image": "/assets/images/fb_img_1771496038151.jpg"
+        }
+      ]
     },
     {
       "badge": "لا يوجد",
