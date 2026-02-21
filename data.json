@@ -4,5 +4,14 @@
       "icon": "fas fa-star",
       "title": "بضااااااان"
     }
+  ],
+  "products": [
+    {
+      "badge": "لا يوجد",
+      "title": "احا",
+      "price": 55,
+      "category": "بضااااااان",
+      "image": "/assets/images/whatsapp-image-2026-02-15-at-3.15.15-am.jpeg"
+    }
   ]
 }
