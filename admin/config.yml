@@ -17,11 +17,6 @@ collections:
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
       - { label: "السعر (جنيه)", name: "price", widget: "number" }
-      - { 
-          label: "القسم", 
-          name: "category", 
-          widget: "select", 
-          options: ["قسم العكاكيز", "قسم الشوم", "قسم السباكة"] 
-        }
+      - { label: "القسم", name: "category", widget: "select", options: ["قسم العكاكيز", "قسم الشوم", "قسم السباكة"] }
       - { label: "صورة المنتج", name: "image", widget: "image" }
       - { label: "وصف المنتج", name: "body", widget: "markdown", required: false }
