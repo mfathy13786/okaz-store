@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: "اسم-حسابك/اسم-المستودع" # استبدل ده ببياناتك الحقيقية
+  repo: "اسم-حسابك/اسم-المستودع"
   branch: main
 
 media_folder: "images"
@@ -8,42 +8,42 @@ public_folder: "/images"
 
 collections:
   - name: "store_data"
-    label: "إدارة المتجر بالكامل"
+    label: "بيانات المتجر"
     delete: false
     editor:
       preview: false
     files:
       - name: "content"
-        label: "البيانات (الأقسام - المنتجات - الشحن)"
+        label: "الأقسام والمنتجات والشحن"
         file: "data.json"
         fields:
           - name: "categories"
-            label: "1. إدارة الأقسام"
+            label: "1. الأقسام"
             widget: "list"
             fields:
               - { label: "اسم القسم", name: "title", widget: "string" }
               - { label: "صورة القسم", name: "image", widget: "image" }
 
           - name: "products"
-            label: "2. إدارة المنتجات"
+            label: "2. المنتجات"
             widget: "list"
             fields:
               - { label: "اسم المنتج", name: "title", widget: "string" }
-              - { label: "السعر (رقم فقط)", name: "price", widget: "number" }
-              - label: "القسم التابع له"
+              - { label: "السعر", name: "price", widget: "number" }
+              - label: "القسم"
                 name: "category"
                 widget: "select"
-                options: ["قسم السيوف", "قسم العكازات", "قسم السكاكين", "خناجر", "أخرى"] # عدل الأسماء حسب رغبتك
+                options: ["قسم السيوف", "قسم العكازات", "قسم السكاكين", "خناجر", "أخرى"]
               - name: "gallery"
-                label: "ألبوم صور المنتج"
+                label: "صور المنتج"
                 widget: "list"
                 fields:
-                  - { label: "الصورة", name: "image", widget: "image" }
+                  - { label: "صورة", name: "image", widget: "image" }
               - { label: "وصف المنتج", name: "description", widget: "text", required: false }
 
           - name: "shipping_rules"
-            label: "3. إعدادات المحافظات والشحن"
+            label: "3. إعدادات الشحن"
             widget: "list"
             fields:
               - { label: "اسم المحافظة", name: "city", widget: "string" }
-              - { label: "سعر الشحن (رقم)", name: "cost", widget: "number", default: 0 }
+              - { label: "سعر الشحن", name: "cost", widget: "number", default: 0 }
