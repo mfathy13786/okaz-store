@@ -1,23 +1,49 @@
-# ... (الكود السابق كما هو)
+backend:
+  name: github
+  repo: "اسم-حسابك/اسم-المستودع" # استبدل ده ببياناتك الحقيقية
+  branch: main
+
+media_folder: "images"
+public_folder: "/images"
+
 collections:
   - name: "store_data"
-    label: "إدارة محتوى المتجر"
+    label: "إدارة المتجر بالكامل"
     delete: false
+    editor:
+      preview: false
     files:
       - name: "content"
-        label: "الأقسام والمنتجات"
+        label: "البيانات (الأقسام - المنتجات - الشحن)"
         file: "data.json"
         fields:
-          # --- إعدادات الشحن الجديدة ---
+          - name: "categories"
+            label: "1. إدارة الأقسام"
+            widget: "list"
+            fields:
+              - { label: "اسم القسم", name: "title", widget: "string" }
+              - { label: "صورة القسم", name: "image", widget: "image" }
+
+          - name: "products"
+            label: "2. إدارة المنتجات"
+            widget: "list"
+            fields:
+              - { label: "اسم المنتج", name: "title", widget: "string" }
+              - { label: "السعر (رقم فقط)", name: "price", widget: "number" }
+              - label: "القسم التابع له"
+                name: "category"
+                widget: "select"
+                options: ["قسم السيوف", "قسم العكازات", "قسم السكاكين", "خناجر", "أخرى"] # عدل الأسماء حسب رغبتك
+              - name: "gallery"
+                label: "ألبوم صور المنتج"
+                widget: "list"
+                fields:
+                  - { label: "الصورة", name: "image", widget: "image" }
+              - { label: "وصف المنتج", name: "description", widget: "text", required: false }
+
           - name: "shipping_rules"
-            label: "3. إعدادات الشحن والمحافظات"
+            label: "3. إعدادات المحافظات والشحن"
             widget: "list"
             fields:
               - { label: "اسم المحافظة", name: "city", widget: "string" }
-              - { label: "سعر الشحن", name: "cost", widget: "number", default: 0 }
-          
-          # --- الأقسام ---
-          - name: "categories"
-            label: "1. الأقسام"
-            widget: "list"
-            # ... (باقي الحقول كما هي)
+              - { label: "سعر الشحن (رقم)", name: "cost", widget: "number", default: 0 }
