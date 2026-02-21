@@ -1,0 +1,36 @@
+backend:
+  name: github
+  repo: your-username/okaz-store # غير your-username لاسم حسابك
+  branch: main
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "categories"
+    label: "إدارة الأقسام"
+    folder: "categories"
+    create: true
+    slug: "{{slug}}"
+    format: "json"
+    fields:
+      - {label: "اسم القسم", name: "title", widget: "string"}
+      
+  - name: "products"
+    label: "المنتجات (سوق عكاز)"
+    folder: "products"
+    create: true
+    slug: "{{slug}}"
+    format: "json"
+    fields:
+      - {label: "اسم المنتج", name: "title", widget: "string"}
+      - {label: "صورة المنتج", name: "image", widget: "image"}
+      - {label: "السعر", name: "price", widget: "number"}
+      - label: "القسم التابع له"
+        name: "category"
+        widget: "relation"
+        collection: "categories"
+        search_fields: ["title"]
+        value_field: "title"
+        display_fields: ["title"]
+      - {label: "متاح في المخزن؟", name: "in_stock", widget: "boolean", default: true}
