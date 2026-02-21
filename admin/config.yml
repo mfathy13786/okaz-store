@@ -1,49 +1,62 @@
 backend:
   name: github
-  repo: "YOUR_USERNAME/YOUR_REPO_NAME" # حط اسم حسابك واسم المستودع هنا
+  repo: mfathy13786/okaz-store
   branch: main
+  base_url: https://okaz-auth.m-fathy-13786.workers.dev
+  site_domain: okaz-store.pages.dev
+  auth_endpoint: api/auth
 
-media_folder: "images"
-public_folder: "/images"
+media_folder: "assets/images"
+public_folder: "/assets/images"
 
 collections:
   - name: "store_data"
-    label: "بيانات المتجر"
+    label: "إدارة محتوى المتجر"
     delete: false
     editor:
       preview: false
     files:
       - name: "content"
-        label: "كل البيانات"
+        label: "الأقسام والمنتجات"
         file: "data.json"
         fields:
+          # --- إعدادات الأقسام ---
           - name: "categories"
-            label: "1. الأقسام"
+            label: "1. الأقسام (صورة واسم)"
             widget: "list"
+            summary: "{{title}}"
             fields:
               - { label: "اسم القسم", name: "title", widget: "string" }
-              - { label: "صورة القسم", name: "image", widget: "image" }
-
+              - { label: "صورة القسم الرئيسي", name: "image", widget: "image" }
+          
+          # --- إعدادات المنتجات ---
           - name: "products"
-            label: "2. المنتجات"
+            label: "2. المنتجات (البضاعة)"
             widget: "list"
+            summary: "{{title}} - {{price}} ج.م"
             fields:
               - { label: "اسم المنتج", name: "title", widget: "string" }
-              - { label: "السعر", name: "price", widget: "number" }
-              - label: "القسم"
-                name: "category"
-                widget: "select"
-                options: ["قسم السيوف", "قسم العكازات", "قسم السكاكين", "خناجر", "أخرى"]
+              - { label: "السعر (جنيه)", name: "price", widget: "number" }
+              - { 
+                  label: "القسم", 
+                  name: "category", 
+                  widget: "relation", 
+                  collection: "store_data", 
+                  file: "content",
+                  search_fields: ["categories.*.title"], 
+                  display_fields: ["categories.*.title"], 
+                  value_field: "categories.*.title" 
+                }
+              # ألبوم صور المنتج
               - name: "gallery"
-                label: "ألبوم صور المنتج"
+                label: "ألبوم صور المنتج (ارفع صورة أو أكتر)"
                 widget: "list"
                 fields:
                   - { label: "صورة", name: "image", widget: "image" }
-              - { label: "وصف المنتج", name: "description", widget: "text", required: false }
-
-          - name: "shipping_rules"
-            label: "3. أسعار الشحن"
-            widget: "list"
-            fields:
-              - { label: "اسم المحافظة", name: "city", widget: "string" }
-              - { label: "سعر الشحن", name: "cost", widget: "number", default: 0 }
+              - { 
+                  label: "شارة التميز (Badge)", 
+                  name: "badge", 
+                  widget: "select", 
+                  options: ["لا يوجد", "الأكثر طلباً", "V.I.P", "طبي"], 
+                  default: "لا يوجد" 
+                }
