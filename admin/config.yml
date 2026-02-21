@@ -1,22 +1,22 @@
-# إعدادات الاتصال بجيت هاب مع حل مشكلة تسجيل الدخول
+# إعدادات الربط مع جيت هاب وسيرفر تسجيل الدخول الخاص بك
 backend:
   name: github
   repo: mfathy13786/okaz-store # اسم حسابك والمستودع
   branch: main
-  # السطرين دول هم الحل لمشكلة الـ Not Found في التسجيل
-  base_url: https://decap-cms-github-proxy.vercel.app
+  # الرابط الخاص بالـ Worker اللي عملناه في كلاود فلير
+  base_url: https://okaz-auth.3yuon.workers.dev 
   auth_endpoint: api/auth
 
 # إعدادات الصور والملفات
-media_folder: "assets/images" # المجلد الذي أنشأته للصور
+media_folder: "assets/images" # المجلد الذي أنشأته في الريبو
 public_folder: "/assets/images"
 
-# تعريف الأقسام والمنتجات
+# تعريف لوحة التحكم للأستاذ صلاح
 collections:
   - name: "products"
     label: "المنتجات (سوق عكاز)"
-    folder: "products" # المجلد الذي أنشأته للبيانات
-    create: true
+    folder: "products" # المجلد المخصص للبيانات
+    create: true # للسماح بإضافة منتجات جديدة
     slug: "{{title}}"
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
@@ -28,4 +28,4 @@ collections:
           options: ["قسم العكاكيز", "قسم الشوم", "قسم السباكة"] 
         }
       - { label: "صورة المنتج", name: "image", widget: "image" }
-      - { label: "وصف مختصر", name: "body", widget: "markdown", required: false }
+      - { label: "وصف المنتج", name: "body", widget: "markdown", required: false }
