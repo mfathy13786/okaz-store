@@ -13,5 +13,20 @@
       "image": "/assets/images/img-20260219-wa0043.jpg"
     }
   ],
-  "products": []
+  "products": [
+    {
+      "badge": "الأكثر طلباً",
+      "category": "عكاز",
+      "title": "عكاز خشب",
+      "price": 55,
+      "image": "/assets/images/fb_img_1771496074046.jpg"
+    },
+    {
+      "badge": "لا يوجد",
+      "category": "عكاز",
+      "title": "عكاز شرموط",
+      "price": 666,
+      "image": "/assets/images/fb_img_1771496052907.jpg"
+    }
+  ]
 }
