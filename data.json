@@ -41,6 +41,13 @@
       "price": 7878,
       "category": "شوم",
       "image": "/assets/images/img-20260219-wa0016.jpg"
+    },
+    {
+      "badge": "V.I.P",
+      "title": "نبوت علق",
+      "price": 88888,
+      "category": "نبوت",
+      "image": "/assets/images/fb_img_1771496038151.jpg"
     }
   ]
 }
