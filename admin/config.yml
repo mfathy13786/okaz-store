@@ -9,42 +9,29 @@ backend:
 media_folder: "assets/images"
 public_folder: "/assets/images"
 
-# تخصيص شكل اللوحة لتناسب براند سوق عكاز
-slug:
-  encoding: "ascii"
-  clean_accents: true
-
 collections:
-  - name: "categories"
-    label: "📂 الأقسام"
-    folder: "categories"
-    create: true
-    fields:
-      - { label: "اسم القسم", name: "title", widget: "string" }
-      - { label: "أيقونة القسم (مثلاً: fas fa-shield-alt)", name: "icon", widget: "string", default: "fas fa-star" }
-
-  - name: "products"
-    label: "🛒 المنتجات"
-    folder: "products"
-    create: true
-    fields:
-      - { label: "اسم المنتج", name: "title", widget: "string" }
-      - { label: "السعر", name: "price", widget: "number" }
-      - { 
-          label: "القسم", 
-          name: "category", 
-          widget: "relation", 
-          collection: "categories", 
-          search_fields: ["title"], 
-          value_field: "title", 
-          display_fields: ["title"] 
-        }
-      - { label: "الصورة", name: "image", widget: "image" }
-      - { label: "الوصف التفصيلي", name: "body", widget: "markdown" }
-      - { 
-          label: "شارة (Badge)", 
-          name: "badge", 
-          widget: "select", 
-          options: ["لا يوجد", "الأكثر طلباً", "V.I.P", "طبي وعملي"],
-          default: "لا يوجد"
-        }
+  - name: "store_data"
+    label: "إدارة محتوى المتجر"
+    delete: false
+    editor:
+      preview: false
+    files:
+      - name: "content"
+        label: "الأقسام والمنتجات"
+        file: "data.json"
+        fields:
+          - name: "categories"
+            label: "الأقسام"
+            widget: "list"
+            fields:
+              - { label: "اسم القسم", name: "title", widget: "string" }
+              - { label: "أيقونة (مثل: fas fa-shield-alt)", name: "icon", widget: "string", default: "fas fa-star" }
+          - name: "products"
+            label: "المنتجات"
+            widget: "list"
+            fields:
+              - { label: "اسم المنتج", name: "title", widget: "string" }
+              - { label: "السعر", name: "price", widget: "number" }
+              - { label: "القسم (اكتب اسم القسم بالضبط)", name: "category", widget: "string" }
+              - { label: "الصورة", name: "image", widget: "image" }
+              - { label: "شارة (Badge)", name: "badge", widget: "select", options: ["لا يوجد", "الأكثر طلباً", "V.I.P", "طبي"], default: "لا يوجد" }
