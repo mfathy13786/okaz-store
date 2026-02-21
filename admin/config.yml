@@ -17,10 +17,10 @@ collections:
       preview: false
     files:
       - name: "content"
-        label: "الأقسام والمنتجات"
+        label: "البيانات (أقسام - منتجات - شحن)"
         file: "data.json"
         fields:
-          # --- إعدادات الأقسام ---
+          # --- 1. إعدادات الأقسام ---
           - name: "categories"
             label: "1. الأقسام (صورة واسم)"
             widget: "list"
@@ -28,10 +28,19 @@ collections:
             fields:
               - { label: "اسم القسم", name: "title", widget: "string" }
               - { label: "صورة القسم الرئيسي", name: "image", widget: "image" }
-          
-          # --- إعدادات المنتجات ---
+
+          # --- 2. إعدادات الشحن والمحافظات ---
+          - name: "shipping_rules"
+            label: "2. إعدادات المحافظات وأسعار الشحن"
+            widget: "list"
+            summary: "{{city}} - {{cost}} ج.م"
+            fields:
+              - { label: "اسم المحافظة", name: "city", widget: "string" }
+              - { label: "سعر الشحن (رقم فقط)", name: "cost", widget: "number", default: 0 }
+
+          # --- 3. إعدادات المنتجات ---
           - name: "products"
-            label: "2. المنتجات (البضاعة)"
+            label: "3. المنتجات (البضاعة)"
             widget: "list"
             summary: "{{title}} - {{price}} ج.م"
             fields:
