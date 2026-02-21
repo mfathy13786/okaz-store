@@ -2,74 +2,154 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سوق عكاز | الرئيسية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سوق عكاز | شوم، عكاز طبي، سيوف مخفية، وتحف</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; text-align: center; }
-        h1 { color: #333; }
-        /* تصميم شبكة المنتجات */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; max-width: 1000px; margin: 20px auto; }
-        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
-        .card img { max-width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
-        .product-title { font-size: 1.2em; font-weight: bold; margin: 10px 0 5px; color: #444; }
-        .category { font-size: 0.9em; color: #777; margin: 0 0 10px; }
-        .price { color: #28a745; font-weight: bold; font-size: 1.3em; margin: 0; }
+        :root { 
+            --primary: #e67e22; 
+            --primary-glow: rgba(230, 126, 34, 0.4);
+            --dark: #121212; 
+            --card-bg: #1e1e1e;
+            --text-light: #ecf0f1; 
+        }
+        * { box-sizing: border-box; }
+        html, body { overflow-x: hidden; width: 100%; margin: 0; padding: 0; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--dark);
+            background-image: radial-gradient(circle at 50% 0%, #3e2714 0%, #0a0a0a 80%);
+            color: var(--text-light);
+            text-align: center;
+        }
+
+        /* الإنميشن وشريط التنقل */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; }
+        .top-nav { position: sticky; top: 0; width: 100%; background: rgba(10, 10, 10, 0.95); border-bottom: 2px solid var(--primary); z-index: 1000; display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; backdrop-filter: blur(10px); }
+        .nav-logo { font-family: 'Reem Kufi', sans-serif; font-size: 1.4em; color: var(--primary); text-decoration: none; }
+        
+        /* الهيدر */
+        .hero-container { position: relative; width: 100%; background: #000; border-bottom: 4px solid var(--primary); margin-bottom: 30px; }
+        .hero-image { width: 100%; height: auto; max-height: 400px; object-fit: contain; }
+
+        /* حاوية الأقسام والمنتجات */
+        .container { max-width: 900px; margin: auto; padding: 10px; }
+        .section-header { background: rgba(230, 126, 34, 0.1); border: 1px solid var(--primary); padding: 8px 15px; border-radius: 8px; margin: 30px 0 15px; display: inline-block; color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
+        .grid-products { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+        /* كارت المنتج */
+        .product-card { background: var(--card-bg); border-radius: 12px; padding: 10px; border: 1px solid #333; display: flex; flex-direction: column; align-items: center; position: relative; transition: 0.3s; }
+        .product-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+        .p-name { font-size: 0.9em; font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        .p-price { font-size: 1.1em; color: #fff; margin-bottom: 10px; }
+        .badge { position: absolute; top: 10px; right: 10px; background: #e74c3c; color: #fff; font-size: 0.7em; padding: 2px 8px; border-radius: 4px; z-index: 5; }
+        
+        /* أزرار التواصل */
+        .btn-buy { width: 100%; padding: 8px; background: rgba(230, 126, 34, 0.1); color: var(--primary); border: 1px solid var(--primary); text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 0.8em; }
+        .float-wa { position: fixed; bottom: 15px; right: 15px; background: #25D366; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #fff; z-index: 1000; }
     </style>
 </head>
 <body>
 
-    <h1>مرحباً بكم في فاترينة "سوق عكاز" 🛍️</h1>
-    <p>هذه المنتجات يتم سحبها تلقائياً من لوحة التحكم</p>
+    <nav class="top-nav">
+        <a href="#" class="nav-logo">سوق عكاز</a>
+        <a href="tel:+201550912888" style="color: #fff; text-decoration: none;"><i class="fas fa-phone-alt"></i></a>
+    </nav>
 
-    <div id="products-container" class="grid">
-        <h3 style="color:#666; grid-column: 1 / -1;">جارِ تحميل البضاعة من المخزن... ⏳</h3>
+    <header class="hero-container fade-in">
+        <img src="assets/images/header-banner.jpg" alt="سوق عكاز" class="hero-image" onerror="this.src='https://via.placeholder.com/800x400?text=سوق+عكاز'">
+    </header>
+
+    <div class="container" id="store-content">
+        <p>جارِ تحميل أحدث المنتجات من المخزن...</p>
     </div>
 
-    <script>
-        async function fetchProducts() {
-            try {
-                // الكود ده بيروح يقرأ ملف المنتجات اللي اللوحة عملته
-                const response = await fetch('products.json');
-                if (!response.ok) throw new Error('لا يوجد ملف منتجات حتى الآن');
-                
-                const data = await response.json();
-                const container = document.getElementById('products-container');
-                container.innerHTML = ''; // تفريغ رسالة التحميل
+    <a href="https://wa.me/201550912888" class="float-wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
 
-                // لو الملف فاضي
-                if (!data.items || data.items.length === 0) {
-                    container.innerHTML = '<h3 style="color:#e74c3c; grid-column: 1 / -1;">المتجر خالي حالياً. برجاء إضافة منتجات من اللوحة!</h3>';
-                    return;
+    <script>
+        // المحرك الذكي لسحب البيانات
+        async function loadStore() {
+            try {
+                // 1. نجلب الأقسام
+                const catRes = await fetch('https://api.github.com/repos/mfathy13786/okaz-store/contents/categories');
+                const catFiles = await catRes.json();
+                
+                // 2. نجلب المنتجات
+                const prodRes = await fetch('https://api.github.com/repos/mfathy13786/okaz-store/contents/products');
+                const prodFiles = await prodRes.json();
+
+                const storeContent = document.getElementById('store-content');
+                storeContent.innerHTML = ''; // مسح رسالة التحميل
+
+                // دالة لقراءة محتوى ملف وتحويله لبيانات
+                async function getFileData(url) {
+                    const res = await fetch(url);
+                    const content = await res.json();
+                    // فك تشفير Base64 اللي جيت هاب بيبعته
+                    const decoded = b64DecodeUnicode(content.content);
+                    // تحويل الـ Frontmatter (Markdown) لـ Object بسيط
+                    const obj = {};
+                    decoded.split('---')[1].split('\n').forEach(line => {
+                        const parts = line.split(':');
+                        if (parts.length > 1) obj[parts[0].trim()] = parts[1].trim().replace(/"/g, '');
+                    });
+                    return obj;
                 }
 
-                // عرض المنتجات في الفاترينة
-                data.items.forEach(product => {
-                    // معالجة الصورة (عشان تظهر صح لو مسارها اتغير)
-                    const imgSrc = product.image ? product.image : 'https://via.placeholder.com/250?text=لا+توجد+صورة';
+                // فك تشفير اليونيكود (عشان العربي ميظهرش رموز)
+                function b64DecodeUnicode(str) {
+                    return decodeURIComponent(atob(str).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                }
+
+                // معالجة الأقسام والمنتجات
+                const categories = [];
+                for (let file of catFiles) {
+                    categories.push(await getFileData(file.url));
+                }
+
+                const products = [];
+                for (let file of prodFiles) {
+                    products.push(await getFileData(file.url));
+                }
+
+                // العرض في الصفحة
+                categories.forEach(cat => {
+                    const section = document.createElement('div');
+                    section.className = 'fade-in';
+                    section.innerHTML = `<div class="section-header"><i class="${cat.icon || 'fas fa-star'}"></i> ${cat.title}</div>`;
                     
-                    // رسم الكارت
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <img src="${imgSrc}" alt="${product.title}">
-                        <div class="product-title">${product.title}</div>
-                        <div class="category">قسم: ${product.category}</div>
-                        <div class="price">${product.price} ج.م</div>
-                    `;
-                    container.appendChild(card);
+                    const grid = document.createElement('div');
+                    grid.className = 'grid-products';
+
+                    const catProducts = products.filter(p => p.category === cat.title);
+                    catProducts.forEach(p => {
+                        grid.innerHTML += `
+                            <div class="product-card">
+                                ${p.badge && p.badge !== 'لا يوجد' ? `<div class="badge">${p.badge}</div>` : ''}
+                                <img src="${p.image}" onerror="this.src='https://via.placeholder.com/150?text=منتج'">
+                                <span class="p-name">${p.title}</span>
+                                <span class="p-price">${p.price} ج.م</span>
+                                <a href="https://wa.me/201550912888?text=استفسار عن ${p.title}" class="btn-buy" target="_blank">طلب المنتج</a>
+                            </div>
+                        `;
+                    });
+
+                    section.appendChild(grid);
+                    storeContent.appendChild(section);
                 });
 
-            } catch (error) {
-                document.getElementById('products-container').innerHTML = 
-                    '<h3 style="color:#e74c3c; grid-column: 1 / -1;">لم يتم إنشاء قاعدة البيانات بعد. برجاء الدخول للوحة التحكم وإضافة أول منتج لبرمجة الموقع!</h3>';
-                console.error("Error loading products:", error);
+            } catch (e) {
+                console.error(e);
+                document.getElementById('store-content').innerHTML = "تأكد من إضافة أقسام ومنتجات من لوحة التحكم أولاً.";
             }
         }
 
-        // تشغيل المحرك
-        fetchProducts();
+        loadStore();
     </script>
-
 </body>
 </html>
