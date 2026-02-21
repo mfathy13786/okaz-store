@@ -12,17 +12,17 @@ public_folder: "/assets/images"
 collections:
   - name: "store_data"
     label: "إدارة محتوى المتجر"
-    delete: false # لمنع مسح الملف الأساسي بالخطأ
+    delete: false
     editor:
       preview: false
     files:
       - name: "content"
         label: "الأقسام والمنتجات"
-        file: "data.json" # الملف اللي بيتخزن فيه كل حاجة
+        file: "data.json"
         fields:
           # --- إعدادات الأقسام ---
           - name: "categories"
-            label: "1. الأقسام (صور وأسماء)"
+            label: "1. الأقسام (صورة واسم)"
             widget: "list"
             summary: "{{title}}"
             fields:
@@ -47,7 +47,12 @@ collections:
                   display_fields: ["categories.*.title"], 
                   value_field: "categories.*.title" 
                 }
-              - { label: "صورة المنتج", name: "image", widget: "image" }
+              # ألبوم صور المنتج
+              - name: "gallery"
+                label: "ألبوم صور المنتج (ارفع صورة أو أكتر)"
+                widget: "list"
+                fields:
+                  - { label: "صورة", name: "image", widget: "image" }
               - { 
                   label: "شارة التميز (Badge)", 
                   name: "badge", 
