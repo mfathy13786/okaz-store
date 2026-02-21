@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: "اسم-حسابك/اسم-المستودع"
+  repo: "YOUR_USERNAME/YOUR_REPO_NAME" # حط اسم حسابك واسم المستودع هنا
   branch: main
 
 media_folder: "images"
@@ -14,7 +14,7 @@ collections:
       preview: false
     files:
       - name: "content"
-        label: "الأقسام والمنتجات والشحن"
+        label: "كل البيانات"
         file: "data.json"
         fields:
           - name: "categories"
@@ -35,14 +35,14 @@ collections:
                 widget: "select"
                 options: ["قسم السيوف", "قسم العكازات", "قسم السكاكين", "خناجر", "أخرى"]
               - name: "gallery"
-                label: "صور المنتج"
+                label: "ألبوم صور المنتج"
                 widget: "list"
                 fields:
                   - { label: "صورة", name: "image", widget: "image" }
               - { label: "وصف المنتج", name: "description", widget: "text", required: false }
 
           - name: "shipping_rules"
-            label: "3. إعدادات الشحن"
+            label: "3. أسعار الشحن"
             widget: "list"
             fields:
               - { label: "اسم المحافظة", name: "city", widget: "string" }
