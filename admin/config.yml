@@ -10,6 +10,16 @@ media_folder: "assets/images"
 public_folder: "/assets/images"
 
 collections:
+  # 1. لوحة إدارة الأقسام
+  - name: "categories"
+    label: "الأقسام"
+    folder: "categories"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "اسم القسم", name: "title", widget: "string" }
+
+  # 2. لوحة إدارة المنتجات
   - name: "products"
     label: "المنتجات (سوق عكاز)"
     folder: "products"
@@ -18,6 +28,14 @@ collections:
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
       - { label: "السعر (جنيه)", name: "price", widget: "number" }
-      - { label: "القسم", name: "category", widget: "select", options: ["قسم العكاكيز", "قسم الشوم", "قسم السباكة"] }
+      - { 
+          label: "القسم", 
+          name: "category", 
+          widget: "relation", 
+          collection: "categories", 
+          search_fields: ["title"], 
+          value_field: "title", 
+          display_fields: ["title"] 
+        }
       - { label: "صورة المنتج", name: "image", widget: "image" }
       - { label: "وصف المنتج", name: "body", widget: "markdown", required: false }
