@@ -10,32 +10,18 @@ media_folder: "assets/images"
 public_folder: "/assets/images"
 
 collections:
-  # 1. لوحة إدارة الأقسام
-  - name: "categories"
-    label: "الأقسام"
-    folder: "categories"
-    create: true
-    slug: "{{slug}}"
-    fields:
-      - { label: "اسم القسم", name: "title", widget: "string" }
-
-  # 2. لوحة إدارة المنتجات
-  - name: "products"
-    label: "المنتجات (سوق عكاز)"
-    folder: "products"
-    create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
-    fields:
-      - { label: "اسم المنتج", name: "title", widget: "string" }
-      - { label: "السعر (جنيه)", name: "price", widget: "number" }
-      - { 
-          label: "القسم", 
-          name: "category", 
-          widget: "relation", 
-          collection: "categories", 
-          search_fields: ["title"], 
-          value_field: "title", 
-          display_fields: ["title"] 
-        }
-      - { label: "صورة المنتج", name: "image", widget: "image" }
-      - { label: "وصف المنتج", name: "body", widget: "markdown", required: false }
+  - name: "database"
+    label: "قاعدة بيانات المتجر"
+    files:
+      - label: "سجل المنتجات"
+        name: "products_db"
+        file: "products.json"
+        fields:
+          - name: "items"
+            label: "قائمة المنتجات (أضف منتج من هنا)"
+            widget: "list"
+            fields:
+              - { label: "اسم المنتج", name: "title", widget: "string" }
+              - { label: "السعر (جنيه)", name: "price", widget: "number" }
+              - { label: "القسم", name: "category", widget: "string", default: "عام" }
+              - { label: "صورة المنتج", name: "image", widget: "image" }
