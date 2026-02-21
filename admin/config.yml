@@ -1,22 +1,19 @@
-# إعدادات الربط مع جيت هاب وسيرفر تسجيل الدخول الخاص بك
 backend:
   name: github
-  repo: mfathy13786/okaz-store # اسم حسابك والمستودع
+  repo: mfathy13786/okaz-store
   branch: main
-  # الرابط الخاص بالـ Worker اللي عملناه في كلاود فلير
-  base_url: https://okaz-auth.3yuon.workers.dev 
+  # ده الرابط الصح للسيرفر بتاعك اللي شغال دلوقتي
+  base_url: https://okaz-auth.m-fathy-13786.workers.dev
   auth_endpoint: api/auth
 
-# إعدادات الصور والملفات
-media_folder: "assets/images" # المجلد الذي أنشأته في الريبو
+media_folder: "assets/images"
 public_folder: "/assets/images"
 
-# تعريف لوحة التحكم للأستاذ صلاح
 collections:
   - name: "products"
     label: "المنتجات (سوق عكاز)"
-    folder: "products" # المجلد المخصص للبيانات
-    create: true # للسماح بإضافة منتجات جديدة
+    folder: "products"
+    create: true
     slug: "{{title}}"
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
