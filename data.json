@@ -1,4 +1,17 @@
 {
-  "categories": [],
+  "categories": [
+    {
+      "title": "عكاز",
+      "image": "/assets/images/img-20260219-wa0034.jpg"
+    },
+    {
+      "title": "شوم",
+      "image": "/assets/images/fb_img_1771496102443.jpg"
+    },
+    {
+      "title": "نبوت",
+      "image": "/assets/images/img-20260219-wa0043.jpg"
+    }
+  ],
   "products": []
 }
