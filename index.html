@@ -3,74 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>سوق عكاز | الرئيسية</title>
+    <title>سوق عكاز | المتجر</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary: #e67e22; --dark: #121212; --card-bg: #1e1e1e; --text-light: #ecf0f1; }
-        body { font-family: 'Cairo', sans-serif; background-color: var(--dark); background-image: radial-gradient(circle at 50% 0%, #3e2714 0%, #0a0a0a 80%); color: var(--text-light); text-align: center; margin: 0; padding: 0; }
+        body { font-family: 'Cairo', sans-serif; background-color: var(--dark); background-image: radial-gradient(circle at 50% 0%, #3e2714 0%, #0a0a0a 80%); color: var(--text-light); text-align: center; margin: 0; padding: 0; min-height: 100vh; }
+        
+        /* الهيدر */
         .top-nav { position: sticky; top: 0; background: rgba(10, 10, 10, 0.95); border-bottom: 2px solid var(--primary); padding: 10px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+        .nav-logo { color:var(--primary); text-decoration:none; font-family:'Reem Kufi'; font-size:1.4em; cursor: pointer; }
+        
         .container { max-width: 900px; margin: auto; padding: 15px; }
-        .section-header { background: rgba(230, 126, 34, 0.1); border: 1px solid var(--primary); padding: 8px 20px; border-radius: 8px; margin: 30px 0 15px; display: inline-block; color: var(--primary); font-family: 'Reem Kufi', sans-serif; }
-        .grid-products { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .product-card { background: var(--card-bg); border-radius: 12px; padding: 10px; border: 1px solid #333; position: relative; display: flex; flex-direction: column; }
-        .product-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; }
-        .badge { position: absolute; top: 5px; right: 5px; background: #e74c3c; color: #fff; font-size: 0.6em; padding: 3px 7px; border-radius: 4px; font-weight: bold; }
-        .p-name { font-size: 0.9em; font-weight: bold; margin: 8px 0; color: var(--primary); }
-        .p-price { font-size: 1em; color: #fff; margin-bottom: 10px; }
-        .btn-buy { background: var(--primary); color: #000; text-decoration: none; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 0.8em; }
-        .float-wa { position: fixed; bottom: 20px; right: 20px; background: #25D366; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #fff; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        
+        /* تصميم كروت الأقسام (في الرئيسية) */
+        .category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px; }
+        .category-card { background: var(--card-bg); border: 2px solid #333; border-radius: 15px; padding: 30px 10px; cursor: pointer; transition: 0.3s; }
+        .category-card:hover { border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 5px 15px var(--primary-glow); }
+        .category-card i { font-size: 3em; color: var(--primary); margin-bottom: 15px; }
+        .category-card h3 { margin: 0; font-size: 1.2em; }
+
+        /* تصميم كروت المنتجات (داخل القسم) */
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .product-card { background: var(--card-bg); border-radius: 12px; padding: 10px; border: 1px solid #333; position: relative; text-align: right; }
+        .product-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; }
+        .p-name { display: block; font-size: 0.9em; font-weight: bold; margin: 8px 0; color: var(--primary); }
+        .p-price { font-size: 1.1em; color: #fff; font-weight: bold; }
+        .btn-buy { display: block; background: var(--primary); color: #000; text-decoration: none; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 0.8em; text-align: center; margin-top: 10px; }
+        
+        /* زرار الرجوع */
+        .back-btn { display: inline-block; margin-bottom: 20px; color: #ccc; cursor: pointer; font-size: 0.9em; border: 1px solid #444; padding: 5px 15px; border-radius: 20px; }
+        .back-btn:hover { color: var(--primary); border-color: var(--primary); }
+
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
     <nav class="top-nav">
-        <a href="#" style="color:var(--primary); text-decoration:none; font-family:'Reem Kufi'; font-size:1.4em;">سوق عكاز</a>
+        <div class="nav-logo" onclick="showHome()">سوق عكاز</div>
         <a href="tel:+201550912888" style="color:#fff;"><i class="fas fa-phone-alt"></i></a>
     </nav>
 
-    <div class="container" id="main-container">
-        <p id="loading-msg">جارِ فتح المحل... ⏳</p>
+    <div class="container">
+        <div id="home-view">
+            <h2 style="font-family: 'Reem Kufi'; color: var(--primary);">أقسام المتجر</h2>
+            <div class="category-grid" id="category-list">
+                </div>
+        </div>
+
+        <div id="category-view" class="hidden">
+            <div class="back-btn" onclick="showHome()"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</div>
+            <h2 id="current-category-name" style="color: var(--primary); font-family: 'Reem Kufi';"></h2>
+            <div class="product-grid" id="product-list">
+                </div>
+        </div>
     </div>
 
-    <a href="https://wa.me/201550912888" class="float-wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
-
     <script>
-        async function loadStore() {
+        let storeData = null;
+
+        async function initStore() {
             try {
-                const response = await fetch('data.json');
-                if (!response.ok) throw new Error();
-                const data = await response.json();
-                
-                const container = document.getElementById('main-container');
-                container.innerHTML = '';
-
-                data.categories.forEach(cat => {
-                    const section = document.createElement('div');
-                    section.innerHTML = `<div class="section-header"><i class="${cat.icon}"></i> ${cat.title}</div>`;
-                    
-                    const grid = document.createElement('div');
-                    grid.className = 'grid-products';
-
-                    const catProds = data.products.filter(p => p.category === cat.title);
-                    catProds.forEach(p => {
-                        grid.innerHTML += `
-                            <div class="product-card">
-                                ${p.badge !== 'لا يوجد' ? `<div class="badge">${p.badge}</div>` : ''}
-                                <img src="${p.image}" onerror="this.src='https://via.placeholder.com/150'">
-                                <span class="p-name">${p.title}</span>
-                                <span class="p-price">${p.price} ج.م</span>
-                                <a href="https://wa.me/201550912888?text=اطلب: ${p.title}" class="btn-buy">اطلب الآن</a>
-                            </div>`;
-                    });
-                    section.appendChild(grid);
-                    container.appendChild(section);
-                });
+                const res = await fetch('data.json');
+                storeData = await res.json();
+                renderCategories();
             } catch (e) {
-                document.getElementById('loading-msg').innerHTML = "المحل جاهز! ادخل لوحة التحكم وأضف أول قسم ومنتج لكي تظهر هنا.";
+                document.getElementById('category-list').innerHTML = "<p>برجاء إضافة بيانات من لوحة التحكم</p>";
             }
         }
-        loadStore();
+
+        function renderCategories() {
+            const list = document.getElementById('category-list');
+            list.innerHTML = '';
+            storeData.categories.forEach(cat => {
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.onclick = () => showCategory(cat.title);
+                card.innerHTML = `
+                    <i class="${cat.icon || 'fas fa-star'}"></i>
+                    <h3>${cat.title}</h3>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function showCategory(catName) {
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('category-view').classList.remove('hidden');
+            document.getElementById('current-category-name').innerText = catName;
+            
+            const list = document.getElementById('product-list');
+            list.innerHTML = '';
+            
+            const filtered = storeData.products.filter(p => p.category === catName);
+            
+            if(filtered.length === 0) {
+                list.innerHTML = "<p style='grid-column: 1/-1;'>قريباً.. جاري تجهيز منتجات هذا القسم</p>";
+                return;
+            }
+
+            filtered.forEach(p => {
+                list.innerHTML += `
+                    <div class="product-card">
+                        <img src="${p.image}" onerror="this.src='https://via.placeholder.com/150'">
+                        <span class="p-name">${p.title}</span>
+                        <span class="p-price">${p.price} ج.م</span>
+                        <a href="https://wa.me/201550912888?text=اطلب: ${p.title}" class="btn-buy">اطلب واتساب</a>
+                    </div>
+                `;
+            });
+            window.scrollTo(0,0);
+        }
+
+        function showHome() {
+            document.getElementById('home-view').classList.remove('hidden');
+            document.getElementById('category-view').classList.add('hidden');
+        }
+
+        initStore();
     </script>
 </body>
 </html>
