@@ -3,42 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>سوق عكاز | المتجر الرسمي</title>
+    <title>سوق عكاز | المتجر المطور</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+
     <style>
         :root { --primary: #e67e22; --dark: #121212; --card-bg: #1e1e1e; --text-light: #ecf0f1; }
         body { font-family: 'Cairo', sans-serif; background-color: var(--dark); background-image: radial-gradient(circle at 50% 0%, #3e2714 0%, #0a0a0a 80%); color: var(--text-light); text-align: center; margin: 0; padding: 0; min-height: 100vh; }
         
-        /* شريط التنقل */
-        .top-nav { position: sticky; top: 0; background: rgba(10, 10, 10, 0.95); border-bottom: 2px solid var(--primary); padding: 10px 20px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+        .top-nav { position: sticky; top: 0; background: rgba(10, 10, 10, 0.95); border-bottom: 2px solid var(--primary); padding: 10px 20px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); }
         .nav-logo { color:var(--primary); text-decoration:none; font-family:'Reem Kufi'; font-size:1.4em; cursor: pointer; }
         
         .container { max-width: 900px; margin: auto; padding: 15px; }
 
-        /* كروت الأقسام (في الرئيسية) */
-        .category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px; }
+        /* الأقسام */
+        .category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px; }
         .category-card { background: var(--card-bg); border: 2px solid #333; border-radius: 15px; overflow: hidden; cursor: pointer; transition: 0.3s; }
         .category-card:hover { border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3); }
         .category-card img { width: 100%; height: 130px; object-fit: cover; border-bottom: 2px solid var(--primary); }
         .category-card h3 { margin: 12px 0; font-size: 1.1em; color: var(--text-light); }
 
-        /* كروت المنتجات (داخل القسم) */
+        /* المنتجات */
         .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .product-card { background: var(--card-bg); border-radius: 12px; padding: 10px; border: 1px solid #333; position: relative; text-align: right; }
-        .product-card img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; }
-        .badge { position: absolute; top: 15px; right: 15px; background: #e74c3c; color: #fff; font-size: 0.65em; padding: 3px 8px; border-radius: 4px; font-weight: bold; z-index: 10; }
-        .p-name { display: block; font-size: 0.95em; font-weight: bold; margin: 8px 0; color: var(--primary); }
-        .p-price { font-size: 1.1em; color: #fff; font-weight: bold; }
-        .btn-buy { display: block; background: var(--primary); color: #000; text-decoration: none; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 0.85em; text-align: center; margin-top: 10px; }
+        .product-card { background: var(--card-bg); border-radius: 12px; padding: 10px; border: 1px solid #333; position: relative; text-align: right; display: flex; flex-direction: column; }
+        .main-img-container { position: relative; width: 100%; height: 160px; cursor: pointer; overflow: hidden; border-radius: 8px; }
+        .main-img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .product-card:hover .main-img { transform: scale(1.05); }
         
-        /* زرار الرجوع */
+        /* أيقونة عدد الصور */
+        .img-count { position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.7); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7em; z-index: 5; }
+        .badge { position: absolute; top: 10px; right: 10px; background: #e74c3c; color: #fff; font-size: 0.6em; padding: 3px 7px; border-radius: 4px; font-weight: bold; z-index: 10; }
+
+        .p-name { display: block; font-size: 0.95em; font-weight: bold; margin: 8px 0; color: var(--primary); }
+        .p-price { font-size: 1.1em; color: #fff; font-weight: bold; margin-bottom: 10px; }
+        .btn-buy { display: block; background: var(--primary); color: #000; text-decoration: none; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 0.85em; text-align: center; margin-top: auto; }
+        
         .back-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-        .back-btn { color: #ccc; cursor: pointer; font-size: 0.9em; border: 1px solid #444; padding: 8px 15px; border-radius: 20px; transition: 0.3s; }
-        .back-btn:hover { background: var(--primary); color: #000; border-color: var(--primary); }
+        .back-btn { color: #ccc; cursor: pointer; font-size: 0.9em; border: 1px solid #444; padding: 8px 15px; border-radius: 20px; }
 
         .hidden { display: none; }
-        .fade-in { animation: fadeIn 0.5s ease-in; }
+        .fade-in { animation: fadeIn 0.4s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -46,65 +52,53 @@
 
     <nav class="top-nav">
         <div class="nav-logo" onclick="window.location.reload()">سوق عكاز</div>
-        <a href="tel:+201550912888" style="color:#fff; font-size: 1.2em;"><i class="fas fa-phone-alt"></i></a>
+        <a href="tel:+201550912888" style="color:#fff;"><i class="fas fa-phone-alt"></i></a>
     </nav>
 
     <div class="container">
         <div id="home-view" class="fade-in">
-            <h2 style="font-family: 'Reem Kufi'; color: var(--primary); margin-top: 10px;">أقسام سوق عكاز</h2>
-            <div class="category-grid" id="category-list">
-                </div>
+            <h2 style="font-family: 'Reem Kufi'; color: var(--primary);">أقسام المتجر</h2>
+            <div class="category-grid" id="category-list"></div>
         </div>
 
         <div id="category-view" class="hidden fade-in">
             <div class="back-header">
-                <div class="back-btn" onclick="showHome()"><i class="fas fa-arrow-right"></i> رجوع للرئيسية</div>
+                <div class="back-btn" onclick="showHome()">← رجوع</div>
                 <h2 id="current-category-name" style="color: var(--primary); font-family: 'Reem Kufi'; margin: 0;"></h2>
             </div>
-            <div class="product-grid" id="product-list">
-                </div>
+            <div class="product-grid" id="product-list"></div>
         </div>
     </div>
 
     <a href="https://wa.me/201550912888" style="position:fixed; bottom:20px; right:20px; background:#25D366; color:#fff; width:55px; height:55px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.8em; z-index:1000; box-shadow:0 4px 10px rgba(0,0,0,0.5); text-decoration:none;"><i class="fab fa-whatsapp"></i></a>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
     <script>
         let storeData = null;
+        let lightboxInstances = [];
 
-        // 1. جلب البيانات من ملف JSON
         async function initStore() {
             try {
                 const res = await fetch('data.json');
-                if (!res.ok) throw new Error();
                 storeData = await res.json();
                 renderCategories();
             } catch (e) {
-                document.getElementById('category-list').innerHTML = `
-                    <p style="grid-column: 1/-1; padding: 20px; color: #888;">
-                        المحل جاهز للعمل!<br>ادخل لوحة التحكم وأضف الأقسام والمنتجات لكي تظهر هنا.
-                    </p>`;
+                document.getElementById('category-list').innerHTML = "<p>برجاء إضافة أقسام ومنتجات من لوحة التحكم</p>";
             }
         }
 
-        // 2. عرض الأقسام في الصفحة الرئيسية
         function renderCategories() {
             const list = document.getElementById('category-list');
             list.innerHTML = '';
-            if (storeData && storeData.categories) {
-                storeData.categories.forEach(cat => {
-                    const card = document.createElement('div');
-                    card.className = 'category-card';
-                    card.onclick = () => showCategory(cat.title);
-                    card.innerHTML = `
-                        <img src="${cat.image}" onerror="this.src='https://via.placeholder.com/300x150?text=قسم+عكاز'">
-                        <h3>${cat.title}</h3>
-                    `;
-                    list.appendChild(card);
-                });
-            }
+            storeData.categories.forEach(cat => {
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.onclick = () => showCategory(cat.title);
+                card.innerHTML = `<img src="${cat.image}"><h3>${cat.title}</h3>`;
+                list.appendChild(card);
+            });
         }
 
-        // 3. عرض منتجات قسم معين
         function showCategory(catName) {
             document.getElementById('home-view').classList.add('hidden');
             document.getElementById('category-view').classList.remove('hidden');
@@ -113,28 +107,52 @@
             const list = document.getElementById('product-list');
             list.innerHTML = '';
             
+            // تنظيف أي مكتبات قديمة
+            lightboxInstances.forEach(inst => inst.destroy());
+            lightboxInstances = [];
+
             const filtered = storeData.products.filter(p => p.category === catName);
             
-            if(!filtered || filtered.length === 0) {
-                list.innerHTML = "<p style='grid-column: 1/-1; color: #888; padding: 40px;'>قريباً.. جاري تجهيز منتجات هذا القسم</p>";
-                return;
-            }
+            filtered.forEach((p, idx) => {
+                const hasGallery = p.gallery && p.gallery.length > 0;
+                const firstImg = hasGallery ? p.gallery[0].image : 'https://via.placeholder.com/200';
+                
+                // إنشاء كود الألبوم المخفي
+                let galleryLinks = '';
+                if(hasGallery) {
+                    p.gallery.forEach(imgObj => {
+                        galleryLinks += `<a href="${imgObj.image}" class="glightbox-${idx}" style="display:none"></a>`;
+                    });
+                }
 
-            filtered.forEach(p => {
                 list.innerHTML += `
                     <div class="product-card">
                         ${p.badge && p.badge !== 'لا يوجد' ? `<div class="badge">${p.badge}</div>` : ''}
-                        <img src="${p.image}" onerror="this.src='https://via.placeholder.com/200x200?text=منتج'">
+                        <div class="main-img-container" onclick="openLightbox(${idx})">
+                            <img src="${firstImg}" class="main-img">
+                            ${hasGallery ? `<div class="img-count"><i class="fas fa-images"></i> ${p.gallery.length}</div>` : ''}
+                        </div>
                         <span class="p-name">${p.title}</span>
                         <span class="p-price">${p.price} ج.م</span>
-                        <a href="https://wa.me/201550912888?text=استفسار عن ${p.title} في قسم ${catName}" class="btn-buy" target="_blank">اطلب الآن</a>
+                        <a href="https://wa.me/201550912888?text=طلب: ${p.title}" class="btn-buy" target="_blank">اطلب الآن</a>
+                        ${galleryLinks}
                     </div>
                 `;
+
+                // تفعيل المكتبة لهذا الكارت
+                setTimeout(() => {
+                    const lb = GLightbox({ selector: `.glightbox-${idx}` });
+                    lightboxInstances.push(lb);
+                }, 10);
             });
             window.scrollTo(0,0);
         }
 
-        // 4. العودة للرئيسية
+        function openLightbox(idx) {
+            const link = document.querySelector(`.glightbox-${idx}`);
+            if(link) link.click();
+        }
+
         function showHome() {
             document.getElementById('home-view').classList.remove('hidden');
             document.getElementById('category-view').classList.add('hidden');
