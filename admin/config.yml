@@ -2,7 +2,6 @@ backend:
   name: github
   repo: mfathy13786/okaz-store
   branch: main
-  # ده الرابط الصح للسيرفر بتاعك اللي شغال دلوقتي
   base_url: https://okaz-auth.m-fathy-13786.workers.dev
   auth_endpoint: api/auth
 
@@ -14,7 +13,7 @@ collections:
     label: "المنتجات (سوق عكاز)"
     folder: "products"
     create: true
-    slug: "{{title}}"
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
       - { label: "السعر (جنيه)", name: "price", widget: "number" }
