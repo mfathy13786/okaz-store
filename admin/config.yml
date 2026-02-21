@@ -12,30 +12,31 @@ public_folder: "/assets/images"
 collections:
   - name: "store_data"
     label: "إدارة محتوى المتجر"
-    delete: false
+    delete: false # لمنع مسح الملف الأساسي بالخطأ
     editor:
       preview: false
     files:
       - name: "content"
         label: "الأقسام والمنتجات"
-        file: "data.json"
+        file: "data.json" # الملف اللي بيتخزن فيه كل حاجة
         fields:
-          # أولاً: قائمة الأقسام
+          # --- إعدادات الأقسام ---
           - name: "categories"
-            label: "1. الأقسام (ضيف الأقسام هنا الأول)"
+            label: "1. الأقسام (صور وأسماء)"
             widget: "list"
+            summary: "{{title}}"
             fields:
               - { label: "اسم القسم", name: "title", widget: "string" }
-              - { label: "أيقونة", name: "icon", widget: "string", default: "fas fa-star" }
+              - { label: "صورة القسم الرئيسي", name: "image", widget: "image" }
           
-          # ثانياً: قائمة المنتجات
+          # --- إعدادات المنتجات ---
           - name: "products"
-            label: "2. المنتجات"
+            label: "2. المنتجات (البضاعة)"
             widget: "list"
+            summary: "{{title}} - {{price}} ج.م"
             fields:
               - { label: "اسم المنتج", name: "title", widget: "string" }
-              - { label: "السعر", name: "price", widget: "number" }
-              # هنا السحر! هيختار من الأقسام اللي فوق أوتوماتيك
+              - { label: "السعر (جنيه)", name: "price", widget: "number" }
               - { 
                   label: "القسم", 
                   name: "category", 
@@ -46,9 +47,9 @@ collections:
                   display_fields: ["categories.*.title"], 
                   value_field: "categories.*.title" 
                 }
-              - { label: "الصورة", name: "image", widget: "image" }
+              - { label: "صورة المنتج", name: "image", widget: "image" }
               - { 
-                  label: "شارة (Badge)", 
+                  label: "شارة التميز (Badge)", 
                   name: "badge", 
                   widget: "select", 
                   options: ["لا يوجد", "الأكثر طلباً", "V.I.P", "طبي"], 
