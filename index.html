@@ -3,51 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>سوق عكاز | طلبات الشحن</title>
+    <title>سوق عكاز | المتجر المطور</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
 
     <style>
         :root { --primary: #e67e22; --dark: #121212; --card-bg: #1e1e1e; --text-light: #ecf0f1; }
-        body { font-family: 'Cairo', sans-serif; background-color: var(--dark); color: var(--text-light); text-align: center; margin: 0; padding: 0; }
+        body { font-family: 'Cairo', sans-serif; background-color: var(--dark); color: var(--text-light); margin: 0; padding: 0; overflow-x: hidden; }
         
-        .top-nav { position: sticky; top: 0; background: rgba(10, 10, 10, 0.95); border-bottom: 2px solid var(--primary); padding: 10px 20px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
-        .nav-logo { color:var(--primary); font-family:'Reem Kufi'; font-size:1.4em; cursor: pointer; }
+        /* الهيدر */
+        .top-nav { position: sticky; top: 0; background: rgba(10, 10, 10, 0.98); border-bottom: 2px solid var(--primary); padding: 12px 20px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+        .nav-logo { color:var(--primary); font-family:'Reem Kufi'; font-size:1.4em; cursor: pointer; text-decoration: none; }
         
-        .cart-btn-nav { position: relative; cursor: pointer; color: #fff; font-size: 1.3em; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
-        .cart-count { position: absolute; top: 2px; right: 2px; background: var(--primary); color: #000; font-size: 0.65em; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .cart-btn-nav { position: relative; cursor: pointer; color: #fff; font-size: 1.3em; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+        .cart-count { position: absolute; top: 0; right: 0; background: var(--primary); color: #000; font-size: 0.7em; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
         .container { max-width: 900px; margin: auto; padding: 15px; }
 
-        /* الكروت */
+        /* الأقسام والمنتجات */
         .category-grid, .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .category-card, .product-card { background: var(--card-bg); border-radius: 12px; border: 1px solid #333; overflow: hidden; position: relative; display: flex; flex-direction: column; }
-        .img-wrap { width: 100%; height: 150px; cursor: pointer; position: relative; }
+        .product-card { background: var(--card-bg); border-radius: 12px; border: 1px solid #333; overflow: hidden; display: flex; flex-direction: column; text-align: right; }
+        .img-wrap { width: 100%; height: 160px; cursor: pointer; position: relative; }
         .img-wrap img { width: 100%; height: 100%; object-fit: cover; }
         
-        .p-info { padding: 10px; text-align: right; }
-        .p-name { color: var(--primary); font-weight: bold; font-size: 0.9em; height: 35px; overflow: hidden; }
-        .p-price { color: #fff; font-weight: bold; margin: 5px 0; }
+        .p-info { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .p-name { color: var(--primary); font-weight: bold; font-size: 0.95em; margin-bottom: 8px; }
+        .p-price { color: #fff; font-weight: 900; font-size: 1.1em; }
         
-        .btn-add { background: none; border: 1px solid var(--primary); color: var(--primary); padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.8em; font-weight: bold; width: 100%; }
+        .btn-add { background: var(--primary); color: #000; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; width: 100%; }
 
-        /* مودال السلة والشحن */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; justify-content: center; align-items: center; overflow-y: auto; }
-        .modal-box { background: #1a1a1a; width: 90%; max-width: 450px; border-radius: 20px; padding: 20px; border: 1px solid var(--primary); margin: 20px 0; }
+        /* مودال السلة المصلح */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; display: none; overflow-y: auto; padding-top: 20px; }
+        .modal-box { background: #1a1a1a; width: 92%; max-width: 480px; border-radius: 20px; padding: 25px; border: 1px solid var(--primary); margin: 0 auto 40px auto; position: relative; box-sizing: border-box; }
         
-        .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding: 10px 0; font-size: 0.9em; }
-        .qty-controls { display: flex; align-items: center; gap: 8px; background: #222; padding: 4px 8px; border-radius: 8px; }
-        .qty-btn { background: var(--primary); border: none; width: 22px; height: 22px; border-radius: 50%; font-weight: bold; cursor: pointer; }
+        .close-modal { position: sticky; top: 0; background: #e74c3c; color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 20px; z-index: 10; }
 
-        /* فورم بيانات الشحن */
-        .shipping-form { margin-top: 20px; text-align: right; border-top: 1px dashed #444; padding-top: 15px; }
-        .shipping-form label { display: block; font-size: 0.85em; color: var(--primary); margin-bottom: 5px; }
-        .shipping-form input, .shipping-form select, .shipping-form textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; margin-bottom: 12px; font-family: 'Cairo'; box-sizing: border-box; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding: 15px 0; }
+        .qty-controls { display: flex; align-items: center; gap: 12px; background: #222; padding: 6px 12px; border-radius: 10px; border: 1px solid #444; }
+        .qty-btn { background: var(--primary); border: none; width: 26px; height: 26px; border-radius: 50%; font-weight: bold; cursor: pointer; }
+
+        /* الفورم */
+        .shipping-form { margin-top: 25px; text-align: right; border-top: 2px solid #333; padding-top: 20px; }
+        .shipping-form label { display: block; font-size: 0.9em; color: var(--primary); margin-bottom: 8px; font-weight: bold; }
+        .shipping-form input, .shipping-form select, .shipping-form textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #444; background: #222; color: #fff; margin-bottom: 15px; font-family: 'Cairo'; box-sizing: border-box; }
+
+        .total-summary { background: #222; padding: 15px; border-radius: 12px; margin: 15px 0; border-right: 4px solid var(--primary); }
+        .total-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.95em; }
+        .grand-total { font-size: 1.3em; color: var(--primary); font-weight: 900; margin-top: 10px; border-top: 1px solid #444; padding-top: 10px; }
 
         .hidden { display: none; }
-        .fade-in { animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -55,54 +60,51 @@
     <nav class="top-nav">
         <div class="nav-logo" onclick="window.location.reload()">سوق عكاز</div>
         <div class="cart-btn-nav" onclick="toggleModal('cart-modal')">
-            <i class="fas fa-shopping-cart"></i>
+            <i class="fas fa-shopping-basket"></i>
             <span class="cart-count" id="cart-count">0</span>
         </div>
     </nav>
 
     <div class="container">
-        <div id="home-view" class="fade-in">
-            <h2 style="font-family:'Reem Kufi'; color:var(--primary);">أقسام المتجر</h2>
+        <div id="home-view">
+            <h2 style="font-family:'Reem Kufi'; color:var(--primary); text-align: right;">أقسامنا المميزة</h2>
             <div class="category-grid" id="category-list"></div>
         </div>
 
-        <div id="category-view" class="hidden fade-in">
-            <div style="text-align:right; margin-bottom:15px; cursor:pointer; color:#ccc;" onclick="showHome()">← رجوع</div>
-            <h2 id="current-category-name" style="color:var(--primary);"></h2>
+        <div id="category-view" class="hidden">
+            <div style="text-align:right; margin-bottom:15px; cursor:pointer; color:var(--primary); font-weight: bold;" onclick="showHome()">← العودة للأقسام</div>
+            <h2 id="current-category-name" style="color:#fff; text-align: right; border-right: 4px solid var(--primary); padding-right: 10px;"></h2>
             <div class="product-grid" id="product-list"></div>
         </div>
     </div>
 
     <div id="cart-modal" class="modal">
         <div class="modal-box">
-            <div style="text-align:left; cursor:pointer; color:#888;" onclick="toggleModal('cart-modal')"><i class="fas fa-times"></i> إغلاق</div>
-            <h3 style="color:var(--primary); margin: 5px 0;">سلة المشتريات</h3>
+            <div class="close-modal" onclick="toggleModal('cart-modal')">إغلاق والعودة للتسوق</div>
+            <h3 style="color:var(--primary); text-align: right; margin-top: 10px;">سلة المشتريات</h3>
             
-            <div id="cart-items" style="max-height: 30vh; overflow-y: auto;"></div>
-            <div id="cart-total" style="font-size:1.2em; color:#fff; margin:15px 0; font-weight:bold;"></div>
+            <div id="cart-items"></div>
+
+            <div class="total-summary" id="total-summary-box">
+                <div class="total-row"><span>إجمالي المنتجات:</span> <span id="items-price">0 ج.م</span></div>
+                <div class="total-row"><span>سعر الشحن:</span> <span id="shipping-cost">0 ج.م</span></div>
+                <div class="grand-total">الإجمالي الكلي: <span id="final-total">0 ج.م</span></div>
+            </div>
 
             <div class="shipping-form" id="shipping-section">
-                <h4 style="margin-bottom: 10px; color: var(--primary);">بيانات الشحن</h4>
                 <label>الاسم بالكامل:</label>
-                <input type="text" id="cust-name" placeholder="اكتب اسمك هنا">
+                <input type="text" id="cust-name" placeholder="اكتب اسمك">
                 
                 <label>رقم الموبايل:</label>
                 <input type="tel" id="cust-phone" placeholder="01xxxxxxxxx">
                 
-                <label>المحافظة:</label>
-                <select id="cust-city">
-                    <option value="القاهرة">القاهرة</option>
-                    <option value="الجيزة">الجيزة</option>
-                    <option value="الإسكندرية">الإسكندرية</option>
-                    <option value="القليوبية">القليوبية</option>
-                    <option value="المنوفية">المنوفية</option>
-                    <option value="أخرى">محافظة أخرى</option>
-                </select>
+                <label>المحافظة (لتحديد سعر الشحن):</label>
+                <select id="cust-city" onchange="updateUI()"></select>
 
                 <label>العنوان بالتفصيل:</label>
-                <textarea id="cust-address" rows="2" placeholder="المنطقة، الشارع، رقم المنزل"></textarea>
+                <textarea id="cust-address" rows="3" placeholder="المنطقة، الشارع، رقم المنزل"></textarea>
                 
-                <button onclick="sendFinalOrder()" style="width:100%; background:#25D366; color:#fff; border:none; padding:15px; border-radius:12px; font-weight:bold; font-size:1.1em; cursor:pointer;">إرسال الطلب للواتساب <i class="fab fa-whatsapp"></i></button>
+                <button onclick="sendFinalOrder()" style="width:100%; background:#25D366; color:#fff; border:none; padding:18px; border-radius:12px; font-weight:bold; font-size:1.2em; cursor:pointer; box-shadow: 0 4px 15px rgba(37,211,102,0.3);">إرسال الطلب عبر واتساب <i class="fab fa-whatsapp"></i></button>
             </div>
         </div>
     </div>
@@ -118,8 +120,9 @@
                 const res = await fetch('data.json');
                 storeData = await res.json();
                 renderCategories();
+                renderShippingCities();
                 updateUI();
-            } catch (e) { console.log("تحميل البيانات..."); }
+            } catch (e) { console.log("تحميل..."); }
         }
 
         function renderCategories() {
@@ -129,9 +132,19 @@
                 list.innerHTML += `
                     <div class="category-card" onclick="showCategory('${cat.title}')">
                         <img src="${cat.image}">
-                        <h3 style="font-size:0.9em;">${cat.title}</h3>
+                        <h3 style="padding: 10px; margin:0; font-size:0.95em;">${cat.title}</h3>
                     </div>`;
             });
+        }
+
+        function renderShippingCities() {
+            const select = document.getElementById('cust-city');
+            select.innerHTML = '<option value="">اختر المحافظة...</option>';
+            if(storeData.shipping_rules) {
+                storeData.shipping_rules.forEach(rule => {
+                    select.innerHTML += `<option value="${rule.city}" data-cost="${rule.cost}">${rule.city}</option>`;
+                });
+            }
         }
 
         function showCategory(catName) {
@@ -140,7 +153,6 @@
             document.getElementById('current-category-name').innerText = catName;
             const list = document.getElementById('product-list');
             list.innerHTML = '';
-            
             lbs.forEach(l => l.destroy());
             lbs = [];
 
@@ -148,7 +160,6 @@
             filtered.forEach((p, idx) => {
                 const hasGal = p.gallery && p.gallery.length > 0;
                 const img = hasGal ? p.gallery[0].image : 'https://via.placeholder.com/200';
-                
                 let links = '';
                 if(hasGal) p.gallery.forEach(g => links += `<a href="${g.image}" class="gb-${idx}" style="display:none"></a>`);
 
@@ -156,17 +167,18 @@
                     <div class="product-card">
                         <div class="img-wrap" onclick="document.querySelector('.gb-${idx}').click()">
                             <img src="${img}">
-                            ${hasGal ? `<div style="position:absolute; bottom:5px; left:5px; background:rgba(0,0,0,0.6); font-size:0.6em; padding:2px 5px; border-radius:3px;"><i class="fas fa-images"></i> ${p.gallery.length}</div>` : ''}
+                            ${hasGal ? `<div style="position:absolute; bottom:8px; left:8px; background:rgba(0,0,0,0.7); font-size:0.7em; padding:3px 8px; border-radius:5px;"><i class="fas fa-images"></i> ${p.gallery.length}</div>` : ''}
                         </div>
                         <div class="p-info">
                             <div class="p-name">${p.title}</div>
                             <div class="p-price">${p.price} ج.م</div>
-                            <button class="btn-add" onclick="addToCart('${p.title}', ${p.price})">أضف للسلة +</button>
+                            <button class="btn-add" onclick="addToCart('${p.title}', ${p.price})">أضف للسلة <i class="fas fa-plus-circle"></i></button>
                         </div>
                         ${links}
                     </div>`;
                 setTimeout(() => { lbs.push(GLightbox({ selector: `.gb-${idx}` })); }, 50);
             });
+            window.scrollTo(0,0);
         }
 
         function addToCart(title, price) {
@@ -189,17 +201,21 @@
 
         function updateUI() {
             const list = document.getElementById('cart-items');
-            const totalBox = document.getElementById('cart-total');
             const count = document.getElementById('cart-count');
-            let total = 0; let q = 0;
+            const citySelect = document.getElementById('cust-city');
+            const shippingSpan = document.getElementById('shipping-cost');
+            const itemsPriceSpan = document.getElementById('items-price');
+            const finalTotalSpan = document.getElementById('final-total');
+            
+            let itemsTotal = 0; let totalQty = 0;
             list.innerHTML = '';
 
             cart.forEach((item, idx) => {
-                total += item.price * item.qty;
-                q += item.qty;
+                itemsTotal += item.price * item.qty;
+                totalQty += item.qty;
                 list.innerHTML += `
                     <div class="cart-item">
-                        <div style="flex:1; text-align:right"><b>${item.title}</b><br><small>${item.price} ج.م</small></div>
+                        <div style="flex:1; text-align:right"><b>${item.title}</b><br>${item.price} ج.م</div>
                         <div class="qty-controls">
                             <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
                             <span>${item.qty}</span>
@@ -207,15 +223,26 @@
                         </div>
                     </div>`;
             });
-            count.innerText = q;
-            totalBox.innerText = `الإجمالي: ${total} ج.م`;
+
+            // حساب الشحن
+            const selectedCity = citySelect.options[citySelect.selectedIndex];
+            const shippingCost = selectedCity ? parseFloat(selectedCity.getAttribute('data-cost') || 0) : 0;
+
+            count.innerText = totalQty;
+            itemsPriceSpan.innerText = `${itemsTotal} ج.م`;
+            shippingSpan.innerText = `${shippingCost} ج.م`;
+            finalTotalSpan.innerText = `${itemsTotal + shippingCost} ج.م`;
+            
             document.getElementById('shipping-section').style.display = cart.length > 0 ? 'block' : 'none';
-            if(cart.length === 0) list.innerHTML = "<p style='color:#666'>السلة فارغة</p>";
+            document.getElementById('total-summary-box').style.display = cart.length > 0 ? 'block' : 'none';
+            if(cart.length === 0) list.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>السلة فارغة حالياً</p>";
         }
 
         function toggleModal(id) {
             const m = document.getElementById(id);
-            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+            const isVisible = m.style.display === 'block';
+            m.style.display = isVisible ? 'none' : 'block';
+            document.body.style.overflow = isVisible ? 'auto' : 'hidden'; // منع السكرول خلف المودال
         }
 
         function sendFinalOrder() {
@@ -223,17 +250,17 @@
             const phone = document.getElementById('cust-phone').value;
             const city = document.getElementById('cust-city').value;
             const address = document.getElementById('cust-address').value;
+            const selectedCity = document.getElementById('cust-city').options[document.getElementById('cust-city').selectedIndex];
+            const shippingCost = selectedCity ? parseFloat(selectedCity.getAttribute('data-cost') || 0) : 0;
 
-            if(!name || !phone || !address) return alert("برجاء ملء كافة بيانات الشحن");
+            if(!name || !phone || !address || !city) return alert("برجاء إكمال بيانات الشحن");
 
             let msg = `طلب شحن جديد من سوق عكاز 🚚\n`;
-            msg += `--------------------------\n`;
             msg += `👤 العميل: ${name}\n`;
             msg += `📞 الموبايل: ${phone}\n`;
             msg += `📍 المحافظة: ${city}\n`;
             msg += `🏠 العنوان: ${address}\n`;
-            msg += `--------------------------\n`;
-            msg += `📦 الطلبات:\n`;
+            msg += `--------------------------\n📦 الطلبات:\n`;
             
             let total = 0;
             cart.forEach(i => {
@@ -242,7 +269,9 @@
             });
             
             msg += `--------------------------\n`;
-            msg += `💰 الإجمالي: ${total} ج.م`;
+            msg += `💸 سعر المنتجات: ${total} ج.م\n`;
+            msg += `🚚 سعر الشحن: ${shippingCost} ج.م\n`;
+            msg += `💰 الإجمالي الكلي: ${total + shippingCost} ج.م`;
             
             window.open(`https://wa.me/201550912888?text=${encodeURIComponent(msg)}`, '_blank');
         }
