@@ -20,18 +20,37 @@ collections:
         label: "الأقسام والمنتجات"
         file: "data.json"
         fields:
+          # أولاً: قائمة الأقسام
           - name: "categories"
-            label: "الأقسام"
+            label: "1. الأقسام (ضيف الأقسام هنا الأول)"
             widget: "list"
             fields:
               - { label: "اسم القسم", name: "title", widget: "string" }
-              - { label: "أيقونة (مثل: fas fa-shield-alt)", name: "icon", widget: "string", default: "fas fa-star" }
+              - { label: "أيقونة", name: "icon", widget: "string", default: "fas fa-star" }
+          
+          # ثانياً: قائمة المنتجات
           - name: "products"
-            label: "المنتجات"
+            label: "2. المنتجات"
             widget: "list"
             fields:
               - { label: "اسم المنتج", name: "title", widget: "string" }
               - { label: "السعر", name: "price", widget: "number" }
-              - { label: "القسم (اكتب اسم القسم بالضبط)", name: "category", widget: "string" }
+              # هنا السحر! هيختار من الأقسام اللي فوق أوتوماتيك
+              - { 
+                  label: "القسم", 
+                  name: "category", 
+                  widget: "relation", 
+                  collection: "store_data", 
+                  file: "content",
+                  search_fields: ["categories.*.title"], 
+                  display_fields: ["categories.*.title"], 
+                  value_field: "categories.*.title" 
+                }
               - { label: "الصورة", name: "image", widget: "image" }
-              - { label: "شارة (Badge)", name: "badge", widget: "select", options: ["لا يوجد", "الأكثر طلباً", "V.I.P", "طبي"], default: "لا يوجد" }
+              - { 
+                  label: "شارة (Badge)", 
+                  name: "badge", 
+                  widget: "select", 
+                  options: ["لا يوجد", "الأكثر طلباً", "V.I.P", "طبي"], 
+                  default: "لا يوجد" 
+                }
