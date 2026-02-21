@@ -3,6 +3,7 @@ backend:
   repo: mfathy13786/okaz-store
   branch: main
   base_url: https://okaz-auth.m-fathy-13786.workers.dev
+  site_domain: okaz-store.pages.dev
   auth_endpoint: api/auth
 
 media_folder: "assets/images"
