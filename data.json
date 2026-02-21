@@ -37,7 +37,21 @@
       "category": "عكاز",
       "title": "عكاز شرموط",
       "price": 666,
-      "image": "/assets/images/fb_img_1771496052907.jpg"
+      "image": "/assets/images/fb_img_1771496052907.jpg",
+      "gallery": [
+        {
+          "image": "/assets/images/whatsapp-image-2026-02-15-at-3.15.15-am.jpeg"
+        },
+        {
+          "image": "/assets/images/img-20260219-wa0043.jpg"
+        },
+        {
+          "image": "/assets/images/img-20260219-wa0034.jpg"
+        },
+        {
+          "image": "/assets/images/img-20260219-wa0033.jpg"
+        }
+      ]
     },
     {
       "badge": "لا يوجد",
