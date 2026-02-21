@@ -84,5 +84,15 @@
       "category": "نبوت",
       "image": "/assets/images/img-20260219-wa0012.jpg"
     }
+  ],
+  "shipping_rules": [
+    {
+      "cost": 50,
+      "city": "القاهرة"
+    },
+    {
+      "cost": 100,
+      "city": "الاسكندرية"
+    }
   ]
 }
