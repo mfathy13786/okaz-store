@@ -1,62 +1,23 @@
-backend:
-  name: github
-  repo: mfathy13786/okaz-store
-  branch: main
-  base_url: https://okaz-auth.m-fathy-13786.workers.dev
-  site_domain: okaz-store.pages.dev
-  auth_endpoint: api/auth
-
-media_folder: "assets/images"
-public_folder: "/assets/images"
-
+# ... (الكود السابق كما هو)
 collections:
   - name: "store_data"
     label: "إدارة محتوى المتجر"
     delete: false
-    editor:
-      preview: false
     files:
       - name: "content"
         label: "الأقسام والمنتجات"
         file: "data.json"
         fields:
-          # --- إعدادات الأقسام ---
-          - name: "categories"
-            label: "1. الأقسام (صورة واسم)"
+          # --- إعدادات الشحن الجديدة ---
+          - name: "shipping_rules"
+            label: "3. إعدادات الشحن والمحافظات"
             widget: "list"
-            summary: "{{title}}"
             fields:
-              - { label: "اسم القسم", name: "title", widget: "string" }
-              - { label: "صورة القسم الرئيسي", name: "image", widget: "image" }
+              - { label: "اسم المحافظة", name: "city", widget: "string" }
+              - { label: "سعر الشحن", name: "cost", widget: "number", default: 0 }
           
-          # --- إعدادات المنتجات ---
-          - name: "products"
-            label: "2. المنتجات (البضاعة)"
+          # --- الأقسام ---
+          - name: "categories"
+            label: "1. الأقسام"
             widget: "list"
-            summary: "{{title}} - {{price}} ج.م"
-            fields:
-              - { label: "اسم المنتج", name: "title", widget: "string" }
-              - { label: "السعر (جنيه)", name: "price", widget: "number" }
-              - { 
-                  label: "القسم", 
-                  name: "category", 
-                  widget: "relation", 
-                  collection: "store_data", 
-                  file: "content",
-                  search_fields: ["categories.*.title"], 
-                  display_fields: ["categories.*.title"], 
-                  value_field: "categories.*.title" 
-                }
-              # ألبوم صور المنتج
-              - name: "gallery"
-                label: "ألبوم صور المنتج (ارفع صورة أو أكتر)"
-                widget: "list"
-                fields:
-                  - { label: "صورة", name: "image", widget: "image" }
-              - { 
-                  label: "شارة التميز (Badge)", 
-                  name: "badge", 
-                  widget: "select", 
-                  options: ["لا يوجد", "الأكثر طلباً", "V.I.P", "طبي"], 
-                  default: "لا يوجد" 
-                }
+            # ... (باقي الحقول كما هي)
