@@ -1,36 +1,29 @@
+# إعدادات الاتصال بجيت هاب
 backend:
   name: github
-  repo: your-username/okaz-store # غير your-username لاسم حسابك
-  branch: main
+  repo: mfathy13786/okaz-store # اسم حسابك والمستودع بالظبط
+  branch: main # الفرع الأساسي للموقع
+  site_domain: okaz-store.pages.dev # نطاق الموقع على كلاود فلير
 
-media_folder: "images/uploads"
-public_folder: "/images/uploads"
+# إعدادات الصور والملفات
+media_folder: "assets/images" # المكان اللي هتتحفظ فيه صور العكاكيز
+public_folder: "/assets/images"
 
+# تعريف الأقسام والمنتجات
 collections:
-  - name: "categories"
-    label: "إدارة الأقسام"
-    folder: "categories"
-    create: true
-    slug: "{{slug}}"
-    format: "json"
-    fields:
-      - {label: "اسم القسم", name: "title", widget: "string"}
-      
   - name: "products"
     label: "المنتجات (سوق عكاز)"
-    folder: "products"
-    create: true
-    slug: "{{slug}}"
-    format: "json"
+    folder: "products" # الفولدر اللي هيتحفظ فيه بيانات المنتجات
+    create: true # السماح لصلاح بإضافة منتجات جديدة
+    slug: "{{title}}" # اسم الملف هيكون نفس اسم المنتج
     fields:
-      - {label: "اسم المنتج", name: "title", widget: "string"}
-      - {label: "صورة المنتج", name: "image", widget: "image"}
-      - {label: "السعر", name: "price", widget: "number"}
-      - label: "القسم التابع له"
-        name: "category"
-        widget: "relation"
-        collection: "categories"
-        search_fields: ["title"]
-        value_field: "title"
-        display_fields: ["title"]
-      - {label: "متاح في المخزن؟", name: "in_stock", widget: "boolean", default: true}
+      - { label: "اسم المنتج", name: "title", widget: "string" }
+      - { label: "السعر (جنيه)", name: "price", widget: "number" }
+      - { 
+          label: "القسم", 
+          name: "category", 
+          widget: "select", 
+          options: ["قسم العكاكيز", "قسم الشوم", "قسم السباكة"] 
+        }
+      - { label: "صورة المنتج", name: "image", widget: "image" }
+      - { label: "وصف مختصر", name: "body", widget: "markdown", required: false }
