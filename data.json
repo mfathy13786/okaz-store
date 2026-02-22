@@ -1,5 +1,10 @@
 {
-  "categories": [],
+  "categories": [
+    {
+      "title": "نبوت شرم",
+      "image": "/assets/images/fb_img_1771496038151.jpg"
+    }
+  ],
   "products": [],
   "shipping_rules": []
 }
