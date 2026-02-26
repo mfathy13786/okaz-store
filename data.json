@@ -1,10 +1,22 @@
 {
   "categories": [
     {
-      "title": "نبوت شرم",
-      "image": "/assets/images/1001424659.png"
+      "title": "شوم",
+      "image": "/assets/images/fb_img_1771496102443.jpg"
     }
   ],
-  "products": [],
-  "shipping_rules": []
+  "products": [
+    {
+      "badge": "لا يوجد",
+      "title": "شوم متين",
+      "price": 500,
+      "category": "نبوت شرم"
+    }
+  ],
+  "shipping_rules": [
+    {
+      "cost": 100,
+      "city": "القاهرة "
+    }
+  ]
 }
