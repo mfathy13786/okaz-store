@@ -7,50 +7,50 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         :root { --primary: #e67e22; --dark: #121212; --card-bg: #1e1e1e; --text-light: #ecf0f1; }
         body { font-family: 'Cairo', sans-serif; background-color: var(--dark); color: var(--text-light); margin: 0; padding: 0; overflow-x: hidden; text-align: center; }
         
-        /* الهيدر */
         .top-nav { position: sticky; top: 0; background: rgba(10, 10, 10, 0.98); border-bottom: 2px solid var(--primary); padding: 12px 20px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
         .nav-logo { color:var(--primary); font-family:'Reem Kufi'; font-size:1.5em; text-decoration: none; cursor: pointer; }
         .cart-btn-nav { position: relative; cursor: pointer; color: #fff; font-size: 1.4em; }
         .cart-count { position: absolute; top: -8px; right: -10px; background: var(--primary); color: #000; font-size: 0.6em; font-weight: bold; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #000; }
 
         .container { max-width: 1000px; margin: auto; padding: 15px; }
-
-        /* الشبكة العامة (أقسام ومنتجات) */
         .grid-layout { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
         
         .card { background: var(--card-bg); border-radius: 12px; border: 1px solid #333; overflow: hidden; display: flex; flex-direction: column; transition: 0.3s; height: 100%; }
         .card:hover { border-color: var(--primary); }
-        
         .card-img { width: 100%; height: 150px; object-fit: cover; cursor: pointer; border-bottom: 2px solid #222; }
-        
         .card-body { padding: 10px; text-align: right; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .card-title { color: var(--primary); font-weight: bold; font-size: 0.9em; margin-bottom: 5px; min-height: 40px; }
         .card-price { color: #fff; font-weight: 900; font-size: 1.1em; margin-bottom: 8px; }
 
         .btn-main { background: var(--primary); color: #000; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-family: 'Cairo'; font-size: 0.85em; }
+        .btn-main:disabled { background: #555; cursor: not-allowed; }
 
-        /* المودال (السلة) */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; overflow-y: auto; }
         .modal-content { background: #1a1a1a; width: 92%; max-width: 480px; border-radius: 20px; padding: 20px; border: 1px solid var(--primary); margin: 30px auto; box-sizing: border-box; position: relative; }
-        
         .close-btn { background: #e74c3c; color: #fff; padding: 10px 20px; border-radius: 10px; cursor: pointer; display: inline-block; margin-bottom: 20px; font-weight: bold; }
 
         .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding: 15px 0; }
         .qty-box { display: flex; align-items: center; gap: 10px; background: #222; padding: 5px 10px; border-radius: 8px; }
         .qty-btn { background: var(--primary); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2em; }
 
-        /* نموذج الشحن */
         .shipping-box { margin-top: 20px; text-align: right; border-top: 2px solid #333; padding-top: 20px; }
         .shipping-box label { display: block; color: var(--primary); margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
         .input-field { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; margin-bottom: 15px; font-family: 'Cairo'; box-sizing: border-box; font-size: 1em; }
 
         .summary-box { background: #222; padding: 15px; border-radius: 10px; margin: 15px 0; border-right: 4px solid var(--primary); text-align: right; }
         .grand-total { font-size: 1.3em; color: var(--primary); font-weight: 900; margin-top: 10px; border-top: 1px solid #444; padding-top: 10px; }
+
+        /* شاشة النجاح */
+        .success-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+        .success-content { background: #1a1a1a; padding: 40px 20px; border-radius: 20px; border: 1px solid var(--primary); max-width: 400px; width: 90%; }
+        .success-icon { font-size: 5em; color: #2ecc71; margin-bottom: 20px; }
+        .order-id-box { background: #222; color: var(--primary); font-size: 1.5em; font-weight: 900; padding: 15px 30px; border-radius: 10px; margin: 20px auto; letter-spacing: 2px; border: 1px dashed var(--primary); display: inline-block; }
 
         .hidden { display: none; }
     </style>
@@ -82,15 +82,12 @@
         <div class="modal-content">
             <div class="close-btn" onclick="toggleCart()">إغلاق ومتابعة التسوق</div>
             <h3 style="color:var(--primary); text-align:right; margin-bottom: 10px;">سلة المشتريات</h3>
-            
             <div id="cart-items-container"></div>
-
             <div class="summary-box" id="summary-area">
                 <div style="display:flex; justify-content:space-between;"><span>سعر المنتجات:</span> <span><span id="total-items-price">0</span> ج.م</span></div>
                 <div style="display:flex; justify-content:space-between; margin-top:5px;"><span>مصاريف الشحن:</span> <span><span id="shipping-price-val">0</span> ج.م</span></div>
                 <div class="grand-total" style="display:flex; justify-content:space-between;"><span>الإجمالي الكلي:</span> <span><span id="total-all">0</span> ج.م</span></div>
             </div>
-
             <div class="shipping-box" id="shipping-form-area">
                 <label>الاسم بالكامل:</label>
                 <input type="text" id="c-name" class="input-field" placeholder="اكتب اسمك">
@@ -100,14 +97,29 @@
                 <select id="c-city" class="input-field" onchange="updateCartDisplay()"></select>
                 <label>العنوان بالتفصيل:</label>
                 <textarea id="c-address" class="input-field" rows="2" placeholder="المنطقة والشارع بالتفصيل"></textarea>
-                
-                <button onclick="checkout()" class="btn-main" style="background:#25D366; color:#fff; font-size:1.2em; padding:18px; box-shadow: 0 4px 15px rgba(37,211,102,0.3);">تأكيد الطلب (واتساب) <i class="fab fa-whatsapp"></i></button>
+                <button id="checkout-btn" onclick="sendOrderToDB()" class="btn-main" style="background:var(--primary); color:#000; font-size:1.2em; padding:18px;">تأكيد الطلب الآن <i class="fas fa-check-circle"></i></button>
             </div>
+        </div>
+    </div>
+
+    <div id="success-modal" class="success-modal">
+        <div class="success-content">
+            <i class="fas fa-check-circle success-icon"></i>
+            <h2 style="color: #fff; margin-bottom: 10px;">تم استلام طلبك بنجاح!</h2>
+            <p style="color: #bbb;">رقم الطلب الخاص بك هو:</p>
+            <div class="order-id-box" id="display-order-id">#OKZ-000</div>
+            <p style="color: #bbb; margin-bottom: 30px;">سيتم التواصل معك هاتفياً لتأكيد الشحن.</p>
+            <button onclick="window.location.reload()" class="btn-main" style="max-width: 200px; margin: auto;">العودة للرئيسية</button>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
     <script>
+        // إعدادات القاعدة السحابية
+        const SUPABASE_URL = 'https://wkfiocqhkspsvqgyjpea.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_l2vgR8Xbt0Csw8W_Slo_1Q_9glKlIoN';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         let storeData = null;
         let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
         let activeLBs = [];
@@ -119,62 +131,33 @@
                 renderCategories();
                 renderCities();
                 updateCartDisplay();
-            } catch(e) { console.error("Data Load Error"); }
+            } catch(e) { console.error("Load Error", e); }
         }
 
         function renderCategories() {
             const list = document.getElementById('category-list');
             list.innerHTML = '';
             storeData.categories.forEach(cat => {
-                list.innerHTML += `
-                    <div class="card" onclick="showCategory('${cat.title}')">
-                        <img src="${cat.image}" class="card-img" onerror="this.src='https://via.placeholder.com/150'">
-                        <div class="card-body"><div style="text-align:center; font-weight:bold;">${cat.title}</div></div>
-                    </div>`;
+                list.innerHTML += `<div class="card" onclick="showCategory('${cat.title}')"><img src="${cat.image}" class="card-img"><div class="card-body"><div style="text-align:center; font-weight:bold;">${cat.title}</div></div></div>`;
             });
         }
 
         function renderCities() {
             const select = document.getElementById('c-city');
             select.innerHTML = '<option value="">اختر المحافظة لساب الشحن...</option>';
-            if(storeData.shipping_rules) {
-                storeData.shipping_rules.forEach(r => {
-                    select.innerHTML += `<option value="${r.city}" data-cost="${r.cost}">${r.city}</option>`;
-                });
-            }
+            storeData.shipping_rules.forEach(r => { select.innerHTML += `<option value="${r.city}" data-cost="${r.cost}">${r.city}</option>`; });
         }
 
         function showCategory(name) {
             document.getElementById('home-view').classList.add('hidden');
             document.getElementById('category-view').classList.remove('hidden');
             document.getElementById('cat-name-title').innerText = name;
-            
             const list = document.getElementById('product-list');
             list.innerHTML = '';
-            activeLBs.forEach(l => l.destroy());
-            activeLBs = [];
-
             const filtered = storeData.products.filter(p => p.category === name);
             filtered.forEach((p, i) => {
-                const hasGal = p.gallery && p.gallery.length > 0;
-                const mainImg = hasGal ? p.gallery[0].image : 'https://via.placeholder.com/200';
-                let galLinks = '';
-                if(hasGal) p.gallery.forEach(img => galLinks += `<a href="${img.image}" class="lb-${i}" style="display:none"></a>`);
-
-                list.innerHTML += `
-                    <div class="card">
-                        <div class="img-wrap" onclick="document.querySelector('.lb-${i}').click()">
-                            <img src="${mainImg}" class="card-img">
-                            ${hasGal ? `<div style="position:absolute; bottom:8px; left:8px; background:rgba(0,0,0,0.8); font-size:0.65em; padding:3px 8px; border-radius:5px;"><i class="fas fa-images"></i> ${p.gallery.length}</div>` : ''}
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">${p.title}</div>
-                            <div class="card-price">${p.price} ج.م</div>
-                            <button class="btn-main" onclick="addToCart('${p.title}', ${p.price})">إضافة للسلة <i class="fas fa-cart-plus"></i></button>
-                        </div>
-                        ${galLinks}
-                    </div>`;
-                setTimeout(() => { activeLBs.push(GLightbox({ selector: `.lb-${i}` })); }, 100);
+                const img = (p.gallery && p.gallery.length > 0) ? p.gallery[0].image : 'https://via.placeholder.com/200';
+                list.innerHTML += `<div class="card"><img src="${img}" class="card-img"><div class="card-body"><div class="card-title">${p.title}</div><div class="card-price">${p.price} ج.م</div><button class="btn-main" onclick="addToCart('${p.title}', ${p.price})">إضافة للسلة <i class="fas fa-cart-plus"></i></button></div></div>`;
             });
             window.scrollTo(0,0);
         }
@@ -186,98 +169,50 @@
             alert("تمت الإضافة ✅");
         }
 
-        function changeQty(idx, d) {
-            cart[idx].qty += d;
-            if(cart[idx].qty <= 0) cart.splice(idx, 1);
-            saveAndRefresh();
-        }
-
-        function saveAndRefresh() {
-            localStorage.setItem('okaz_cart', JSON.stringify(cart));
-            updateCartDisplay();
-        }
+        function saveAndRefresh() { localStorage.setItem('okaz_cart', JSON.stringify(cart)); updateCartDisplay(); }
 
         function updateCartDisplay() {
             const list = document.getElementById('cart-items-container');
             const count = document.getElementById('cart-count');
             const citySel = document.getElementById('c-city');
-            const totalItemsSpan = document.getElementById('total-items-price');
-            const shipSpan = document.getElementById('shipping-price-val');
-            const totalAllSpan = document.getElementById('total-all');
-
             let itemsTotal = 0; let totalQ = 0;
             list.innerHTML = '';
-
             cart.forEach((item, i) => {
                 itemsTotal += item.price * item.qty;
                 totalQ += item.qty;
-                list.innerHTML += `
-                    <div class="cart-item">
-                        <div style="text-align:right; flex:1;"><b>${item.title}</b><br>${item.price} ج.م</div>
-                        <div class="qty-box">
-                            <button class="qty-btn" onclick="changeQty(${i}, 1)">+</button>
-                            <span style="font-weight:bold">${item.qty}</span>
-                            <button class="qty-btn" onclick="changeQty(${i}, -1)">-</button>
-                        </div>
-                    </div>`;
+                list.innerHTML += `<div class="cart-item"><div style="text-align:right; flex:1;"><b>${item.title}</b><br>${item.price} ج.م</div><div class="qty-box"><button class="qty-btn" onclick="changeQty(${i}, 1)">+</button><span>${item.qty}</span><button class="qty-btn" onclick="changeQty(${i}, -1)">-</button></div></div>`;
             });
-
             const sel = citySel.options[citySel.selectedIndex];
             const shipCost = (sel && sel.value) ? parseFloat(sel.getAttribute('data-cost')) : 0;
-
             count.innerText = totalQ;
-            totalItemsSpan.innerText = itemsTotal;
-            shipSpan.innerText = shipCost;
-            totalAllSpan.innerText = itemsTotal + shipCost;
-
+            document.getElementById('total-items-price').innerText = itemsTotal;
+            document.getElementById('shipping-price-val').innerText = shipCost;
+            document.getElementById('total-all').innerText = itemsTotal + shipCost;
             document.getElementById('summary-area').style.display = cart.length > 0 ? 'block' : 'none';
             document.getElementById('shipping-form-area').style.display = cart.length > 0 ? 'block' : 'none';
-            if(cart.length === 0) list.innerHTML = "<p style='color:#888; padding:30px; text-align:center;'>السلة فارغة.. ابدأ بالتسوق الآن</p>";
         }
 
-        function toggleCart() {
-            const m = document.getElementById('cart-modal');
-            const isVisible = (m.style.display === 'block');
-            m.style.display = isVisible ? 'none' : 'block';
-            document.body.style.overflow = isVisible ? 'auto' : 'hidden';
+        function changeQty(idx, d) { cart[idx].qty += d; if(cart[idx].qty <= 0) cart.splice(idx, 1); saveAndRefresh(); }
+        function toggleCart() { const m = document.getElementById('cart-modal'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+        function showHome() { document.getElementById('home-view').classList.remove('hidden'); document.getElementById('category-view').classList.add('hidden'); }
+
+        async function sendOrderToDB() {
+            const n = document.getElementById('c-name').value, p = document.getElementById('c-phone').value, c = document.getElementById('c-city').value, a = document.getElementById('c-address').value;
+            const itemsTotal = parseFloat(document.getElementById('total-items-price').innerText), shipCost = parseFloat(document.getElementById('shipping-price-val').innerText);
+            if(!n || !p || !a || !c) return alert("كمل البيانات يا هندسة");
+            const btn = document.getElementById('checkout-btn');
+            btn.innerText = "جاري التأكيد..."; btn.disabled = true;
+            try {
+                const { data: oData, error: oErr } = await supabaseClient.from('orders').insert([{customer_name:n, customer_phone:p, customer_city:c, customer_address:a, total_items_price:itemsTotal, shipping_cost:shipCost, grand_total:itemsTotal+shipCost}]).select();
+                if(oErr) throw oErr;
+                const itemsToInsert = cart.map(i => ({ order_id: oData[0].id, product_name: i.title, quantity: i.qty, price: i.price }));
+                await supabaseClient.from('order_items').insert(itemsToInsert);
+                cart = []; localStorage.removeItem('okaz_cart');
+                document.getElementById('display-order-id').innerText = `#OKZ-${oData[0].id.split('-')[0].toUpperCase()}`;
+                document.getElementById('cart-modal').style.display = 'none';
+                document.getElementById('success-modal').style.display = 'flex';
+            } catch(e) { alert("في مشكلة في الاتصال"); btn.disabled = false; btn.innerText = "تأكيد الطلب الآن"; }
         }
-
-        // الدالة المحدثة: إرسال، تصفير، وإغلاق
-        function checkout() {
-            const n = document.getElementById('c-name').value;
-            const p = document.getElementById('c-phone').value;
-            const c = document.getElementById('c-city').value;
-            const a = document.getElementById('c-address').value;
-            const ship = parseFloat(document.getElementById('shipping-price-val').innerText);
-
-            if(!n || !p || !a || !c) return alert("برجاء إكمال كافة بيانات الشحن");
-
-            let msg = `طلب جديد من سوق عكاز 🛒\n`;
-            msg += `--------------------------\n👤 الاسم: ${n}\n📞 الموبايل: ${p}\n📍 المحافظة: ${c}\n🏠 العنوان: ${a}\n--------------------------\n📦 الطلبات:\n`;
-            
-            let total = 0;
-            cart.forEach(i => {
-                msg += `• ${i.title} (عدد ${i.qty}) = ${i.qty * i.price} ج.م\n`;
-                total += i.qty * i.price;
-            });
-            
-            msg += `--------------------------\n💸 المنتجات: ${total} ج.م\n🚚 الشحن: ${ship} ج.م\n💰 الإجمالي: ${total + ship} ج.م`;
-            
-            // تصفير السلة وإغلاق المودال قبل التوجه للواتساب
-            cart = [];
-            localStorage.removeItem('okaz_cart');
-            updateCartDisplay();
-            toggleCart();
-
-            window.open(`https://wa.me/201550912888?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
-        function showHome() {
-            document.getElementById('home-view').classList.remove('hidden');
-            document.getElementById('category-view').classList.add('hidden');
-            window.scrollTo(0,0);
-        }
-
         loadStore();
     </script>
 </body>
