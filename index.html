@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/css/glightbox.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         :root { --primary: #e67e22; --dark: #121212; --card-bg: #1e1e1e; --text-light: #ecf0f1; }
@@ -33,8 +32,7 @@
         .card-title { color: var(--primary); font-weight: bold; font-size: 0.9em; margin-bottom: 5px; min-height: 40px; }
         .card-price { color: #fff; font-weight: 900; font-size: 1.1em; margin-bottom: 8px; }
 
-        .btn-main { background: var(--primary); color: #000; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-family: 'Cairo'; font-size: 0.85em; transition: 0.3s;}
-        .btn-main:disabled { background: #555; cursor: not-allowed; }
+        .btn-main { background: var(--primary); color: #000; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-family: 'Cairo'; font-size: 0.85em; }
 
         /* المودال (السلة) */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; overflow-y: auto; }
@@ -55,12 +53,6 @@
         .grand-total { font-size: 1.3em; color: var(--primary); font-weight: 900; margin-top: 10px; border-top: 1px solid #444; padding-top: 10px; }
 
         .hidden { display: none; }
-
-        /* تصميم شاشة النجاح الجديدة متوافقة مع الـ Dark Mode */
-        .success-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
-        .success-content { background: #1a1a1a; padding: 40px 20px; border-radius: 20px; border: 1px solid var(--primary); max-width: 400px; width: 90%; }
-        .success-icon { font-size: 5em; color: #2ecc71; margin-bottom: 20px; }
-        .order-id-box { background: #222; color: var(--primary); font-size: 1.5em; font-weight: 900; padding: 15px 30px; border-radius: 10px; margin: 20px auto; letter-spacing: 2px; border: 1px dashed var(--primary); display: inline-block; }
     </style>
 </head>
 <body>
@@ -109,29 +101,13 @@
                 <label>العنوان بالتفصيل:</label>
                 <textarea id="c-address" class="input-field" rows="2" placeholder="المنطقة والشارع بالتفصيل"></textarea>
                 
-                <button id="checkout-btn" onclick="sendOrderToDatabase()" class="btn-main" style="font-size:1.2em; padding:18px; box-shadow: 0 4px 15px rgba(230,126,34,0.2); margin-top:10px;">تأكيد الطلب الآن <i class="fas fa-check-circle"></i></button>
+                <button onclick="checkout()" class="btn-main" style="background:#25D366; color:#fff; font-size:1.2em; padding:18px; box-shadow: 0 4px 15px rgba(37,211,102,0.3);">تأكيد الطلب (واتساب) <i class="fab fa-whatsapp"></i></button>
             </div>
-        </div>
-    </div>
-
-    <div id="success-modal" class="success-modal">
-        <div class="success-content">
-            <i class="fas fa-check-circle success-icon"></i>
-            <h2 style="color: #fff; margin-bottom: 10px;">تم استلام طلبك بنجاح!</h2>
-            <p style="color: #bbb; font-size: 1.1em;">رقم الطلب الخاص بك هو:</p>
-            <div class="order-id-box" id="display-order-id">#OKZ-000</div>
-            <p style="color: #bbb; margin-bottom: 30px;">سيتم التواصل معك هاتفياً خلال 24 ساعة لتأكيد الشحن.</p>
-            <button onclick="window.location.reload()" class="btn-main" style="max-width: 200px; margin: auto;">العودة للرئيسية</button>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
     <script>
-        // === تم حل المشكلة: تغيير اسم المتغير لـ supabaseClient عشان ميعملش قفلة ===
-        const SUPABASE_URL = 'https://wkfiocqhkspsvqgyjpea.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_l2vgR8Xbt0Csw8W_Slo_1Q_9glKlIoN';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         let storeData = null;
         let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
         let activeLBs = [];
@@ -143,7 +119,7 @@
                 renderCategories();
                 renderCities();
                 updateCartDisplay();
-            } catch(e) { console.error("Data Load Error", e); }
+            } catch(e) { console.error("Data Load Error"); }
         }
 
         function renderCategories() {
@@ -187,7 +163,7 @@
 
                 list.innerHTML += `
                     <div class="card">
-                        <div class="img-wrap" onclick="document.querySelector('.lb-${i}').click()" style="position:relative;">
+                        <div class="img-wrap" onclick="document.querySelector('.lb-${i}').click()">
                             <img src="${mainImg}" class="card-img">
                             ${hasGal ? `<div style="position:absolute; bottom:8px; left:8px; background:rgba(0,0,0,0.8); font-size:0.65em; padding:3px 8px; border-radius:5px;"><i class="fas fa-images"></i> ${p.gallery.length}</div>` : ''}
                         </div>
@@ -207,7 +183,7 @@
             const item = cart.find(x => x.title === t);
             if(item) item.qty++; else cart.push({title: t, price: p, qty: 1});
             saveAndRefresh();
-            alert("تمت الإضافة للسلة ✅");
+            alert("تمت الإضافة ✅");
         }
 
         function changeQty(idx, d) {
@@ -237,10 +213,10 @@
                 totalQ += item.qty;
                 list.innerHTML += `
                     <div class="cart-item">
-                        <div style="text-align:right; flex:1;"><b>${item.title}</b><br><span style="color:var(--primary); font-size:0.9em;">${item.price} ج.م</span></div>
+                        <div style="text-align:right; flex:1;"><b>${item.title}</b><br>${item.price} ج.م</div>
                         <div class="qty-box">
                             <button class="qty-btn" onclick="changeQty(${i}, 1)">+</button>
-                            <span style="font-weight:bold; color:#fff;">${item.qty}</span>
+                            <span style="font-weight:bold">${item.qty}</span>
                             <button class="qty-btn" onclick="changeQty(${i}, -1)">-</button>
                         </div>
                     </div>`;
@@ -266,75 +242,40 @@
             document.body.style.overflow = isVisible ? 'auto' : 'hidden';
         }
 
-        function showHome() {
-            document.getElementById('home-view').classList.remove('hidden');
-            document.getElementById('category-view').classList.add('hidden');
-            window.scrollTo(0,0);
-        }
-
-        // === دالة الإرسال لقاعدة البيانات ===
-        async function sendOrderToDatabase() {
+        // الدالة المحدثة: إرسال، تصفير، وإغلاق
+        function checkout() {
             const n = document.getElementById('c-name').value;
             const p = document.getElementById('c-phone').value;
             const c = document.getElementById('c-city').value;
             const a = document.getElementById('c-address').value;
-            const shipCost = parseFloat(document.getElementById('shipping-price-val').innerText) || 0;
-            const itemsTotal = parseFloat(document.getElementById('total-items-price').innerText) || 0;
-            const grandTotal = itemsTotal + shipCost;
+            const ship = parseFloat(document.getElementById('shipping-price-val').innerText);
 
-            if(!n || !p || !a || !c || cart.length === 0) {
-                return alert("برجاء إكمال كافة بيانات الشحن وإضافة منتجات للسلة");
-            }
+            if(!n || !p || !a || !c) return alert("برجاء إكمال كافة بيانات الشحن");
 
-            const btn = document.getElementById('checkout-btn');
-            btn.innerHTML = 'جاري تأكيد الطلب... <i class="fas fa-spinner fa-spin"></i>';
-            btn.disabled = true;
+            let msg = `طلب جديد من سوق عكاز 🛒\n`;
+            msg += `--------------------------\n👤 الاسم: ${n}\n📞 الموبايل: ${p}\n📍 المحافظة: ${c}\n🏠 العنوان: ${a}\n--------------------------\n📦 الطلبات:\n`;
+            
+            let total = 0;
+            cart.forEach(i => {
+                msg += `• ${i.title} (عدد ${i.qty}) = ${i.qty * i.price} ج.م\n`;
+                total += i.qty * i.price;
+            });
+            
+            msg += `--------------------------\n💸 المنتجات: ${total} ج.م\n🚚 الشحن: ${ship} ج.م\n💰 الإجمالي: ${total + ship} ج.م`;
+            
+            // تصفير السلة وإغلاق المودال قبل التوجه للواتساب
+            cart = [];
+            localStorage.removeItem('okaz_cart');
+            updateCartDisplay();
+            toggleCart();
 
-            try {
-                // استخدام المتغير الجديد supabaseClient
-                const { data: orderData, error: orderError } = await supabaseClient
-                    .from('orders')
-                    .insert([{
-                        customer_name: n,
-                        customer_phone: p,
-                        customer_city: c,
-                        customer_address: a,
-                        total_items_price: itemsTotal,
-                        shipping_cost: shipCost,
-                        grand_total: grandTotal
-                    }]).select();
+            window.open(`https://wa.me/201550912888?text=${encodeURIComponent(msg)}`, '_blank');
+        }
 
-                if (orderError) throw orderError;
-                const orderId = orderData[0].id;
-
-                const itemsToInsert = cart.map(item => ({
-                    order_id: orderId,
-                    product_name: item.title,
-                    quantity: item.qty,
-                    price: item.price
-                }));
-
-                const { error: itemsError } = await supabaseClient
-                    .from('order_items')
-                    .insert(itemsToInsert);
-
-                if (itemsError) throw itemsError;
-
-                cart = [];
-                localStorage.removeItem('okaz_cart');
-                updateCartDisplay();
-                document.getElementById('cart-modal').style.display = 'none';
-                
-                const shortId = orderId.split('-')[0].toUpperCase();
-                document.getElementById('display-order-id').innerText = `#OKZ-${shortId}`;
-                document.getElementById('success-modal').style.display = 'flex';
-
-            } catch (error) {
-                console.error(error);
-                alert("حدث خطأ أثناء الاتصال بالسيرفر. برجاء المحاولة لاحقاً.");
-                btn.innerHTML = 'تأكيد الطلب الآن <i class="fas fa-check-circle"></i>';
-                btn.disabled = false;
-            }
+        function showHome() {
+            document.getElementById('home-view').classList.remove('hidden');
+            document.getElementById('category-view').classList.add('hidden');
+            window.scrollTo(0,0);
         }
 
         loadStore();
