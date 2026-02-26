@@ -127,10 +127,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
     <script>
-        // === إعدادات قاعدة البيانات (Supabase) ===
+        // === تم حل المشكلة: تغيير اسم المتغير لـ supabaseClient عشان ميعملش قفلة ===
         const SUPABASE_URL = 'https://wkfiocqhkspsvqgyjpea.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_l2vgR8Xbt0Csw8W_Slo_1Q_9glKlIoN';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let storeData = null;
         let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
@@ -143,7 +143,7 @@
                 renderCategories();
                 renderCities();
                 updateCartDisplay();
-            } catch(e) { console.error("Data Load Error"); }
+            } catch(e) { console.error("Data Load Error", e); }
         }
 
         function renderCategories() {
@@ -272,7 +272,7 @@
             window.scrollTo(0,0);
         }
 
-        // === دالة الإرسال لقاعدة البيانات بدل الواتساب ===
+        // === دالة الإرسال لقاعدة البيانات ===
         async function sendOrderToDatabase() {
             const n = document.getElementById('c-name').value;
             const p = document.getElementById('c-phone').value;
@@ -291,8 +291,8 @@
             btn.disabled = true;
 
             try {
-                // 1. تسجيل الطلب
-                const { data: orderData, error: orderError } = await supabase
+                // استخدام المتغير الجديد supabaseClient
+                const { data: orderData, error: orderError } = await supabaseClient
                     .from('orders')
                     .insert([{
                         customer_name: n,
@@ -307,7 +307,6 @@
                 if (orderError) throw orderError;
                 const orderId = orderData[0].id;
 
-                // 2. تسجيل المنتجات
                 const itemsToInsert = cart.map(item => ({
                     order_id: orderId,
                     product_name: item.title,
@@ -315,13 +314,12 @@
                     price: item.price
                 }));
 
-                const { error: itemsError } = await supabase
+                const { error: itemsError } = await supabaseClient
                     .from('order_items')
                     .insert(itemsToInsert);
 
                 if (itemsError) throw itemsError;
 
-                // 3. تصفير السلة وإظهار شاشة النجاح
                 cart = [];
                 localStorage.removeItem('okaz_cart');
                 updateCartDisplay();
