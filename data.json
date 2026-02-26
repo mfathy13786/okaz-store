@@ -10,7 +10,12 @@
       "badge": "لا يوجد",
       "title": "شوم متين",
       "price": 500,
-      "category": "نبوت شرم"
+      "category": "شوم",
+      "gallery": [
+        {
+          "image": "/assets/images/fb_img_1771496038151.jpg"
+        }
+      ]
     }
   ],
   "shipping_rules": [
