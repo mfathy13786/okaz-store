@@ -24,10 +24,11 @@
         .container { max-width: 1200px; margin: auto; padding: 20px; }
         .section-title { color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; margin: 30px 0 20px 0; }
 
-        /* Slider & Products */
-        .swiper-slide { border-radius: 15px; overflow: hidden; position: relative; cursor: pointer; border: 1px solid #333; }
+        /* الأقسام في الرئيسية */
+        .category-card { background: #111; border-radius: 15px; overflow: hidden; position: relative; cursor: pointer; border: 1px solid #333; transition: 0.3s; }
+        .category-card:hover { border-color: var(--primary); }
         .cat-img { width: 100%; height: 180px; object-fit: cover; display: block; transition: 0.3s; }
-        .swiper-slide:hover .cat-img { transform: scale(1.05); }
+        .category-card:hover .cat-img { transform: scale(1.05); }
         .cat-title { position: absolute; bottom: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.9)); color: var(--primary); text-align: center; padding: 20px 0 10px; font-weight: 900; font-size: 1.2em; }
 
         .grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
@@ -38,6 +39,10 @@
         .product-info { padding: 15px; text-align: right; display: flex; flex-direction: column; flex-grow: 1; }
         .product-title { font-weight: bold; font-size: 0.95em; margin-bottom: 5px; color: #fff; }
         .product-price { color: var(--primary); font-weight: 900; font-size: 1.2em; margin-top: auto; }
+
+        /* سلايدر صور القسم من جوه */
+        .category-banner-slider { width: 100%; height: 250px; border-radius: 15px; overflow: hidden; margin-bottom: 25px; border: 1px solid #333; }
+        .category-banner-slider img { width: 100%; height: 100%; object-fit: cover; }
 
         /* Forms & Modals */
         .btn-main { background: var(--primary); color: #000; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 900; width: 100%; font-family: 'Cairo'; font-size: 1em; transition: 0.3s; }
@@ -57,7 +62,8 @@
         .color-circle.selected { border: 3px solid #fff; transform: scale(1.1); box-shadow: 0 0 10px rgba(255,255,255,0.5); }
         .size-btn { background: #222; color: #fff; border: 1px solid #444; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; font-weight: bold; }
         .size-btn.selected { background: var(--primary); color: #000; border-color: var(--primary); }
-        
+        .dim-box { background: #222; padding: 8px 12px; border-radius: 8px; display: inline-block; margin: 5px; font-size: 0.85em; color: #aaa; border: 1px dashed #444; }
+
         /* Autocomplete */
         .autocomplete-container { position: relative; margin-bottom: 10px; }
         .autocomplete-items { position: absolute; border: 1px solid #444; border-top: none; z-index: 99; top: 100%; left: 0; right: 0; background: #222; max-height: 150px; overflow-y: auto; border-radius: 0 0 8px 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
@@ -90,11 +96,22 @@
     <div class="container">
         <div id="home-view">
             <h2 class="section-title">تصفح الأقسام</h2>
-            <div class="swiper mySwiper">
-                <div class="swiper-wrapper" id="categories-slider"></div>
-            </div>
+            <div class="grid-layout" id="categories-grid"></div>
+            
             <h2 class="section-title">أحدث المنتجات</h2>
             <div class="grid-layout" id="all-products"></div>
+        </div>
+
+        <div id="category-view" class="hidden">
+            <button onclick="showHome()" style="background:none; border:none; color:var(--primary); font-family:'Cairo'; font-size:1.1em; font-weight:bold; cursor:pointer; margin-bottom:15px;"><i class="fas fa-arrow-right"></i> العودة للرئيسية</button>
+            
+            <div class="swiper myCategorySwiper category-banner-slider" id="cat-slider-wrapper">
+                <div class="swiper-wrapper" id="cat-slider-content"></div>
+                <div class="swiper-pagination"></div>
+            </div>
+
+            <h2 class="section-title" id="cat-view-title"></h2>
+            <div class="grid-layout" id="cat-products"></div>
         </div>
     </div>
 
@@ -106,6 +123,8 @@
             <p id="pd-desc" style="color:#aaa; font-size:0.9em; margin:0 0 10px 0;"></p>
             <h3 id="pd-price" style="color:#fff; margin:0 0 15px 0;"></h3>
             
+            <div id="pd-dimensions" style="margin-bottom:15px;"></div>
+
             <div id="pd-colors-section" class="hidden">
                 <h4 style="margin-bottom:8px; color:#aaa;">اختر اللون:</h4>
                 <div class="color-options" id="pd-colors"></div>
@@ -141,10 +160,10 @@
                     <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px solid #444; font-size:1.3em; font-weight:900; color:var(--primary);"><span>الإجمالي الكلي:</span> <span><span id="summ-total">0</span> ج.م</span></div>
                 </div>
 
-                <h3 style="color:#aaa; font-size:1.1em; border-bottom:1px solid #333; padding-bottom:5px;">بيانات التوصيل (Autofill مفعل)</h3>
+                <h3 style="color:#aaa; font-size:1.1em; border-bottom:1px solid #333; padding-bottom:5px;">بيانات التوصيل</h3>
                 <input type="text" id="c-name" class="input-field" placeholder="الاسم بالكامل" autocomplete="name">
                 <input type="tel" id="c-phone" class="input-field" placeholder="رقم الموبايل (01xxxxxxxxx)" autocomplete="tel">
-                <input type="email" id="c-email" class="input-field" placeholder="البريد الإلكتروني (لتتبع الطلب)" autocomplete="email">
+                <input type="email" id="c-email" class="input-field" placeholder="البريد الإلكتروني (عشان الفاتورة)" autocomplete="email">
                 
                 <div class="autocomplete-container">
                     <input type="text" id="c-city-search" class="input-field" placeholder="اكتب محافظتك (مثال: cairo أو القاهرة)" autocomplete="off">
@@ -174,7 +193,6 @@
             <h2 style="color:var(--primary);">مرحباً بك في عكاز</h2>
             <p style="color:#aaa; font-size:0.9em;">سجل دخولك لتتبع طلباتك وحفظ بياناتك</p>
             <button class="btn-main" onclick="alert('سيتم تفعيل تسجيل الدخول بجوجل قريباً من الإعدادات')" style="background:#fff; color:#000; margin-bottom:15px;"><i class="fab fa-google" style="color:#DB4437;"></i> تسجيل الدخول بحساب Google</button>
-            <button class="btn-main" onclick="alert('سيتم تفعيل الإيميل قريباً')" style="background:#333; color:#fff;">تسجيل بالبريد الإلكتروني</button>
         </div>
     </div>
 
@@ -184,7 +202,6 @@
             <h2 style="color: #fff;">تم استلام طلبك بنجاح!</h2>
             <p style="color: #bbb;">رقم الطلب الخاص بك هو:</p>
             <div style="background: #222; color: var(--success); font-size: 1.5em; font-weight: 900; padding: 15px; border-radius: 10px; margin: 20px auto; border: 1px dashed var(--success);" id="display-order-id">#OKZ-000</div>
-            <p style="color: #bbb; margin-bottom: 30px;">تم إرسال فاتورة وتفاصيل التتبع لبريدك الإلكتروني.</p>
             <button onclick="window.location.reload()" class="btn-main">متابعة التسوق</button>
         </div>
     </div>
@@ -198,13 +215,12 @@
         let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
         let activeProduct = null, selectedColor = 'اللون الافتراضي', selectedSize = 'مقاس موحد', selectedColorImg = '';
         let activeDiscountPercent = 0, activePromoCode = "";
+        let catSwiperInstance = null; // عشان نحفظ السلايدر بتاع القسم
 
-        // قاموس المحافظات للبحث بالانجليزي والعربي
         const cityAliases = {
             'cairo': 'القاهرة', 'cai': 'القاهرة', 'القاهره': 'القاهرة',
             'alex': 'الإسكندرية', 'alexandria': 'الإسكندرية', 'الاسكندريه': 'الإسكندرية', 'الاسكندرية': 'الإسكندرية',
             'giza': 'الجيزة', 'الجيزه': 'الجيزة'
-            // تقدر تزود براحتك هنا
         };
 
         async function initStore() {
@@ -218,24 +234,56 @@
                 ]);
                 categories = catsReq.data || []; products = prodsReq.data || []; colors = colorsReq.data || []; sizes = sizesReq.data || []; shippingRules = shipReq.data || [];
                 
-                renderCategories();
+                renderCategoriesHome();
                 renderProducts(products, 'all-products');
                 updateCartCount();
                 setupAutocomplete();
             } catch(e) { console.error("Error", e); }
         }
 
-        // ================= الأقسام (تصليح السلايدر) =================
-        function renderCategories() {
-            const slider = document.getElementById('categories-slider');
-            slider.innerHTML = '';
+        // ================= الأقسام =================
+        function renderCategoriesHome() {
+            const grid = document.getElementById('categories-grid');
+            grid.innerHTML = '';
             categories.forEach(c => {
                 const imgToUse = (c.gallery && c.gallery.length > 0) ? c.gallery[0] : c.image;
-                slider.innerHTML += `<div class="swiper-slide"><img src="${imgToUse}" class="cat-img"><div class="cat-title">${c.title}</div></div>`;
+                grid.innerHTML += `<div class="category-card" onclick="openCategory('${c.id}', '${c.title}')"><img src="${imgToUse}" class="cat-img"><div class="cat-title">${c.title}</div></div>`;
             });
-            // السلايدر بيشتغل بعد ما الصور تترسم في الـ DOM
-            setTimeout(() => { new Swiper(".mySwiper", { slidesPerView: 2.2, spaceBetween: 15, freeMode: true }); }, 100);
         }
+
+        function openCategory(id, title) {
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('category-view').classList.remove('hidden');
+            document.getElementById('cat-view-title').innerText = title;
+            
+            // تدمير السلايدر القديم لو موجود عشان ميكركرش
+            if(catSwiperInstance) catSwiperInstance.destroy(true, true);
+            
+            const cat = categories.find(c => c.id === id);
+            const sliderContent = document.getElementById('cat-slider-content');
+            sliderContent.innerHTML = '';
+            
+            // رسم صور القسم كسلايدر
+            if(cat.gallery && cat.gallery.length > 0) {
+                document.getElementById('cat-slider-wrapper').style.display = 'block';
+                cat.gallery.forEach(img => {
+                    sliderContent.innerHTML += `<div class="swiper-slide"><img src="${img}"></div>`;
+                });
+                catSwiperInstance = new Swiper(".myCategorySwiper", { 
+                    pagination: { el: ".swiper-pagination", clickable: true },
+                    autoplay: { delay: 3000, disableOnInteraction: false },
+                    loop: true
+                });
+            } else {
+                document.getElementById('cat-slider-wrapper').style.display = 'none';
+            }
+
+            const filtered = products.filter(p => p.category_id === id);
+            renderProducts(filtered, 'cat-products');
+            window.scrollTo(0,0);
+        }
+
+        function showHome() { document.getElementById('home-view').classList.remove('hidden'); document.getElementById('category-view').classList.add('hidden'); }
 
         function renderProducts(prodArray, containerId) {
             const container = document.getElementById(containerId); container.innerHTML = '';
@@ -245,7 +293,7 @@
             });
         }
 
-        // ================= المودال =================
+        // ================= المودال وكارت المنتج للعميل =================
         function openProductModal(id) {
             activeProduct = products.find(p => p.id === id);
             selectedColor = 'اللون الافتراضي'; selectedSize = 'مقاس موحد'; selectedColorImg = activeProduct.image;
@@ -253,6 +301,13 @@
             document.getElementById('pd-title').innerText = activeProduct.title;
             document.getElementById('pd-desc').innerText = activeProduct.description;
             document.getElementById('pd-price').innerText = activeProduct.price + ' ج.م';
+
+            // عرض الأبعاد لو موجودة
+            let dimHtml = '';
+            if(activeProduct.length_val) dimHtml += `<div class="dim-box">الطول: ${activeProduct.length_val}</div>`;
+            if(activeProduct.width_val) dimHtml += `<div class="dim-box">العرض: ${activeProduct.width_val}</div>`;
+            if(activeProduct.thickness_val) dimHtml += `<div class="dim-box">التخانة: ${activeProduct.thickness_val}</div>`;
+            document.getElementById('pd-dimensions').innerHTML = dimHtml;
 
             const prodColors = colors.filter(c => c.product_id === id);
             const colorSec = document.getElementById('pd-colors-section');
@@ -277,7 +332,7 @@
         function closeProductModal() { document.getElementById('product-modal').style.display = 'none'; }
         function openLoginModal() { document.getElementById('auth-modal').style.display = 'flex'; }
 
-        // ================= السلة وصورها =================
+        // ================= السلة والتأكيد =================
         function addToCart() {
             const hasColors = colors.filter(c => c.product_id === activeProduct.id).length > 0;
             const hasSizes = sizes.filter(s => s.product_id === activeProduct.id).length > 0;
@@ -286,8 +341,6 @@
 
             const itemKey = activeProduct.id + "_" + selectedColor + "_" + selectedSize;
             const exist = cart.find(x => x.key === itemKey);
-            
-            // حفظنا الصورة المختارة عشان نعرضها في السلة
             if(exist) exist.qty++;
             else cart.push({ key: itemKey, id: activeProduct.id, title: activeProduct.title, price: activeProduct.price, color: selectedColor, size: selectedSize, qty: 1, img: selectedColorImg });
             
@@ -297,12 +350,7 @@
         function updateCartCount() { document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0); }
         function openCart() { renderCartItems(); document.getElementById('cart-modal').style.display = 'block'; }
         function closeCart() { document.getElementById('cart-modal').style.display = 'none'; }
-
-        function changeQty(key, d) {
-            const item = cart.find(x => x.key === key); item.qty += d;
-            if(item.qty <= 0) cart = cart.filter(x => x.key !== key);
-            localStorage.setItem('okaz_cart', JSON.stringify(cart)); updateCartCount(); renderCartItems();
-        }
+        function changeQty(key, d) { const item = cart.find(x => x.key === key); item.qty += d; if(item.qty <= 0) cart = cart.filter(x => x.key !== key); localStorage.setItem('okaz_cart', JSON.stringify(cart)); updateCartCount(); renderCartItems(); }
 
         function renderCartItems() {
             const container = document.getElementById('cart-items-container');
@@ -313,24 +361,11 @@
             cart.forEach(item => {
                 itemsTotal += item.price * item.qty;
                 const details = (item.color !== 'اللون الافتراضي' || item.size !== 'مقاس موحد') ? `<div style="font-size:0.8em; color:#aaa;">${item.color} | ${item.size}</div>` : '';
-                container.innerHTML += `
-                    <div class="cart-item">
-                        <img src="${item.img}" alt="img">
-                        <div style="flex:1;">
-                            <b style="color:#fff;">${item.title}</b> ${details}
-                            <div style="color:var(--primary); font-weight:bold;">${item.price} ج.م</div>
-                        </div>
-                        <div class="qty-box">
-                            <button class="qty-btn" onclick="changeQty('${item.key}', 1)">+</button>
-                            <span style="font-weight:bold; color:#fff;">${item.qty}</span>
-                            <button class="qty-btn" onclick="changeQty('${item.key}', -1)">-</button>
-                        </div>
-                    </div>`;
+                container.innerHTML += `<div class="cart-item"><img src="${item.img}" alt="img"><div style="flex:1;"><b style="color:#fff;">${item.title}</b> ${details}<div style="color:var(--primary); font-weight:bold;">${item.price} ج.م</div></div><div class="qty-box"><button class="qty-btn" onclick="changeQty('${item.key}', 1)">+</button><span style="font-weight:bold; color:#fff;">${item.qty}</span><button class="qty-btn" onclick="changeQty('${item.key}', -1)">-</button></div></div>`;
             });
             calculateTotals(itemsTotal);
         }
 
-        // ================= البحث الذكي والكوبونات =================
         async function applyPromo() {
             const code = document.getElementById('promo-input').value.toUpperCase();
             const { data } = await supabaseClient.from('promo_codes').select('*').eq('code', code).eq('is_active', true);
@@ -353,44 +388,31 @@
             input.addEventListener('input', function() {
                 const val = this.value.toLowerCase(); list.innerHTML = '';
                 if (!val) { document.getElementById('c-shipping-cost').value = 0; renderCartItems(); return; }
-
-                // البحث العادي + البحث في القاموس (Aliases)
                 const searchKey = cityAliases[val] || val;
                 const matches = shippingRules.filter(s => s.city.includes(searchKey));
-                
                 matches.forEach(m => {
                     const div = document.createElement('div');
                     div.innerHTML = `${m.city} <span style="color:var(--primary); font-size:0.8em; float:left;">${m.cost} ج.م</span>`;
-                    div.addEventListener('click', function() {
-                        input.value = m.city; document.getElementById('c-city-final').value = m.city; document.getElementById('c-shipping-cost').value = m.cost;
-                        list.innerHTML = ''; renderCartItems();
-                    });
+                    div.addEventListener('click', function() { input.value = m.city; document.getElementById('c-city-final').value = m.city; document.getElementById('c-shipping-cost').value = m.cost; list.innerHTML = ''; renderCartItems(); });
                     list.appendChild(div);
                 });
             });
             document.addEventListener('click', e => { if (e.target !== input) list.innerHTML = ''; });
         }
 
-        // ================= الإرسال النهائي =================
         async function confirmOrder() {
-            const n = document.getElementById('c-name').value, p = document.getElementById('c-phone').value, e = document.getElementById('c-email').value;
-            const city = document.getElementById('c-city-final').value;
+            const n = document.getElementById('c-name').value, p = document.getElementById('c-phone').value, e = document.getElementById('c-email').value, city = document.getElementById('c-city-final').value;
             const area = document.getElementById('c-area').value, street = document.getElementById('c-street').value, bld = document.getElementById('c-building').value, flr = document.getElementById('c-floor').value, apt = document.getElementById('c-apt').value, lnd = document.getElementById('c-landmark').value;
             const ship = Number(document.getElementById('c-shipping-cost').value);
             
             if(!n || !p || !city || !area || !street) return alert("برجاء إكمال الاسم والموبايل واختيار المحافظة والمنطقة والشارع.");
             
             const btn = document.getElementById('submit-order-btn'); btn.innerHTML = 'جاري التأكيد... <i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
-
             const itemsTotal = Number(document.getElementById('summ-items').innerText), discount = Number(document.getElementById('summ-discount').innerText) || 0, grand = Number(document.getElementById('summ-total').innerText);
 
             try {
-                const { data: orderData, error: orderErr } = await supabaseClient.from('orders').insert([{
-                    customer_name: n, customer_phone: p, customer_email: e, customer_city: city, customer_area: area, customer_street: street, customer_building: bld, customer_floor: flr, customer_apartment: apt, customer_landmark: lnd,
-                    total_items_price: itemsTotal, shipping_cost: ship, discount_amount: discount, grand_total: grand, promo_code_used: activePromoCode || null
-                }]).select();
+                const { data: orderData, error: orderErr } = await supabaseClient.from('orders').insert([{ customer_name: n, customer_phone: p, customer_email: e, customer_city: city, customer_area: area, customer_street: street, customer_building: bld, customer_floor: flr, customer_apartment: apt, customer_landmark: lnd, total_items_price: itemsTotal, shipping_cost: ship, discount_amount: discount, grand_total: grand, promo_code_used: activePromoCode || null }]).select();
                 if(orderErr) throw orderErr;
-
                 const itemsToInsert = cart.map(i => ({ order_id: orderData[0].id, product_name: i.title, selected_color: i.color, selected_size: i.size, quantity: i.qty, price: i.price, image_url: i.img }));
                 await supabaseClient.from('order_items').insert(itemsToInsert);
 
