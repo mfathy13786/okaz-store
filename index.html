@@ -15,22 +15,21 @@
         :root { --primary: #e67e22; --dark: #0f0f0f; --card-bg: #1a1a1a; --text-light: #ecf0f1; --danger: #ff4757; --success: #2ed573; }
         body { font-family: 'Cairo', sans-serif; background-color: var(--dark); color: var(--text-light); margin: 0; padding: 0; overflow-x: hidden; }
         
-        /* الهيدر */
         .top-nav { position: sticky; top: 0; background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(10px); border-bottom: 2px solid var(--primary); padding: 15px 20px; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
         .nav-logo { color:var(--primary); font-family:'Reem Kufi'; font-size:1.6em; text-decoration: none; cursor: pointer; }
-        .cart-btn-nav { position: relative; cursor: pointer; color: #fff; font-size: 1.5em; }
+        .nav-icons { display: flex; gap: 20px; align-items: center; }
+        .icon-btn { position: relative; cursor: pointer; color: #fff; font-size: 1.5em; }
         .cart-count { position: absolute; top: -8px; right: -12px; background: var(--primary); color: #000; font-size: 0.6em; font-weight: 900; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
         .container { max-width: 1200px; margin: auto; padding: 20px; }
         .section-title { color: var(--text-light); border-right: 4px solid var(--primary); padding-right: 10px; margin: 30px 0 20px 0; }
 
-        /* الأقسام (Swiper Slider) */
+        /* Slider & Products */
         .swiper-slide { border-radius: 15px; overflow: hidden; position: relative; cursor: pointer; border: 1px solid #333; }
         .cat-img { width: 100%; height: 180px; object-fit: cover; display: block; transition: 0.3s; }
         .swiper-slide:hover .cat-img { transform: scale(1.05); }
         .cat-title { position: absolute; bottom: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.9)); color: var(--primary); text-align: center; padding: 20px 0 10px; font-weight: 900; font-size: 1.2em; }
 
-        /* شبكة المنتجات */
         .grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
         .product-card { background: var(--card-bg); border-radius: 15px; border: 1px solid #333; overflow: hidden; display: flex; flex-direction: column; position: relative; transition: 0.3s; cursor: pointer; }
         .product-card:hover { border-color: var(--primary); box-shadow: 0 5px 15px rgba(230,126,34,0.2); }
@@ -40,16 +39,17 @@
         .product-title { font-weight: bold; font-size: 0.95em; margin-bottom: 5px; color: #fff; }
         .product-price { color: var(--primary); font-weight: 900; font-size: 1.2em; margin-top: auto; }
 
-        /* الأزرار والفورم */
+        /* Forms & Modals */
         .btn-main { background: var(--primary); color: #000; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 900; width: 100%; font-family: 'Cairo'; font-size: 1em; transition: 0.3s; }
         .btn-main:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230,126,34,0.3); }
-        .input-field { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; margin-bottom: 15px; font-family: 'Cairo'; box-sizing: border-box; font-size: 1em; outline: none; }
+        .input-field { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; margin-bottom: 10px; font-family: 'Cairo'; box-sizing: border-box; font-size: 0.9em; outline: none; }
         .input-field:focus { border-color: var(--primary); }
+        .flex-inputs { display: flex; gap: 10px; }
+        .flex-inputs input { flex: 1; }
 
-        /* شاشة تفاصيل المنتج والمقاسات والألوان */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; overflow-y: auto; backdrop-filter: blur(5px); }
-        .modal-content { background: #111; width: 95%; max-width: 500px; border-radius: 20px; padding: 20px; border: 1px solid #333; margin: 30px auto; position: relative; }
-        .close-btn { position: absolute; top: 15px; left: 15px; background: #333; color: #fff; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.2em; }
+        .modal-content { background: #111; width: 95%; max-width: 600px; border-radius: 20px; padding: 20px; border: 1px solid #333; margin: 30px auto; position: relative; }
+        .close-btn { position: absolute; top: 15px; left: 15px; background: #333; color: #fff; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.2em; z-index: 10; }
         
         .preview-img { width: 100%; height: 300px; object-fit: cover; border-radius: 15px; margin-bottom: 15px; border: 1px solid #333; }
         .color-options, .size-options { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
@@ -58,26 +58,19 @@
         .size-btn { background: #222; color: #fff; border: 1px solid #444; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; font-weight: bold; }
         .size-btn.selected { background: var(--primary); color: #000; border-color: var(--primary); }
         
-        .dim-box { background: #222; padding: 10px; border-radius: 8px; display: inline-block; margin: 5px; font-size: 0.85em; color: #aaa; border: 1px dashed #444; }
-
-        /* البحث الذكي للمحافظات (Autocomplete) */
-        .autocomplete-container { position: relative; }
+        /* Autocomplete */
+        .autocomplete-container { position: relative; margin-bottom: 10px; }
         .autocomplete-items { position: absolute; border: 1px solid #444; border-top: none; z-index: 99; top: 100%; left: 0; right: 0; background: #222; max-height: 150px; overflow-y: auto; border-radius: 0 0 8px 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .autocomplete-items div { padding: 12px; cursor: pointer; border-bottom: 1px solid #333; color: #fff; }
-        .autocomplete-items div:hover { background-color: var(--primary); color: #000; font-weight: bold; }
+        .autocomplete-items div:hover { background-color: var(--primary); color: #000; }
 
-        /* سلة المشتريات */
-        .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding: 15px 0; }
+        /* Cart */
+        .cart-item { display: flex; gap: 15px; align-items: center; border-bottom: 1px solid #333; padding: 15px 0; }
+        .cart-item img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid #444; }
         .qty-box { display: flex; align-items: center; gap: 10px; background: #222; padding: 5px 10px; border-radius: 8px; }
-        .qty-btn { background: var(--primary); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2em; color: #000; }
+        .qty-btn { background: var(--primary); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-weight: bold; color: #000; }
         .summary-box { background: #222; padding: 15px; border-radius: 10px; margin: 15px 0; border-right: 4px solid var(--primary); }
-        .promo-box { display: flex; gap: 10px; margin-bottom: 15px; }
-
-        /* شاشة النجاح */
-        .success-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
-        .success-content { background: #1a1a1a; padding: 40px 20px; border-radius: 20px; border: 1px solid var(--success); max-width: 400px; width: 90%; }
-        .order-id-box { background: #222; color: var(--success); font-size: 1.5em; font-weight: 900; padding: 15px; border-radius: 10px; margin: 20px auto; letter-spacing: 2px; border: 1px dashed var(--success); }
-
+        
         .hidden { display: none !important; }
     </style>
 </head>
@@ -85,9 +78,12 @@
 
     <nav class="top-nav">
         <div class="nav-logo" onclick="window.location.reload()">سوق عكاز</div>
-        <div class="cart-btn-nav" onclick="openCart()">
-            <i class="fas fa-shopping-bag"></i>
-            <span class="cart-count" id="cart-count">0</span>
+        <div class="nav-icons">
+            <div class="icon-btn" onclick="openLoginModal()" title="تسجيل الدخول"><i class="fas fa-user-circle"></i></div>
+            <div class="icon-btn" onclick="openCart()">
+                <i class="fas fa-shopping-bag"></i>
+                <span class="cart-count" id="cart-count">0</span>
+            </div>
         </div>
     </nav>
 
@@ -97,15 +93,8 @@
             <div class="swiper mySwiper">
                 <div class="swiper-wrapper" id="categories-slider"></div>
             </div>
-
             <h2 class="section-title">أحدث المنتجات</h2>
             <div class="grid-layout" id="all-products"></div>
-        </div>
-
-        <div id="category-view" class="hidden">
-            <button onclick="showHome()" style="background:none; border:none; color:var(--primary); font-family:'Cairo'; font-size:1.1em; font-weight:bold; cursor:pointer; margin-bottom:15px;"><i class="fas fa-arrow-right"></i> العودة للرئيسية</button>
-            <h2 class="section-title" id="cat-view-title"></h2>
-            <div class="grid-layout" id="cat-products"></div>
         </div>
     </div>
 
@@ -113,11 +102,10 @@
         <div class="modal-content">
             <button class="close-btn" onclick="closeProductModal()"><i class="fas fa-times"></i></button>
             <img id="pd-img" class="preview-img" src="">
-            <h2 id="pd-title" style="color:var(--primary); margin:0 0 10px 0;"></h2>
+            <h2 id="pd-title" style="color:var(--primary); margin:0 0 5px 0;"></h2>
+            <p id="pd-desc" style="color:#aaa; font-size:0.9em; margin:0 0 10px 0;"></p>
             <h3 id="pd-price" style="color:#fff; margin:0 0 15px 0;"></h3>
             
-            <div id="pd-dimensions" style="margin-bottom:15px;"></div>
-
             <div id="pd-colors-section" class="hidden">
                 <h4 style="margin-bottom:8px; color:#aaa;">اختر اللون:</h4>
                 <div class="color-options" id="pd-colors"></div>
@@ -133,14 +121,14 @@
     </div>
 
     <div id="cart-modal" class="modal">
-        <div class="modal-content" style="max-height: 90vh;">
+        <div class="modal-content">
             <button class="close-btn" onclick="closeCart()"><i class="fas fa-times"></i></button>
             <h2 class="section-title" style="margin-top:0;">سلة المشتريات</h2>
             
             <div id="cart-items-container" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px;"></div>
 
             <div id="checkout-area" class="hidden">
-                <div class="promo-box">
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <input type="text" id="promo-input" class="input-field" placeholder="كود الخصم (إن وجد)" style="margin:0; text-transform:uppercase;">
                     <button class="btn-main" onclick="applyPromo()" style="width:100px; background:#333; color:#fff;">تطبيق</button>
                 </div>
@@ -149,36 +137,55 @@
                 <div class="summary-box">
                     <div style="display:flex; justify-content:space-between;"><span>سعر المنتجات:</span> <span><span id="summ-items">0</span> ج.م</span></div>
                     <div style="display:flex; justify-content:space-between; margin-top:5px;"><span>مصاريف الشحن:</span> <span><span id="summ-shipping">0</span> ج.م</span></div>
-                    <div id="summ-discount-row" class="hidden" style="display:flex; justify-content:space-between; margin-top:5px; color:var(--danger);"><span>قيمة الخصم:</span> <span>-<span id="summ-discount">0</span> ج.م</span></div>
+                    <div id="summ-discount-row" class="hidden" style="display:flex; justify-content:space-between; margin-top:5px; color:var(--danger);"><span>الخصم:</span> <span>-<span id="summ-discount">0</span> ج.م</span></div>
                     <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px solid #444; font-size:1.3em; font-weight:900; color:var(--primary);"><span>الإجمالي الكلي:</span> <span><span id="summ-total">0</span> ج.م</span></div>
                 </div>
 
-                <h3 style="color:#aaa; font-size:1.1em; border-bottom:1px solid #333; padding-bottom:5px;">بيانات التوصيل</h3>
-                <input type="text" id="c-name" class="input-field" placeholder="الاسم بالكامل">
-                <input type="tel" id="c-phone" class="input-field" placeholder="رقم الموبايل (01xxxxxxxxx)">
+                <h3 style="color:#aaa; font-size:1.1em; border-bottom:1px solid #333; padding-bottom:5px;">بيانات التوصيل (Autofill مفعل)</h3>
+                <input type="text" id="c-name" class="input-field" placeholder="الاسم بالكامل" autocomplete="name">
+                <input type="tel" id="c-phone" class="input-field" placeholder="رقم الموبايل (01xxxxxxxxx)" autocomplete="tel">
+                <input type="email" id="c-email" class="input-field" placeholder="البريد الإلكتروني (لتتبع الطلب)" autocomplete="email">
                 
                 <div class="autocomplete-container">
-                    <input type="text" id="c-city-search" class="input-field" placeholder="اكتب اسم محافظتك هنا..." autocomplete="off">
+                    <input type="text" id="c-city-search" class="input-field" placeholder="اكتب محافظتك (مثال: cairo أو القاهرة)" autocomplete="off">
                     <div id="city-list" class="autocomplete-items"></div>
                 </div>
-                <input type="hidden" id="c-city-final">
-                <input type="hidden" id="c-shipping-cost" value="0">
+                <input type="hidden" id="c-city-final"><input type="hidden" id="c-shipping-cost" value="0">
 
-                <textarea id="c-address" class="input-field" rows="2" placeholder="العنوان بالتفصيل (المنطقة، الشارع، العمارة)"></textarea>
+                <div class="flex-inputs">
+                    <input type="text" id="c-area" class="input-field" placeholder="المنطقة / الحي">
+                    <input type="text" id="c-street" class="input-field" placeholder="اسم الشارع">
+                </div>
+                <div class="flex-inputs">
+                    <input type="text" id="c-building" class="input-field" placeholder="رقم العقار">
+                    <input type="text" id="c-floor" class="input-field" placeholder="الدور">
+                    <input type="text" id="c-apt" class="input-field" placeholder="رقم الشقة">
+                </div>
+                <input type="text" id="c-landmark" class="input-field" placeholder="علامة مميزة (اختياري)">
                 
-                <button id="submit-order-btn" class="btn-main" onclick="confirmOrder()" style="font-size:1.2em; padding:15px; background:var(--success); color:#fff;">تأكيد الطلب الآن <i class="fas fa-check-circle"></i></button>
+                <button id="submit-order-btn" class="btn-main" onclick="confirmOrder()" style="font-size:1.2em; padding:15px; background:var(--success); color:#fff; margin-top:10px;">تأكيد الطلب الآن <i class="fas fa-check-circle"></i></button>
             </div>
         </div>
     </div>
 
-    <div id="success-modal" class="success-modal">
-        <div class="success-content">
+    <div id="auth-modal" class="modal">
+        <div class="modal-content" style="text-align: center; max-width: 400px;">
+            <button class="close-btn" onclick="document.getElementById('auth-modal').style.display='none'"><i class="fas fa-times"></i></button>
+            <h2 style="color:var(--primary);">مرحباً بك في عكاز</h2>
+            <p style="color:#aaa; font-size:0.9em;">سجل دخولك لتتبع طلباتك وحفظ بياناتك</p>
+            <button class="btn-main" onclick="alert('سيتم تفعيل تسجيل الدخول بجوجل قريباً من الإعدادات')" style="background:#fff; color:#000; margin-bottom:15px;"><i class="fab fa-google" style="color:#DB4437;"></i> تسجيل الدخول بحساب Google</button>
+            <button class="btn-main" onclick="alert('سيتم تفعيل الإيميل قريباً')" style="background:#333; color:#fff;">تسجيل بالبريد الإلكتروني</button>
+        </div>
+    </div>
+
+    <div id="success-modal" class="modal" style="display:none; justify-content:center; align-items:center; z-index:4000;">
+        <div class="modal-content" style="text-align:center; border-color:var(--success);">
             <i class="fas fa-check-circle" style="font-size: 5em; color: var(--success); margin-bottom: 20px;"></i>
-            <h2 style="color: #fff; margin-bottom: 10px;">تم استلام طلبك بنجاح!</h2>
+            <h2 style="color: #fff;">تم استلام طلبك بنجاح!</h2>
             <p style="color: #bbb;">رقم الطلب الخاص بك هو:</p>
-            <div class="order-id-box" id="display-order-id">#OKZ-000</div>
-            <p style="color: #bbb; margin-bottom: 30px;">سيتم التواصل معك هاتفياً لتأكيد الشحن.</p>
-            <button onclick="window.location.reload()" class="btn-main">العودة للرئيسية</button>
+            <div style="background: #222; color: var(--success); font-size: 1.5em; font-weight: 900; padding: 15px; border-radius: 10px; margin: 20px auto; border: 1px dashed var(--success);" id="display-order-id">#OKZ-000</div>
+            <p style="color: #bbb; margin-bottom: 30px;">تم إرسال فاتورة وتفاصيل التتبع لبريدك الإلكتروني.</p>
+            <button onclick="window.location.reload()" class="btn-main">متابعة التسوق</button>
         </div>
     </div>
 
@@ -187,21 +194,21 @@
         const SUPABASE_KEY = 'sb_publishable_l2vgR8Xbt0Csw8W_Slo_1Q_9glKlIoN';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // البيانات اللي هنسحبها
         let categories = [], products = [], colors = [], sizes = [], shippingRules = [];
         let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
-        
-        // متغيرات الأوردر والمودال
-        let activeProduct = null;
-        let selectedColor = null;
-        let selectedSize = null;
-        let activeDiscountPercent = 0;
-        let activePromoCode = "";
+        let activeProduct = null, selectedColor = 'اللون الافتراضي', selectedSize = 'مقاس موحد', selectedColorImg = '';
+        let activeDiscountPercent = 0, activePromoCode = "";
 
-        // ================= التهيئة وسحب البيانات =================
+        // قاموس المحافظات للبحث بالانجليزي والعربي
+        const cityAliases = {
+            'cairo': 'القاهرة', 'cai': 'القاهرة', 'القاهره': 'القاهرة',
+            'alex': 'الإسكندرية', 'alexandria': 'الإسكندرية', 'الاسكندريه': 'الإسكندرية', 'الاسكندرية': 'الإسكندرية',
+            'giza': 'الجيزة', 'الجيزه': 'الجيزة'
+            // تقدر تزود براحتك هنا
+        };
+
         async function initStore() {
             try {
-                // سحب كله بالتوازي عشان السرعة
                 const [catsReq, prodsReq, colorsReq, sizesReq, shipReq] = await Promise.all([
                     supabaseClient.from('categories').select('*'),
                     supabaseClient.from('products').select('*').order('created_at', { ascending: false }),
@@ -209,193 +216,108 @@
                     supabaseClient.from('product_sizes').select('*'),
                     supabaseClient.from('shipping_rules').select('*')
                 ]);
-
-                categories = catsReq.data || [];
-                products = prodsReq.data || [];
-                colors = colorsReq.data || [];
-                sizes = sizesReq.data || [];
-                shippingRules = shipReq.data || [];
-
+                categories = catsReq.data || []; products = prodsReq.data || []; colors = colorsReq.data || []; sizes = sizesReq.data || []; shippingRules = shipReq.data || [];
+                
                 renderCategories();
                 renderProducts(products, 'all-products');
                 updateCartCount();
                 setupAutocomplete();
-            } catch(e) { console.error("Error loading store:", e); }
+            } catch(e) { console.error("Error", e); }
         }
 
-        // ================= العرض والواجهة =================
+        // ================= الأقسام (تصليح السلايدر) =================
         function renderCategories() {
             const slider = document.getElementById('categories-slider');
             slider.innerHTML = '';
             categories.forEach(c => {
                 const imgToUse = (c.gallery && c.gallery.length > 0) ? c.gallery[0] : c.image;
-                slider.innerHTML += `
-                    <div class="swiper-slide" onclick="openCategory('${c.id}', '${c.title}')">
-                        <img src="${imgToUse}" class="cat-img" onerror="this.src='https://via.placeholder.com/400x200?text=قسم'">
-                        <div class="cat-title">${c.title}</div>
-                    </div>
-                `;
+                slider.innerHTML += `<div class="swiper-slide"><img src="${imgToUse}" class="cat-img"><div class="cat-title">${c.title}</div></div>`;
             });
-            // تشغيل السلايدر
-            new Swiper(".mySwiper", { slidesPerView: 2.2, spaceBetween: 15, freeMode: true });
+            // السلايدر بيشتغل بعد ما الصور تترسم في الـ DOM
+            setTimeout(() => { new Swiper(".mySwiper", { slidesPerView: 2.2, spaceBetween: 15, freeMode: true }); }, 100);
         }
 
         function renderProducts(prodArray, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
+            const container = document.getElementById(containerId); container.innerHTML = '';
             prodArray.forEach(p => {
                 const badgeHtml = (p.badge && p.badge !== 'لا يوجد') ? `<div class="product-badge">${p.badge}</div>` : '';
-                container.innerHTML += `
-                    <div class="product-card" onclick="openProductModal('${p.id}')">
-                        ${badgeHtml}
-                        <img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/200'">
-                        <div class="product-info">
-                            <div class="product-title">${p.title}</div>
-                            <div class="product-price">${p.price} ج.م</div>
-                        </div>
-                    </div>
-                `;
+                container.innerHTML += `<div class="product-card" onclick="openProductModal('${p.id}')">${badgeHtml}<img src="${p.image}" class="product-img"><div class="product-info"><div class="product-title">${p.title}</div><div class="product-price">${p.price} ج.م</div></div></div>`;
             });
         }
 
-        function openCategory(id, title) {
-            document.getElementById('home-view').classList.add('hidden');
-            document.getElementById('category-view').classList.remove('hidden');
-            document.getElementById('cat-view-title').innerText = title;
-            const filtered = products.filter(p => p.category_id === id);
-            renderProducts(filtered, 'cat-products');
-            window.scrollTo(0,0);
-        }
-
-        function showHome() {
-            document.getElementById('home-view').classList.remove('hidden');
-            document.getElementById('category-view').classList.add('hidden');
-        }
-
-        // ================= نافذة تفاصيل المنتج (الألوان والأبعاد) =================
+        // ================= المودال =================
         function openProductModal(id) {
             activeProduct = products.find(p => p.id === id);
-            selectedColor = 'اللون الافتراضي';
-            selectedSize = 'مقاس موحد';
-
+            selectedColor = 'اللون الافتراضي'; selectedSize = 'مقاس موحد'; selectedColorImg = activeProduct.image;
             document.getElementById('pd-img').src = activeProduct.image;
             document.getElementById('pd-title').innerText = activeProduct.title;
+            document.getElementById('pd-desc').innerText = activeProduct.description;
             document.getElementById('pd-price').innerText = activeProduct.price + ' ج.م';
 
-            // عرض الأبعاد لو موجودة
-            let dimHtml = '';
-            if(activeProduct.length_val) dimHtml += `<div class="dim-box">الطول: ${activeProduct.length_val}</div>`;
-            if(activeProduct.width_val) dimHtml += `<div class="dim-box">العرض: ${activeProduct.width_val}</div>`;
-            if(activeProduct.thickness_val) dimHtml += `<div class="dim-box">التخانة: ${activeProduct.thickness_val}</div>`;
-            document.getElementById('pd-dimensions').innerHTML = dimHtml;
-
-            // الألوان المتاحة
             const prodColors = colors.filter(c => c.product_id === id);
             const colorSec = document.getElementById('pd-colors-section');
             if(prodColors.length > 0) {
-                let html = '';
-                prodColors.forEach((c, idx) => {
-                    html += `<div class="color-circle" style="background-color:${c.color_hex};" onclick="selectColor('${c.color_name}', '${c.image_url}', this)" title="${c.color_name}"></div>`;
-                });
-                document.getElementById('pd-colors').innerHTML = html;
-                colorSec.classList.remove('hidden');
-            } else { colorSec.classList.add('hidden'); }
+                let html = ''; prodColors.forEach((c) => { html += `<div class="color-circle" style="background-color:${c.color_hex};" onclick="selectColor('${c.color_name}', '${c.image_url}', this)" title="${c.color_name}"></div>`; });
+                document.getElementById('pd-colors').innerHTML = html; colorSec.classList.remove('hidden');
+            } else colorSec.classList.add('hidden');
 
-            // المقاسات المتاحة
             const prodSizes = sizes.filter(s => s.product_id === id);
             const sizeSec = document.getElementById('pd-sizes-section');
             if(prodSizes.length > 0) {
-                let html = '';
-                prodSizes.forEach(s => {
-                    html += `<button class="size-btn" onclick="selectSize('${s.size_name}', this)">${s.size_name}</button>`;
-                });
-                document.getElementById('pd-sizes').innerHTML = html;
-                sizeSec.classList.remove('hidden');
-            } else { sizeSec.classList.add('hidden'); }
+                let html = ''; prodSizes.forEach(s => { html += `<button class="size-btn" onclick="selectSize('${s.size_name}', this)">${s.size_name}</button>`; });
+                document.getElementById('pd-sizes').innerHTML = html; sizeSec.classList.remove('hidden');
+            } else sizeSec.classList.add('hidden');
 
             document.getElementById('pd-add-btn').onclick = () => addToCart();
             document.getElementById('product-modal').style.display = 'block';
         }
 
-        function selectColor(name, imgUrl, el) {
-            selectedColor = name;
-            document.getElementById('pd-img').src = imgUrl; // تغيير صورة المنتج فورا
-            document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('selected'));
-            el.classList.add('selected');
-        }
-
-        function selectSize(name, el) {
-            selectedSize = name;
-            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-            el.classList.add('selected');
-        }
-
+        function selectColor(name, imgUrl, el) { selectedColor = name; selectedColorImg = imgUrl; document.getElementById('pd-img').src = imgUrl; document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); }
+        function selectSize(name, el) { selectedSize = name; document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected')); el.classList.add('selected'); }
         function closeProductModal() { document.getElementById('product-modal').style.display = 'none'; }
+        function openLoginModal() { document.getElementById('auth-modal').style.display = 'flex'; }
 
-        // ================= سلة المشتريات =================
+        // ================= السلة وصورها =================
         function addToCart() {
-            // التحقق إن كان لازم يختار لون ومقاس لو متوفرين ومختارش
             const hasColors = colors.filter(c => c.product_id === activeProduct.id).length > 0;
             const hasSizes = sizes.filter(s => s.product_id === activeProduct.id).length > 0;
-            
-            if(hasColors && selectedColor === 'اللون الافتراضي') return alert("برجاء اختيار اللون أولاً");
-            if(hasSizes && selectedSize === 'مقاس موحد') return alert("برجاء اختيار المقاس أولاً");
+            if(hasColors && selectedColor === 'اللون الافتراضي') return alert("اختار اللون يا غالي");
+            if(hasSizes && selectedSize === 'مقاس موحد') return alert("اختار المقاس");
 
             const itemKey = activeProduct.id + "_" + selectedColor + "_" + selectedSize;
             const exist = cart.find(x => x.key === itemKey);
             
+            // حفظنا الصورة المختارة عشان نعرضها في السلة
             if(exist) exist.qty++;
-            else cart.push({ key: itemKey, id: activeProduct.id, title: activeProduct.title, price: activeProduct.price, color: selectedColor, size: selectedSize, qty: 1 });
+            else cart.push({ key: itemKey, id: activeProduct.id, title: activeProduct.title, price: activeProduct.price, color: selectedColor, size: selectedSize, qty: 1, img: selectedColorImg });
             
-            localStorage.setItem('okaz_cart', JSON.stringify(cart));
-            updateCartCount();
-            closeProductModal();
-            alert("تم إضافة المنتج للسلة بنجاح 🛒");
+            localStorage.setItem('okaz_cart', JSON.stringify(cart)); updateCartCount(); closeProductModal(); alert("تم الإضافة للسلة 🛒");
         }
 
-        function updateCartCount() {
-            const count = cart.reduce((sum, item) => sum + item.qty, 0);
-            document.getElementById('cart-count').innerText = count;
-        }
-
-        function openCart() {
-            renderCartItems();
-            document.getElementById('cart-modal').style.display = 'block';
-        }
-
+        function updateCartCount() { document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0); }
+        function openCart() { renderCartItems(); document.getElementById('cart-modal').style.display = 'block'; }
         function closeCart() { document.getElementById('cart-modal').style.display = 'none'; }
 
         function changeQty(key, d) {
-            const item = cart.find(x => x.key === key);
-            item.qty += d;
+            const item = cart.find(x => x.key === key); item.qty += d;
             if(item.qty <= 0) cart = cart.filter(x => x.key !== key);
-            localStorage.setItem('okaz_cart', JSON.stringify(cart));
-            updateCartCount();
-            renderCartItems();
+            localStorage.setItem('okaz_cart', JSON.stringify(cart)); updateCartCount(); renderCartItems();
         }
 
         function renderCartItems() {
             const container = document.getElementById('cart-items-container');
-            const chkArea = document.getElementById('checkout-area');
-            container.innerHTML = '';
-            
-            if(cart.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">السلة فارغة. ابدأ التسوق!</p>';
-                chkArea.classList.add('hidden');
-                return;
-            }
-            
-            chkArea.classList.remove('hidden');
-            let itemsTotal = 0;
+            if(cart.length === 0) { container.innerHTML = '<p style="text-align:center; color:#888;">السلة فارغة.</p>'; document.getElementById('checkout-area').classList.add('hidden'); return; }
+            document.getElementById('checkout-area').classList.remove('hidden');
+            let itemsTotal = 0; container.innerHTML = '';
             
             cart.forEach(item => {
                 itemsTotal += item.price * item.qty;
                 const details = (item.color !== 'اللون الافتراضي' || item.size !== 'مقاس موحد') ? `<div style="font-size:0.8em; color:#aaa;">${item.color} | ${item.size}</div>` : '';
                 container.innerHTML += `
                     <div class="cart-item">
+                        <img src="${item.img}" alt="img">
                         <div style="flex:1;">
-                            <b style="color:#fff;">${item.title}</b>
-                            ${details}
+                            <b style="color:#fff;">${item.title}</b> ${details}
                             <div style="color:var(--primary); font-weight:bold;">${item.price} ج.م</div>
                         </div>
                         <div class="qty-box">
@@ -403,131 +325,81 @@
                             <span style="font-weight:bold; color:#fff;">${item.qty}</span>
                             <button class="qty-btn" onclick="changeQty('${item.key}', -1)">-</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
-            
             calculateTotals(itemsTotal);
         }
 
-        // ================= الحسابات والكوبونات =================
+        // ================= البحث الذكي والكوبونات =================
         async function applyPromo() {
             const code = document.getElementById('promo-input').value.toUpperCase();
-            if(!code) return;
             const { data } = await supabaseClient.from('promo_codes').select('*').eq('code', code).eq('is_active', true);
-            if(data && data.length > 0) {
-                activePromoCode = code;
-                activeDiscountPercent = data[0].discount_percentage;
-                document.getElementById('promo-msg').innerText = `تم تفعيل خصم ${activeDiscountPercent}% بنجاح!`;
-                renderCartItems(); // إعادة الحساب
-            } else {
-                alert("كود الخصم غير صحيح أو منتهي!");
-                activePromoCode = ""; activeDiscountPercent = 0;
-                document.getElementById('promo-msg').innerText = '';
-                renderCartItems();
-            }
+            if(data && data.length > 0) { activePromoCode = code; activeDiscountPercent = data[0].discount_percentage; document.getElementById('promo-msg').innerText = `تم تفعيل خصم ${activeDiscountPercent}%`; }
+            else { activePromoCode = ""; activeDiscountPercent = 0; document.getElementById('promo-msg').innerText = ''; alert("كود غير صحيح!"); }
+            renderCartItems();
         }
 
         function calculateTotals(itemsTotal) {
-            const shippingCost = Number(document.getElementById('c-shipping-cost').value) || 0;
-            const discountAmount = (itemsTotal * activeDiscountPercent) / 100;
-            const grandTotal = (itemsTotal - discountAmount) + shippingCost;
-
-            document.getElementById('summ-items').innerText = itemsTotal;
-            document.getElementById('summ-shipping').innerText = shippingCost;
-            
-            if(discountAmount > 0) {
-                document.getElementById('summ-discount-row').classList.remove('hidden');
-                document.getElementById('summ-discount').innerText = discountAmount.toFixed(2);
-            } else {
-                document.getElementById('summ-discount-row').classList.add('hidden');
-            }
-            
-            document.getElementById('summ-total').innerText = grandTotal.toFixed(2);
+            const ship = Number(document.getElementById('c-shipping-cost').value) || 0;
+            const discount = (itemsTotal * activeDiscountPercent) / 100;
+            document.getElementById('summ-items').innerText = itemsTotal; document.getElementById('summ-shipping').innerText = ship;
+            if(discount > 0) { document.getElementById('summ-discount-row').classList.remove('hidden'); document.getElementById('summ-discount').innerText = discount.toFixed(2); }
+            else { document.getElementById('summ-discount-row').classList.add('hidden'); }
+            document.getElementById('summ-total').innerText = ((itemsTotal - discount) + ship).toFixed(2);
         }
 
-        // ================= البحث الذكي للمحافظات (Autocomplete) =================
         function setupAutocomplete() {
-            const input = document.getElementById('c-city-search');
-            const list = document.getElementById('city-list');
-
+            const input = document.getElementById('c-city-search'); const list = document.getElementById('city-list');
             input.addEventListener('input', function() {
-                const val = this.value;
-                list.innerHTML = '';
+                const val = this.value.toLowerCase(); list.innerHTML = '';
                 if (!val) { document.getElementById('c-shipping-cost').value = 0; renderCartItems(); return; }
 
-                // تصفية المحافظات بناءً على الحروف المكتوبة
-                const matches = shippingRules.filter(s => s.city.includes(val));
+                // البحث العادي + البحث في القاموس (Aliases)
+                const searchKey = cityAliases[val] || val;
+                const matches = shippingRules.filter(s => s.city.includes(searchKey));
                 
-                matches.forEach(match => {
+                matches.forEach(m => {
                     const div = document.createElement('div');
-                    div.innerHTML = `${match.city} <span style="color:var(--primary); font-size:0.8em; float:left;">${match.cost} ج.م</span>`;
+                    div.innerHTML = `${m.city} <span style="color:var(--primary); font-size:0.8em; float:left;">${m.cost} ج.م</span>`;
                     div.addEventListener('click', function() {
-                        input.value = match.city;
-                        document.getElementById('c-city-final').value = match.city;
-                        document.getElementById('c-shipping-cost').value = match.cost;
-                        list.innerHTML = '';
-                        renderCartItems(); // تحديث السعر في السلة
+                        input.value = m.city; document.getElementById('c-city-final').value = m.city; document.getElementById('c-shipping-cost').value = m.cost;
+                        list.innerHTML = ''; renderCartItems();
                     });
                     list.appendChild(div);
                 });
             });
-
-            // إخفاء القائمة لو داس برا
-            document.addEventListener('click', function (e) { if (e.target !== input) list.innerHTML = ''; });
+            document.addEventListener('click', e => { if (e.target !== input) list.innerHTML = ''; });
         }
 
-        // ================= تأكيد الطلب للسيرفر =================
+        // ================= الإرسال النهائي =================
         async function confirmOrder() {
-            const n = document.getElementById('c-name').value;
-            const p = document.getElementById('c-phone').value;
-            const c = document.getElementById('c-city-final').value;
-            const a = document.getElementById('c-address').value;
+            const n = document.getElementById('c-name').value, p = document.getElementById('c-phone').value, e = document.getElementById('c-email').value;
+            const city = document.getElementById('c-city-final').value;
+            const area = document.getElementById('c-area').value, street = document.getElementById('c-street').value, bld = document.getElementById('c-building').value, flr = document.getElementById('c-floor').value, apt = document.getElementById('c-apt').value, lnd = document.getElementById('c-landmark').value;
             const ship = Number(document.getElementById('c-shipping-cost').value);
             
-            if(!n || !p || !c || !a) return alert("برجاء إكمال الاسم، الموبايل، اختيار المحافظة من القائمة، والعنوان.");
+            if(!n || !p || !city || !area || !street) return alert("برجاء إكمال الاسم والموبايل واختيار المحافظة والمنطقة والشارع.");
             
-            const btn = document.getElementById('submit-order-btn');
-            btn.innerHTML = 'جاري التأكيد... <i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
+            const btn = document.getElementById('submit-order-btn'); btn.innerHTML = 'جاري التأكيد... <i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
 
-            const itemsTotal = Number(document.getElementById('summ-items').innerText);
-            const discount = Number(document.getElementById('summ-discount').innerText) || 0;
-            const grand = Number(document.getElementById('summ-total').innerText);
+            const itemsTotal = Number(document.getElementById('summ-items').innerText), discount = Number(document.getElementById('summ-discount').innerText) || 0, grand = Number(document.getElementById('summ-total').innerText);
 
             try {
-                // تسجيل الطلب الرئيسي
                 const { data: orderData, error: orderErr } = await supabaseClient.from('orders').insert([{
-                    customer_name: n, customer_phone: p, customer_city: c, customer_address: a,
-                    total_items_price: itemsTotal, shipping_cost: ship, discount_amount: discount,
-                    grand_total: grand, promo_code_used: activePromoCode || null
+                    customer_name: n, customer_phone: p, customer_email: e, customer_city: city, customer_area: area, customer_street: street, customer_building: bld, customer_floor: flr, customer_apartment: apt, customer_landmark: lnd,
+                    total_items_price: itemsTotal, shipping_cost: ship, discount_amount: discount, grand_total: grand, promo_code_used: activePromoCode || null
                 }]).select();
-
                 if(orderErr) throw orderErr;
-                const orderId = orderData[0].id;
 
-                // تسجيل المنتجات
-                const itemsToInsert = cart.map(i => ({
-                    order_id: orderId, product_name: i.title,
-                    selected_color: i.color, selected_size: i.size,
-                    quantity: i.qty, price: i.price
-                }));
-
+                const itemsToInsert = cart.map(i => ({ order_id: orderData[0].id, product_name: i.title, selected_color: i.color, selected_size: i.size, quantity: i.qty, price: i.price, image_url: i.img }));
                 await supabaseClient.from('order_items').insert(itemsToInsert);
 
-                // إظهار شاشة النجاح
-                cart = []; localStorage.removeItem('okaz_cart'); updateCartCount();
-                document.getElementById('cart-modal').style.display = 'none';
-                document.getElementById('display-order-id').innerText = `#OKZ-${orderId.split('-')[0].toUpperCase()}`;
+                cart = []; localStorage.removeItem('okaz_cart'); updateCartCount(); document.getElementById('cart-modal').style.display = 'none';
+                document.getElementById('display-order-id').innerText = `#OKZ-${orderData[0].id.split('-')[0].toUpperCase()}`;
                 document.getElementById('success-modal').style.display = 'flex';
-
-            } catch(e) {
-                console.error(e);
-                alert("حدث خطأ في الاتصال بالسيرفر. حاول مرة أخرى.");
-                btn.innerHTML = 'تأكيد الطلب الآن <i class="fas fa-check-circle"></i>'; btn.disabled = false;
-            }
+            } catch(err) { alert("حدث خطأ في الاتصال"); btn.innerHTML = 'تأكيد الطلب'; btn.disabled = false; }
         }
 
-        // تشغيل السيستم
         initStore();
     </script>
 </body>
