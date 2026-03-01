@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سوق عكاز | الإدارة الشاملة (POS & ERP)</title>
+    <title>سوق عكاز | نظام الإدارة الشامل والكاشير</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -41,7 +41,6 @@
         .stat-card.warning { background: linear-gradient(135deg, rgba(255, 165, 2, 0.15), rgba(0,0,0,0.8)); border: 1px solid var(--warning); }
         .stat-card.danger { background: linear-gradient(135deg, rgba(255, 71, 87, 0.15), rgba(0,0,0,0.8)); border: 1px solid var(--danger); }
         .stat-info h3 { margin: 0; font-size: 1em; color: #ccc; pointer-events: none; } .stat-info p { margin: 5px 0 0; font-size: 1.8em; font-weight: 900; color: #fff; pointer-events: none; } .stat-icon { font-size: 3.5em; opacity: 0.8; pointer-events: none; }
-        .stat-card.success .stat-icon { color: var(--success); } .stat-card.info .stat-icon { color: var(--info); } .stat-card.warning .stat-icon { color: var(--warning); } .stat-card.danger .stat-icon { color: var(--danger); }
 
         .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .calc-btn { background: #222; color: #fff; border: 1px solid #333; padding: 15px; border-radius: 8px; font-size: 1.2em; cursor: pointer; transition: 0.2s; font-family: 'Cairo'; font-weight:bold;}
@@ -87,6 +86,7 @@
         <div class="logo-area"><h2 id="admin-logo-text">سوق عكاز</h2><span style="color:var(--text-muted); font-size:0.8em;">الإدارة الشاملة</span></div>
         <button class="nav-btn active" onclick="switchTab('accounting', this)"><i class="fas fa-chart-pie"></i> الحسابات والماليات</button>
         <button class="nav-btn" onclick="switchTab('orders', this)"><i class="fas fa-box-open"></i> إدارة الطلبات</button>
+        <button class="nav-btn" onclick="switchTab('customers', this)"><i class="fas fa-users"></i> بنك العملاء (CRM)</button>
         <button class="nav-btn" onclick="switchTab('inventory', this)"><i class="fas fa-plus-square"></i> إضافة للمخزن</button>
         <button class="nav-btn" onclick="switchTab('edit-inventory', this)"><i class="fas fa-edit"></i> كروت الصنف (تعديل)</button>
         <button class="nav-btn" onclick="switchTab('banners', this)"><i class="fas fa-images"></i> البانرات الرئيسية</button>
@@ -152,6 +152,28 @@
                     <table>
                         <thead><tr><th>الطلب</th><th>العميل والمكان</th><th>التواصل</th><th>المنتجات</th><th>الإجمالي</th><th>الإجراءات</th></tr></thead>
                         <tbody id="orders-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="customers" class="section">
+            <div class="panel">
+                <h2 class="panel-title"><i class="fas fa-users"></i> بنك بيانات العملاء وإدارة العلاقات (CRM)</h2>
+                <p style="color:#aaa; font-size:0.9em; margin-bottom:20px;">هنا يتم تسجيل أي عميل يقوم بإنشاء حساب أو إتمام طلب من الموقع أوتوماتيكياً لمنع التكرار وحساب إجمالي مشترياته.</p>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>صورة / العميل</th>
+                                <th>بيانات التواصل</th>
+                                <th>الموقع التقريبي (IP)</th>
+                                <th>إجمالي المدفوعات</th>
+                                <th>عدد طلباته</th>
+                                <th>تاريخ الانضمام</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customers-table"></tbody>
                     </table>
                 </div>
             </div>
@@ -432,6 +454,7 @@
             if(tabId === 'inventory') { loadCategoriesForSelects(); loadProductsList(); loadSizeTemplatesDropdown(); }
             if(tabId === 'accounting') loadComprehensiveReports();
             if(tabId === 'orders') loadOrders();
+            if(tabId === 'customers') loadCustomers(); // التبويبة الجديدة للـ CRM
             if(tabId === 'templates') loadTemplatesList();
             if(tabId === 'shipping') loadCitiesForDropdown();
             if(tabId === 'edit-inventory') loadEditInventory();
@@ -443,6 +466,7 @@
             return supabaseClient.storage.from('okaz_images').getPublicUrl(fName).data.publicUrl;
         }
 
+        // ================= الآلة الحاسبة =================
         function calcAction(val) {
             const display = document.getElementById('calc-display');
             if(val === 'C') { calcValue = ''; display.value = '0'; return; }
@@ -450,6 +474,7 @@
             calcValue += val; display.value = calcValue;
         }
 
+        // ================= المترجم الذكي =================
         async function smartTranslate(text, targetId, badgeId) {
             if(!text || text.length < 2) return;
             const badge = document.getElementById(badgeId); 
@@ -466,15 +491,14 @@
             let translated = text; 
             for (const [ar, en] of Object.entries(dict)) { translated = translated.replace(new RegExp(ar, 'g'), en); }
             if (/[\u0600-\u06FF]/.test(translated)) {
-                try {
-                    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=ar|en`);
-                    const data = await res.json(); translated = data.responseData.translatedText;
-                } catch(e) {}
+                try { const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=ar|en`);
+                const data = await res.json(); translated = data.responseData.translatedText; } catch(e) {}
             }
             document.getElementById(targetId).value = translated;
             if(badge) { badge.innerText = ' تم ✓'; setTimeout(()=>badge.style.display='none', 2000); }
         }
 
+        // ================= الإعدادات =================
         async function loadStoreSettingsFromDB() {
             const { data } = await supabaseClient.from('store_settings').select('*');
             if(data) data.forEach(x => systemSettings[x.setting_key] = x.setting_value);
@@ -498,7 +522,7 @@
             if(document.getElementById('set-theme-color')) document.getElementById('set-theme-color').value = systemSettings.theme_color || '#e67e22';
             if(document.getElementById('set-announcement')) document.getElementById('set-announcement').value = systemSettings.announcement_text || '';
             if(document.getElementById('set-bundle-active')) document.getElementById('set-bundle-active').checked = (systemSettings.bundle_active === 'true');
-            if(document.getElementById('set-bundle-tiers')) document.getElementById('set-bundle-tiers').value = systemSettings.bundle_tiers || '1000, 1500, 2000';
+            if(document.getElementById('set-bundle-tiers')) document.getElementById('set-bundle-tiers').value = systemSettings.bundle_tiers || '1000, 1500, 2000, 3000';
 
             if(systemSettings.site_favicon) { document.getElementById('preview-logo-favicon').src = systemSettings.site_favicon; document.getElementById('preview-logo-favicon').style.display = 'block'; }
             if(systemSettings.site_logo_header) { document.getElementById('preview-logo-header').src = systemSettings.site_logo_header; document.getElementById('preview-logo-header').style.display = 'block'; }
@@ -528,6 +552,7 @@
             } finally { hideLoader(); }
         }
 
+        // ================= الحسابات والتقارير =================
         async function loadComprehensiveReports() {
             const { data: orders } = await supabaseClient.from('orders').select('id, customer_name, grand_total, status, created_at');
             globalOrdersData = orders || [];
@@ -583,6 +608,7 @@
             document.getElementById('report-modal').style.display = 'block';
         }
 
+        // ================= إضافة للمخزن =================
         async function loadCategoriesForSelects() { const {data} = await supabaseClient.from('categories').select('*'); const html='<option value="">-- اختر القسم --</option>'+data.map(x=>`<option value="${x.id}">${x.title_ar}</option>`).join(''); document.getElementById('prod-cat').innerHTML=html; document.getElementById('cat-parent-id').innerHTML='<option value="">-- قسم رئيسي --</option>'+html; }
         async function loadProductsList() { const {data} = await supabaseClient.from('products').select('id, title_ar'); const html='<option value="">-- اختر المنتج --</option>'+data.map(x=>`<option value="${x.id}">${x.title_ar}</option>`).join(''); document.getElementById('color-prod-id').innerHTML=html; document.getElementById('size-prod-id').innerHTML=html; }
         async function addCategory() { const tar=document.getElementById('cat-title-ar').value, ten=document.getElementById('cat-title-en').value, pid=document.getElementById('cat-parent-id').value||null, shw=document.getElementById('cat-show-home').checked; if(!tar)return alert("الاسم بالعربي!"); showLoader("حفظ..."); await supabaseClient.from('categories').insert([{title_ar:tar, title_en:ten, parent_id:pid, show_on_home:shw}]); hideLoader(); loadCategoriesForSelects(); alert("تم إضافة القسم"); document.getElementById('cat-title-ar').value=''; }
@@ -600,12 +626,14 @@
 
         async function addColor() { const pid=document.getElementById('color-prod-id').value, file=document.getElementById('color-image'); if(!pid||file.files.length===0) return alert("اختر!"); showLoader("حفظ..."); const img=await uploadImage(file.files[0]); await supabaseClient.from('product_colors').insert([{product_id:pid, color_name_ar:document.getElementById('color-name-ar').value, color_name_en:document.getElementById('color-name-en').value, color_hex:document.getElementById('color-hex').value, image_url:img}]); hideLoader(); alert("تم ربط اللون!"); }
         
+        // ================= القوالب =================
         async function loadSizeTemplatesDropdown() { const {data}=await supabaseClient.from('size_templates').select('*'); document.getElementById('size-template-select').innerHTML='<option value="">-- اختر القالب --</option>'+data.map(x=>`<option value="${x.id}">${x.template_name}</option>`).join(''); }
         async function loadTemplateOptionsForCheckboxes() { const id=document.getElementById('size-template-select').value; const cont=document.getElementById('size-checkboxes-container'); cont.innerHTML=''; if(!id) return; const {data}=await supabaseClient.from('size_template_options').select('*').eq('template_id',id); if(data) data.forEach(o=>{ cont.innerHTML+=`<label class="size-box" onclick="this.classList.toggle('selected')">${o.size_value}<input type="checkbox" value="${o.size_value}"></label>`; }); }
         async function saveCheckedSizes() { const pId=document.getElementById('size-prod-id').value, chks=document.querySelectorAll('.size-box.selected input'); if(!pId||chks.length===0)return alert("اختر!"); showLoader("حفظ..."); const d=Array.from(chks).map(c=>({product_id:pId, size_name:c.value})); await supabaseClient.from('product_sizes').insert(d); hideLoader(); alert("تم حفظ المقاسات!"); document.querySelectorAll('.size-box').forEach(b=>b.classList.remove('selected')); }
         async function addSizeTemplate() { const n = document.getElementById('tpl-name').value, v = document.getElementById('tpl-values').value; if(!n || !v) return; showLoader("حفظ..."); try { const arr = v.split(',').map(s=>s.trim()).filter(s=>s!==''); const {data:tpl} = await supabaseClient.from('size_templates').insert([{template_name: n}]).select(); if(tpl) { const opts = arr.map(x=>({template_id: tpl[0].id, size_value: x})); await supabaseClient.from('size_template_options').insert(opts); alert("تم القالب ✅"); loadTemplatesList(); } } finally { hideLoader(); } }
         async function loadTemplatesList() { const {data} = await supabaseClient.from('size_templates').select('*, size_template_options(size_value)'); const list = document.getElementById('templates-list'); list.innerHTML=''; if(data) { data.forEach(t => { list.innerHTML += `<div style="background:#222; padding:10px; border-radius:8px; margin-bottom:10px;"><strong style="color:var(--primary);">${t.template_name}</strong><div style="color:#aaa; font-size:0.9em;">[ ${t.size_template_options.map(o=>o.size_value).join(' - ')} ]</div></div>`; }); } }
 
+        // ================= كروت الصنف والباركود =================
         async function loadEditInventory() { 
             showLoader("سحب بيانات المخزن..."); 
             try {
@@ -640,6 +668,31 @@
             printHTMLWindow(`<div style="width:5cm; text-align:center; font-family:'Cairo',sans-serif; color:#000; padding:5px; box-sizing:border-box;"><div style="font-weight:900; font-size:14px; margin-bottom:2px;">${storeName}</div><div style="font-size:12px; margin-bottom:5px; max-height:18px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.title_ar}</div><div style="font-weight:900; font-size:18px; margin-bottom:5px;">${p.price} EGP</div><img src="${barcodeImg}" style="max-width:100%; height:auto;"></div>`);
         }
 
+        // ================= إدارة العملاء (CRM) =================
+        async function loadCustomers() {
+            showLoader("جاري سحب بيانات العملاء...");
+            try {
+                const { data } = await supabaseClient.from('customers').select('*').order('total_spent', { ascending: false });
+                const tbody = document.getElementById('customers-table');
+                tbody.innerHTML = '';
+                if(data) {
+                    data.forEach(c => {
+                        const avatar = c.avatar_url ? `<img src="${c.avatar_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">` : `<div style="width:40px;height:40px;border-radius:50%;background:var(--primary);color:#000;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:1.2em;">${c.full_name.charAt(0)}</div>`;
+                        const date = new Date(c.created_at).toLocaleDateString('ar-EG');
+                        tbody.innerHTML += `<tr>
+                            <td style="display:flex; align-items:center; gap:15px; border:none;">${avatar} <b style="color:#fff; font-size:1.1em;">${c.full_name}</b></td>
+                            <td style="color:#aaa;"><i class="fas fa-phone"></i> ${c.phone || '-'}<br><i class="fas fa-envelope"></i> ${c.email || '-'}</td>
+                            <td><i class="fas fa-map-marker-alt" style="color:var(--danger);"></i> ${c.location_info || c.ip_address || 'غير متوفر'}</td>
+                            <td style="color:var(--success); font-weight:900; font-size:1.2em;">${c.total_spent} ج.م</td>
+                            <td style="font-weight:bold; font-size:1.1em; color:var(--info);">${c.orders_count} طلبات</td>
+                            <td style="color:#888; font-size:0.9em;">${date}</td>
+                        </tr>`;
+                    });
+                }
+            } finally { hideLoader(); }
+        }
+
+        // ================= الطلبات والبانرات والفواتير =================
         async function loadOrders() { 
             const {data} = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at',{ascending:false}); 
             allOrdersDetailed = data || []; 
@@ -648,7 +701,7 @@
                 data.forEach(o=>{ 
                     const st=o.status; const sColor=st==='تم التوصيل'?'var(--success)':['ملغي','مرتجع'].includes(st)?'var(--danger)':'#fff'; 
                     const sel=`<select class="status-select" style="color:${sColor}; border-color:${sColor}; width:100%; margin-bottom:5px;" onchange="updateOrderStatus('${o.id}', this.value)">`+['قيد المراجعة','جاري التجهيز','مع المندوب','تم التوصيل','ملغي','مرتجع'].map(s=>`<option ${st===s?'selected':''}>${s}</option>`).join('')+'</select>'; 
-                    const printBtn = `<button class="btn-sm" style="background:#555; color:#fff; width:100%;" onclick="printInvoice('${o.id}')"><i class="fas fa-print"></i> فاتورة</button>`;
+                    const printBtn = `<button class="btn-sm" style="background:#555; color:#fff; width:100%;" onclick="printInvoice('${o.id}')"><i class="fas fa-print"></i> طباعة الفاتورة</button>`;
                     let loc = `${o.customer_city} - ${o.customer_area} <br><small style="color:#aaa;">ش: ${o.customer_street} / عم: ${o.customer_building} / ش: ${o.customer_apartment}</small>`;
                     tbody.innerHTML+=`<tr><td style="color:var(--primary); font-weight:bold;">#OKZ-${o.id.split('-')[0].toUpperCase()}</td><td style="font-weight:bold;">${o.customer_name}<br>${loc}</td><td>${o.customer_phone}</td><td>${o.order_items.map(i=>`- ${i.product_name} (${i.selected_color || ''} | ${i.selected_size || ''}) <b style="color:#fff">x${i.quantity}</b>`).join('<br>')}</td><td style="color:var(--success); font-weight:bold; font-size:1.1em;">${o.grand_total} ج.م</td><td>${sel} ${printBtn}</td></tr>`; 
                 }); 
@@ -673,7 +726,7 @@
         }
         
         async function loadBannersStatus() { const {data}=await supabaseClient.from('store_banners').select('*'); if(data) data.forEach(b=>{ const c=document.getElementById(`banner-${b.position_name}-active`); if(c) c.checked=b.is_active; }); }
-        async function saveBanners(pos) { const isActive=document.getElementById(`banner-${pos}-active`).checked, files=document.getElementById(`banner-${pos}-files`).files; showLoader(`جاري تحديث البانر الـ ${pos}...`); try { let updates={is_active:isActive}; if(files.length>0){ let urls=[]; for(let i=0;i<files.length;i++)urls.push(await uploadImage(files[i])); updates.images=urls; } await supabaseClient.from('store_banners').update(updates).eq('position_name',pos); alert("تم التحديث! ✅"); } finally { hideLoader(); } }
+        async function saveBanners(pos) { const isActive=document.getElementById(`banner-${pos}-active`).checked, files=document.getElementById(`banner-${pos}-files`).files; showLoader(`تحديث البانر...`); try { let updates={is_active:isActive}; if(files.length>0){ let urls=[]; for(let i=0;i<files.length;i++)urls.push(await uploadImage(files[i])); updates.images=urls; } await supabaseClient.from('store_banners').update(updates).eq('position_name',pos); alert("تم التحديث! ✅"); } finally { hideLoader(); } }
         async function loadCitiesForDropdown() { const {data}=await supabaseClient.from('shipping_rules').select('*').order('city_ar'); const sel=document.getElementById('ship-city-select'); sel.innerHTML='<option value="">-- المحافظة --</option>'; data.forEach(c=>sel.innerHTML+=`<option value="${c.id}">${c.city_ar}</option>`); }
         function loadSelectedCityPrice() { const id=document.getElementById('ship-city-select').value; supabaseClient.from('shipping_rules').select('cost').eq('id',id).single().then(r=>document.getElementById('ship-city-price').value=r.data.cost); }
         async function updateCityPrice() { await supabaseClient.from('shipping_rules').update({cost:document.getElementById('ship-city-price').value}).eq('id',document.getElementById('ship-city-select').value); alert("تم التعديل 🚚"); }
