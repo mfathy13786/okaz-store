@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة سوق عكاز | الإدارة المتقدمة</title>
+    <title>إدارة سوق عكاز | المركز الرئيسي</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,7 +14,7 @@
         .sidebar { width: 260px; background: var(--sidebar); border-left: 1px solid #222; display: flex; flex-direction: column; padding: 20px 0; box-shadow: -5px 0 15px rgba(0,0,0,0.5); z-index: 100; overflow-y:auto; }
         .logo-area { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #222; }
         .logo-area h2 { color: var(--primary); margin: 0; font-weight: 900; }
-        .nav-btn { display: flex; align-items: center; gap: 15px; padding: 15px 25px; color: var(--text-muted); text-decoration: none; cursor: pointer; transition: 0.3s; border-right: 4px solid transparent; font-size: 1.1em; font-weight: 600; background: none; border: none; width: 100%; text-align: right; }
+        .nav-btn { display: flex; align-items: center; gap: 15px; padding: 15px 25px; color: var(--text-muted); cursor: pointer; transition: 0.3s; border-right: 4px solid transparent; font-size: 1.1em; font-weight: 600; background: none; border: none; width: 100%; text-align: right; }
         .nav-btn:hover, .nav-btn.active { background: #1f1f1f; color: var(--primary); border-right-color: var(--primary); }
         .nav-btn i { font-size: 1.2em; width: 25px; text-align: center; }
 
@@ -47,12 +47,12 @@
         
         .btn-main { background: var(--primary); color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: 800; font-family: 'Cairo'; width: 100%; transition: 0.3s; }
         .btn-main:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230,126,34,0.3); }
-        .btn-main:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-sm { background: var(--success); color: #000; padding: 6px 12px; border-radius: 5px; cursor: pointer; border: none; font-family: 'Cairo'; font-weight: bold; }
         
         .flex-row { display: flex; gap: 15px; flex-wrap: wrap; }
         .flex-row > div { flex: 1; min-width: 250px; }
         
-        /* Loader Overlay */
+        /* Loader */
         #loader { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; color: var(--primary); }
         .spinner { border: 5px solid #222; border-top: 5px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -60,27 +60,26 @@
 </head>
 <body>
 
-    <div id="loader">
-        <div class="spinner"></div>
-        <h3 id="loader-text">جاري رفع الصور...</h3>
-    </div>
+    <div id="loader"><div class="spinner"></div><h3 id="loader-text">جاري التحميل...</h3></div>
 
     <aside class="sidebar">
-        <div class="logo-area"><h2>سوق عكاز 🦅</h2><span style="color:var(--text-muted); font-size:0.8em;">المركز الرئيسي (ERP)</span></div>
-        <button class="nav-btn active" onclick="switchTab('accounting', this)"><i class="fas fa-file-invoice-dollar"></i> الحسابات</button>
-        <button class="nav-btn" onclick="switchTab('orders', this)"><i class="fas fa-box-open"></i> الطلبات</button>
+        <div class="logo-area"><h2>سوق عكاز 🦅</h2><span style="color:var(--text-muted); font-size:0.8em;">ERP & Admin</span></div>
+        <button class="nav-btn active" onclick="switchTab('accounting', this)"><i class="fas fa-file-invoice-dollar"></i> الحسابات المالية</button>
+        <button class="nav-btn" onclick="switchTab('orders', this)"><i class="fas fa-box-open"></i> إدارة الطلبات</button>
         <button class="nav-btn" onclick="switchTab('inventory', this)"><i class="fas fa-warehouse"></i> المخزن المتقدم</button>
-        <button class="nav-btn" onclick="switchTab('discounts', this)"><i class="fas fa-tags"></i> الخصومات</button>
+        <button class="nav-btn" onclick="switchTab('shipping', this)"><i class="fas fa-truck"></i> تسعير الشحن</button>
+        <button class="nav-btn" onclick="switchTab('discounts', this)"><i class="fas fa-tags"></i> الكوبونات</button>
     </aside>
 
     <main class="main-content">
         <section id="accounting" class="section active">
             <div class="panel">
-                <h2 class="panel-title"><i class="fas fa-calculator"></i> التقارير المالية</h2>
+                <h2 class="panel-title"><i class="fas fa-calculator"></i> التقارير المالية والإحصائيات</h2>
                 <div class="stats-grid">
-                    <div class="stat-card"><i class="fas fa-money-bill-wave stat-icon"></i><div class="stat-info"><h3>إجمالي الخزينة</h3><p id="acc-grand-total">0 ج.م</p></div></div>
-                    <div class="stat-card danger"><i class="fas fa-hand-holding-usd stat-icon"></i><div class="stat-info"><h3>الخصومات (خسارة)</h3><p id="acc-discounts">0 ج.م</p></div></div>
-                    <div class="stat-card success"><i class="fas fa-coins stat-icon"></i><div class="stat-info"><h3>صافي المبيعات</h3><p id="acc-net-sales">0 ج.م</p></div></div>
+                    <div class="stat-card"><i class="fas fa-money-bill-wave stat-icon"></i><div class="stat-info"><h3>إجمالي الخزينة (شامل الشحن)</h3><p id="acc-grand-total">0 ج.م</p></div></div>
+                    <div class="stat-card success"><i class="fas fa-coins stat-icon"></i><div class="stat-info"><h3>صافي المبيعات (المنتجات فقط)</h3><p id="acc-net-sales">0 ج.م</p></div></div>
+                    <div class="stat-card"><i class="fas fa-truck stat-icon"></i><div class="stat-info"><h3>مدفوعات الشحن</h3><p id="acc-shipping">0 ج.م</p></div></div>
+                    <div class="stat-card danger"><i class="fas fa-hand-holding-usd stat-icon"></i><div class="stat-info"><h3>خسائر الكوبونات</h3><p id="acc-discounts">0 ج.م</p></div></div>
                 </div>
             </div>
         </section>
@@ -98,58 +97,58 @@
         </section>
 
         <section id="inventory" class="section">
-            
             <div class="flex-row">
                 <div class="panel">
-                    <h3 class="panel-title"><i class="fas fa-folder-plus"></i> 1. إضافة قسم (سلايدر)</h3>
-                    <div class="input-group"><label>اسم القسم</label><input type="text" id="cat-title" placeholder="ملابس، عكاكيز..."></div>
-                    <div class="input-group"><label>ارفع صور القسم (يمكنك اختيار أكثر من صورة للسلايدر)</label>
-                        <input type="file" id="cat-images" multiple accept="image/*">
-                    </div>
-                    <button class="btn-main" onclick="addCategory()">حفظ القسم ورفع الصور</button>
+                    <h3 class="panel-title"><i class="fas fa-folder-plus"></i> 1. إضافة قسم</h3>
+                    <div class="input-group"><label>اسم القسم</label><input type="text" id="cat-title"></div>
+                    <div class="input-group"><label>صور القسم (ممكن تختار كذا صورة للسلايدر)</label><input type="file" id="cat-images" multiple accept="image/*"></div>
+                    <button class="btn-main" onclick="addCategory()">حفظ ورفع</button>
                 </div>
-
                 <div class="panel">
-                    <h3 class="panel-title"><i class="fas fa-box-plus"></i> 2. إضافة منتج أساسي</h3>
+                    <h3 class="panel-title"><i class="fas fa-box-plus"></i> 2. إضافة منتج</h3>
                     <div class="input-group"><label>القسم</label><select id="prod-cat"></select></div>
-                    <div class="input-group"><label>اسم المنتج</label><input type="text" id="prod-title" placeholder="تيشيرت بولو..."></div>
+                    <div class="input-group"><label>اسم المنتج</label><input type="text" id="prod-title"></div>
                     <div class="flex-row">
-                        <div class="input-group"><label>السعر</label><input type="number" id="prod-price" placeholder="0"></div>
-                        <div class="input-group">
-                            <label>العلامة (Badge)</label>
+                        <div class="input-group"><label>السعر</label><input type="number" id="prod-price"></div>
+                        <div class="input-group"><label>العلامة</label>
                             <select id="prod-badge">
-                                <option value="لا يوجد">بدون علامة</option>
+                                <option value="لا يوجد">بدون</option>
                                 <option value="🔥 الأكثر مبيعاً">🔥 الأكثر مبيعاً</option>
                                 <option value="⭐ جديد">⭐ جديد</option>
-                                <option value="⚡ تريند">⚡ تريند</option>
-                                <option value="🏷️ خصم خاص">🏷️ خصم خاص</option>
                             </select>
                         </div>
                     </div>
-                    <div class="input-group"><label>ارفع صورة المنتج الافتراضية</label>
-                        <input type="file" id="prod-image" accept="image/*">
-                    </div>
-                    <button class="btn-main" onclick="addProduct()">إضافة المنتج ورفع الصورة</button>
+                    <div class="input-group"><label>صورة المنتج</label><input type="file" id="prod-image" accept="image/*"></div>
+                    <button class="btn-main" onclick="addProduct()">حفظ ورفع</button>
                 </div>
             </div>
 
             <div class="flex-row">
                 <div class="panel">
                     <h3 class="panel-title"><i class="fas fa-palette"></i> 3. ربط لون بمنتج</h3>
-                    <div class="input-group"><label>اختر المنتج</label><select id="color-prod-id"></select></div>
-                    <div class="input-group"><label>اسم اللون</label><input type="text" id="color-name" placeholder="أحمر، أسود ملكي..."></div>
-                    <div class="input-group"><label>اللون للدايرة</label><input type="color" id="color-hex" value="#ff0000" style="height:40px; padding:0;"></div>
-                    <div class="input-group"><label>ارفع صورة المنتج باللون ده</label>
-                        <input type="file" id="color-image" accept="image/*">
-                    </div>
-                    <button class="btn-main" onclick="addColor()" style="background:#3742fa; color:#fff;">حفظ اللون والصورة</button>
+                    <div class="input-group"><label>المنتج</label><select id="color-prod-id"></select></div>
+                    <div class="input-group"><label>اسم اللون</label><input type="text" id="color-name"></div>
+                    <div class="input-group"><label>كود اللون (Hex)</label><input type="color" id="color-hex" value="#ff0000" style="height:40px;"></div>
+                    <div class="input-group"><label>صورة المنتج باللون ده</label><input type="file" id="color-image" accept="image/*"></div>
+                    <button class="btn-main" onclick="addColor()" style="background:#3742fa; color:#fff;">حفظ اللون</button>
                 </div>
-
                 <div class="panel">
                     <h3 class="panel-title"><i class="fas fa-ruler"></i> 4. إضافة مقاس لمنتج</h3>
-                    <div class="input-group"><label>اختر المنتج</label><select id="size-prod-id"></select></div>
-                    <div class="input-group"><label>المقاس</label><input type="text" id="size-name" placeholder="S, M, L, XL, 42..."></div>
-                    <button class="btn-main" onclick="addSize()" style="background:#2ed573; color:#fff; margin-top:15px;">حفظ المقاس</button>
+                    <div class="input-group"><label>المنتج</label><select id="size-prod-id"></select></div>
+                    <div class="input-group"><label>المقاس</label><input type="text" id="size-name" placeholder="S, M, L..."></div>
+                    <button class="btn-main" onclick="addSize()" style="background:#2ed573; color:#000;">حفظ المقاس</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="shipping" class="section">
+            <div class="panel">
+                <h2 class="panel-title"><i class="fas fa-truck"></i> تسعير الشحن للمحافظات</h2>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead><tr><th>المحافظة</th><th>تكلفة الشحن (ج.م)</th><th>إجراء</th></tr></thead>
+                        <tbody id="shipping-table"></tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -157,8 +156,8 @@
         <section id="discounts" class="section">
             <div class="panel" style="max-width: 500px; margin: auto;">
                 <h2 class="panel-title"><i class="fas fa-ticket-alt"></i> إصدار كود خصم</h2>
-                <div class="input-group"><label>الكود (مثال: VIP20)</label><input type="text" id="promo-code" style="text-transform: uppercase;"></div>
-                <div class="input-group"><label>نسبة الخصم (%)</label><input type="number" id="promo-percent" placeholder="20"></div>
+                <div class="input-group"><label>الكود</label><input type="text" id="promo-code" style="text-transform: uppercase;"></div>
+                <div class="input-group"><label>النسبة (%)</label><input type="number" id="promo-percent"></div>
                 <button class="btn-main" onclick="addPromo()">تفعيل الكوبون</button>
             </div>
         </section>
@@ -170,7 +169,6 @@
         const SUPABASE_KEY = 'sb_publishable_l2vgR8Xbt0Csw8W_Slo_1Q_9glKlIoN';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // نظام التحميل والتنقل
         function showLoader(text) { document.getElementById('loader-text').innerText = text; document.getElementById('loader').style.display = 'flex'; }
         function hideLoader() { document.getElementById('loader').style.display = 'none'; }
 
@@ -183,126 +181,103 @@
             if(tabId === 'accounting') loadAccounting();
             if(tabId === 'orders') loadOrders();
             if(tabId === 'inventory') { loadCategories(); loadProductsList(); }
+            if(tabId === 'shipping') loadShippingRules();
         }
 
-        // ================= دالة رفع الصور لـ Supabase =================
         async function uploadImage(file) {
             const fileExt = file.name.split('.').pop();
             const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
-            
-            const { data, error } = await supabaseClient.storage.from('okaz_images').upload(fileName, file);
-            if (error) { console.error("Upload error:", error); throw error; }
-            
-            const { data: publicUrlData } = supabaseClient.storage.from('okaz_images').getPublicUrl(fileName);
-            return publicUrlData.publicUrl;
+            const { error } = await supabaseClient.storage.from('okaz_images').upload(fileName, file);
+            if (error) throw error;
+            return supabaseClient.storage.from('okaz_images').getPublicUrl(fileName).data.publicUrl;
         }
 
-        // ================= إضافة الأقسام والمنتجات =================
-        async function addCategory() {
-            const title = document.getElementById('cat-title').value;
-            const fileInput = document.getElementById('cat-images');
-            if(!title || fileInput.files.length === 0) return alert("اكتب اسم القسم واختار صورة واحدة على الأقل!");
+        // ================= الشحن المتقدم (تعديل مباشر) =================
+        async function loadShippingRules() {
+            const { data } = await supabaseClient.from('shipping_rules').select('*').order('city');
+            const tbody = document.getElementById('shipping-table');
+            tbody.innerHTML = '';
+            if(data) {
+                data.forEach(s => {
+                    tbody.innerHTML += `<tr>
+                        <td style="font-weight:bold;">${s.city}</td>
+                        <td><input type="number" id="ship-cost-${s.id}" value="${s.cost}" style="width:120px; text-align:center; padding:8px;"></td>
+                        <td><button class="btn-sm" onclick="updateShipping('${s.id}')">تحديث السعر</button></td>
+                    </tr>`;
+                });
+            }
+        }
 
-            showLoader("جاري رفع صور القسم...");
+        async function updateShipping(id) {
+            const newCost = document.getElementById(`ship-cost-${id}`).value;
+            const { error } = await supabaseClient.from('shipping_rules').update({ cost: newCost }).eq('id', id);
+            if(error) alert('خطأ في التحديث!');
+            else { alert('تم تحديث سعر الشحن ✅'); loadShippingRules(); }
+        }
+
+        // ================= باقي الدوال (مخزن/حسابات/طلبات) =================
+        async function addCategory() {
+            const title = document.getElementById('cat-title').value; const fileInput = document.getElementById('cat-images');
+            if(!title || fileInput.files.length === 0) return alert("اكتب اسم القسم واختار صورة!");
+            showLoader("جاري الرفع...");
             try {
-                let uploadedUrls = [];
-                // هنرفع كل الصور اللي اخترتها
-                for(let i=0; i < fileInput.files.length; i++) {
-                    const url = await uploadImage(fileInput.files[i]);
-                    uploadedUrls.push(url);
-                }
-                
-                // هنحط أول صورة كـ image، وكل الصور في gallery
-                await supabaseClient.from('categories').insert([{ title, image: uploadedUrls[0], gallery: uploadedUrls }]);
-                alert("تم رفع القسم والصور بنجاح ✅");
-                document.getElementById('cat-title').value = ''; fileInput.value = '';
-                loadCategories();
-            } catch(e) { alert("حدث خطأ أثناء الرفع"); }
-            hideLoader();
+                let urls = []; for(let i=0; i<fileInput.files.length; i++) urls.push(await uploadImage(fileInput.files[i]));
+                await supabaseClient.from('categories').insert([{ title, image: urls[0], gallery: urls }]);
+                alert("تم إضافة القسم ✅"); document.getElementById('cat-title').value=''; fileInput.value=''; loadCategories();
+            } catch(e) { alert("حدث خطأ"); } hideLoader();
         }
 
         async function addProduct() {
-            const category_id = document.getElementById('prod-cat').value;
-            const title = document.getElementById('prod-title').value;
-            const price = document.getElementById('prod-price').value;
-            const badge = document.getElementById('prod-badge').value;
-            const fileInput = document.getElementById('prod-image');
-
-            if(!category_id || !title || !price || fileInput.files.length === 0) return alert("كمل البيانات واختار صورة!");
-
-            showLoader("جاري رفع المنتج...");
+            const category_id = document.getElementById('prod-cat').value, title = document.getElementById('prod-title').value, price = document.getElementById('prod-price').value, badge = document.getElementById('prod-badge').value, fileInput = document.getElementById('prod-image');
+            if(!category_id || !title || !price || fileInput.files.length === 0) return alert("كمل البيانات!");
+            showLoader("جاري الرفع...");
             try {
                 const imgUrl = await uploadImage(fileInput.files[0]);
                 await supabaseClient.from('products').insert([{ category_id, title, price, image: imgUrl, badge }]);
-                alert("تم إضافة المنتج للمخزن ✅");
-                document.getElementById('prod-title').value = ''; document.getElementById('prod-price').value = ''; fileInput.value = '';
-                loadProductsList();
-            } catch(e) { alert("حدث خطأ أثناء الرفع"); }
-            hideLoader();
+                alert("تم إضافة المنتج ✅"); document.getElementById('prod-title').value=''; document.getElementById('prod-price').value=''; fileInput.value=''; loadProductsList();
+            } catch(e) { alert("حدث خطأ"); } hideLoader();
         }
 
         async function addColor() {
-            const product_id = document.getElementById('color-prod-id').value;
-            const color_name = document.getElementById('color-name').value;
-            const color_hex = document.getElementById('color-hex').value;
-            const fileInput = document.getElementById('color-image');
-
-            if(!product_id || !color_name || fileInput.files.length === 0) return alert("كمل البيانات واختار صورة اللون!");
-
-            showLoader("جاري رفع لون المنتج...");
+            const product_id = document.getElementById('color-prod-id').value, color_name = document.getElementById('color-name').value, color_hex = document.getElementById('color-hex').value, fileInput = document.getElementById('color-image');
+            if(!product_id || !color_name || fileInput.files.length === 0) return alert("كمل البيانات!");
+            showLoader("جاري الرفع...");
             try {
                 const imgUrl = await uploadImage(fileInput.files[0]);
                 await supabaseClient.from('product_colors').insert([{ product_id, color_name, color_hex, image_url: imgUrl }]);
-                alert("تم ربط اللون بالمنتج ✅");
-                document.getElementById('color-name').value = ''; fileInput.value = '';
-            } catch(e) { alert("حدث خطأ أثناء الرفع"); }
-            hideLoader();
+                alert("تم ربط اللون ✅"); document.getElementById('color-name').value=''; fileInput.value='';
+            } catch(e) { alert("حدث خطأ"); } hideLoader();
         }
 
         async function addSize() {
             const product_id = document.getElementById('size-prod-id').value, size_name = document.getElementById('size-name').value;
             if(!product_id || !size_name) return alert("كمل البيانات!");
             await supabaseClient.from('product_sizes').insert([{ product_id, size_name }]);
-            alert("تم ربط المقاس بالمنتج ✅");
-            document.getElementById('size-name').value = '';
+            alert("تم حفظ المقاس ✅"); document.getElementById('size-name').value='';
         }
 
-        // ================= تحميل الداتا المساعدة =================
         async function loadCategories() {
             const { data } = await supabaseClient.from('categories').select('*');
-            const sel = document.getElementById('prod-cat');
-            sel.innerHTML = '<option value="">-- اختر القسم --</option>';
+            const sel = document.getElementById('prod-cat'); sel.innerHTML = '<option value="">-- اختر القسم --</option>';
             data.forEach(c => sel.innerHTML += `<option value="${c.id}">${c.title}</option>`);
         }
 
         async function loadProductsList() {
             const { data } = await supabaseClient.from('products').select('*');
-            const selColor = document.getElementById('color-prod-id');
-            const selSize = document.getElementById('size-prod-id');
-            let options = '<option value="">-- اختر المنتج --</option>';
-            data.forEach(p => options += `<option value="${p.id}">${p.title}</option>`);
-            selColor.innerHTML = options; selSize.innerHTML = options;
+            let options = '<option value="">-- اختر المنتج --</option>'; data.forEach(p => options += `<option value="${p.id}">${p.title}</option>`);
+            document.getElementById('color-prod-id').innerHTML = options; document.getElementById('size-prod-id').innerHTML = options;
         }
 
         async function loadAccounting() {
-            const { data: orders } = await supabaseClient.from('orders').select('grand_total, discount_amount, total_items_price');
-            let totalKhazna = 0, totalDiscount = 0, totalNetSales = 0;
-            if(orders) {
-                orders.forEach(o => {
-                    totalKhazna += Number(o.grand_total);
-                    totalDiscount += Number(o.discount_amount);
-                    totalNetSales += Number(o.total_items_price) - Number(o.discount_amount);
-                });
-            }
-            document.getElementById('acc-grand-total').innerText = totalKhazna.toFixed(2) + ' ج.م';
-            document.getElementById('acc-discounts').innerText = totalDiscount.toFixed(2) + ' ج.م';
-            document.getElementById('acc-net-sales').innerText = totalNetSales.toFixed(2) + ' ج.م';
+            const { data: orders } = await supabaseClient.from('orders').select('grand_total, shipping_cost, discount_amount, total_items_price');
+            let tKhazna = 0, tShipping = 0, tDiscount = 0, tNetSales = 0;
+            if(orders) orders.forEach(o => { tKhazna += Number(o.grand_total); tShipping += Number(o.shipping_cost); tDiscount += Number(o.discount_amount); tNetSales += Number(o.total_items_price) - Number(o.discount_amount); });
+            document.getElementById('acc-grand-total').innerText = tKhazna.toFixed(2) + ' ج.م'; document.getElementById('acc-shipping').innerText = tShipping.toFixed(2) + ' ج.م'; document.getElementById('acc-discounts').innerText = tDiscount.toFixed(2) + ' ج.م'; document.getElementById('acc-net-sales').innerText = tNetSales.toFixed(2) + ' ج.م';
         }
 
         async function loadOrders() {
             const { data } = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
-            const tbody = document.getElementById('orders-table');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('orders-table'); tbody.innerHTML = '';
             data.forEach(o => {
                 const date = new Date(o.created_at).toLocaleDateString('ar-EG');
                 let itemsHtml = o.order_items.map(i => `<div style="font-size:0.85em; color:#bbb;">- ${i.product_name} (${i.selected_color} - ${i.selected_size}) x${i.quantity}</div>`).join('');
@@ -313,7 +288,7 @@
         async function addPromo() {
             const code = document.getElementById('promo-code').value.toUpperCase(), percent = document.getElementById('promo-percent').value;
             const { error } = await supabaseClient.from('promo_codes').insert([{ code, discount_percentage: percent }]);
-            if(error) alert("خطأ! تأكد إن الكود مش متكرر."); else alert("تم تفعيل الكوبون 💸");
+            if(error) alert("خطأ! الكود ده موجود قبل كده."); else alert("تم تفعيل الكوبون 💸");
         }
 
         loadAccounting();
