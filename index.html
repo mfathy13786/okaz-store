@@ -208,7 +208,10 @@
 
     <script>
         const SUPABASE_URL = 'https://wkfiocqhkspsvqgyjpea.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_l2vgR8Xbt0Csw8W_Slo_1Q_9glKlIoN';
+        
+        // 🚨🚨🚨 حط المفتاح الحقيقي بتاعك مكان الكلمة دي بين علامات التنصيص 🚨🚨🚨
+        const SUPABASE_KEY = 'YOUR_REAL_ANON_KEY_HERE'; 
+        
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let systemSettings = {};
@@ -229,21 +232,18 @@
                 await fetchSettings(); 
                 applyLanguageUI(); 
                 checkCookies();
-                checkUserStatus(); // فحص العميل مسجل ولا لأ
+                await checkUserStatus();
                 await Promise.all([ fetchCategories(), fetchBanners(), fetchProducts() ]);
                 updateCartBadge();
-            } catch(e) { console.error(e); } 
+            } catch(e) { console.error("Error initializing store:", e); } 
             finally { document.getElementById('page-loader').style.display = 'none'; }
         }
-
-        // ================= نظام تسجيل الدخول (Supabase Auth) =================
 
         async function checkUserStatus() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             const navAccountBtn = document.getElementById('nav-account-btn');
             
             if (session) {
-                // العميل مسجل دخول: نغير أيقونة "حسابي" ونخليها تسجيل خروج
                 navAccountBtn.innerHTML = `<i class="fas fa-user-check" style="color:var(--success);"></i><span style="color:var(--success);" id="nav-account">${dict[currentLang].account}</span>`;
                 navAccountBtn.onclick = async () => {
                     if(confirm("هل تريد تسجيل الخروج من حسابك؟")) {
@@ -252,7 +252,6 @@
                     }
                 };
             } else {
-                // العميل مش مسجل: نرجعها تفتح نافذة الدخول
                 navAccountBtn.innerHTML = `<i class="fas fa-user"></i><span id="nav-account">${dict[currentLang].account}</span>`;
                 navAccountBtn.onclick = toggleAuth;
             }
@@ -261,9 +260,7 @@
         async function loginWithGoogle() {
             const { data, error } = await supabaseClient.auth.signInWithOAuth({
                 provider: 'google',
-                options: {
-                    redirectTo: window.location.origin
-                }
+                options: { redirectTo: window.location.origin }
             });
             if(error) alert("حدث خطأ في الاتصال بجوجل: " + error.message);
         }
@@ -278,13 +275,11 @@
 
             btn.innerText = "جاري التحميل...";
 
-            // محاولة تسجيل الدخول
             const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({
                 email: email, password: password,
             });
 
             if (signInError) {
-                // لو الإيرور إن الحساب مش موجود، هنعمله حساب جديد
                 if (signInError.message.includes("Invalid login credentials")) {
                     const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
                         email: email, password: password,
@@ -293,7 +288,7 @@
                     if (signUpError) {
                         alert(signUpError.message);
                     } else {
-                        alert("تم إنشاء الحساب بنجاح! راجع بريدك الإلكتروني (الـ Inbox أو Spam) واضغط على رابط التفعيل.");
+                        alert("تم إنشاء الحساب بنجاح! راجع بريدك الإلكتروني واضغط على رابط التفعيل.");
                         toggleAuth();
                     }
                 } else if (signInError.message.includes("Email not confirmed")) {
@@ -302,7 +297,6 @@
                     alert(signInError.message);
                 }
             } else {
-                // تم الدخول بنجاح
                 toggleAuth();
                 checkUserStatus();
                 alert("تم تسجيل الدخول بنجاح!");
@@ -311,6 +305,131 @@
             btn.innerText = dict[currentLang].authAction;
         }
 
-        // ================= باقي وظائف المتجر (السلة والمنتجات) =================
+        function checkCookies() {
+            if(!localStorage.getItem('cookies_accepted')) {
+                document.getElementById('cookie-banner').style.display = 'flex';
+            }
+        }
+        function acceptCookies() {
+            localStorage.setItem('cookies_accepted', 'true');
+            document.getElementById('cookie-banner').style.display = 'none';
+        }
 
-        function
+        async function fetchSettings() {
+            const {data} = await supabaseClient.from('store_settings').select('*');
+            if(data) data.forEach(s => systemSettings[s.setting_key] = s.setting_value);
+            if(systemSettings.theme_color) document.documentElement.style.setProperty('--primary', systemSettings.theme_color);
+            const storeName = systemSettings.store_name || dict[currentLang].loading;
+            document.title = storeName;
+            if(systemSettings.site_logo_header) document.getElementById('site-logo').innerHTML = `<img src="${systemSettings.site_logo_header}">`;
+            else document.getElementById('header-store-name').innerText = storeName;
+            const annBar = document.getElementById('announcement-bar');
+            if(systemSettings.announcement_text) { annBar.innerText = systemSettings.announcement_text; annBar.style.display = 'block'; }
+        }
+
+        async function fetchCategories() {
+            const {data} = await supabaseClient.from('categories').select('*').eq('show_on_home', true);
+            const cont = document.getElementById('stories-container');
+            if(!data || data.length === 0) return cont.style.display = 'none';
+            cont.innerHTML = data.map(c => {
+                const title = currentLang === 'en' && c.title_en ? c.title_en : c.title_ar;
+                return `<div class="story-item"><div class="story-img-wrap"><div class="story-img"><img src="${c.image||''}"></div></div><span>${title}</span></div>`;
+            }).join('');
+        }
+
+        async function fetchBanners() {
+            const {data} = await supabaseClient.from('store_banners').select('*').eq('position_name', 'top').eq('is_active', true).single();
+            if(data && data.images && data.images.length > 0) {
+                document.getElementById('top-slider').style.display = 'block';
+                document.getElementById('top-slider-wrapper').innerHTML = data.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join('');
+                new Swiper('#top-slider', { loop: true, autoplay: { delay: 3500 }, pagination: { el: '.swiper-pagination' } });
+            }
+        }
+
+        async function fetchProducts() {
+            const {data} = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
+            allProducts = data || []; renderProducts(allProducts);
+        }
+
+        function renderProducts(productsArray) {
+            const cont = document.getElementById('products-container');
+            cont.innerHTML = productsArray.map(p => {
+                const title = currentLang === 'en' && p.title_en ? p.title_en : p.title_ar;
+                const badge = (p.badge_ar && p.badge_ar !== 'لا يوجد') ? `<div class="product-badge">${p.badge_ar}</div>` : '';
+                return `<div class="product-card" onclick="openProduct('${p.id}')">${badge}<img class="product-img" src="${p.image}"><div class="product-info"><div class="product-title">${title}</div><div class="product-price">${p.price} ${dict[currentLang].currency}</div></div></div>`;
+            }).join('');
+        }
+
+        function filterProducts() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            renderProducts(allProducts.filter(p => p.title_ar.toLowerCase().includes(q) || p.title_en.toLowerCase().includes(q)));
+        }
+
+        async function openProduct(id) {
+            currentProd = allProducts.find(x => x.id === id); selectedSize = ''; selectedColor = '';
+            document.getElementById('modal-img').src = currentProd.image;
+            document.getElementById('modal-title').innerText = currentLang === 'en' && currentProd.title_en ? currentProd.title_en : currentProd.title_ar;
+            document.getElementById('modal-price').innerText = `${currentProd.price} ${dict[currentLang].currency}`;
+            
+            const [sz, cl] = await Promise.all([supabaseClient.from('product_sizes').select('*').eq('product_id', id), supabaseClient.from('product_colors').select('*').eq('product_id', id)]);
+            
+            const cSec = document.getElementById('modal-colors-section');
+            if(cl.data && cl.data.length > 0) { cSec.style.display = 'block'; document.getElementById('modal-colors-list').innerHTML = cl.data.map(c => `<div class="color-chip" style="background:${c.color_hex};" onclick="selectColor(this, '${c.color_name_ar}', '${c.image_url}')"><span></span></div>`).join(''); } else { cSec.style.display = 'none'; }
+            
+            const sSec = document.getElementById('modal-sizes-section');
+            if(sz.data && sz.data.length > 0) { sSec.style.display = 'block'; document.getElementById('modal-sizes-list').innerHTML = sz.data.map(s => `<div class="chip" onclick="selectSize(this, '${s.size_name}')">${s.size_name}</div>`).join(''); } else { sSec.style.display = 'none'; }
+
+            document.getElementById('prod-modal').style.display = 'flex'; document.body.style.overflow = 'hidden';
+        }
+        function selectSize(el, val) { document.querySelectorAll('#modal-sizes-list .chip').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedSize = val; }
+        function selectColor(el, val, img) { document.querySelectorAll('#modal-colors-list .color-chip').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedColor = val; if(img) document.getElementById('modal-img').src = img; }
+        function zoomImg(e) { const img = document.getElementById('modal-img'); const x = e.offsetX / e.target.offsetWidth * 100; const y = e.offsetY / e.target.offsetHeight * 100; img.style.transformOrigin = `${x}% ${y}%`; img.style.transform = "scale(2)"; }
+        function resetZoom() { document.getElementById('modal-img').style.transform = "scale(1)"; }
+        function closeModal() { document.getElementById('prod-modal').style.display = 'none'; document.body.style.overflow = 'auto'; resetZoom(); }
+
+        function addToCart() {
+            if(document.getElementById('modal-sizes-section').style.display === 'block' && !selectedSize) return alert(dict[currentLang].chooseSize);
+            if(document.getElementById('modal-colors-section').style.display === 'block' && !selectedColor) return alert(dict[currentLang].chooseColor);
+            const cartId = currentProd.id + selectedSize + selectedColor;
+            const existing = cart.find(x => x.id === cartId);
+            if(existing) existing.qty += 1;
+            else cart.push({ id: cartId, real_id: currentProd.id, title: currentLang === 'en' && currentProd.title_en ? currentProd.title_en : currentProd.title_ar, price: currentProd.price, image: document.getElementById('modal-img').src, size: selectedSize, color: selectedColor, qty: 1 });
+            localStorage.setItem('okaz_cart', JSON.stringify(cart)); updateCartBadge(); closeModal(); toggleCart();
+        }
+        function updateCartBadge() { document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0); }
+        function toggleCart() { 
+            const d = document.getElementById('cart-drawer'); const o = document.getElementById('cart-overlay');
+            if(d.classList.contains('open')) { d.classList.remove('open'); o.classList.remove('open'); document.body.style.overflow = 'auto'; } 
+            else { renderCart(); d.classList.add('open'); o.classList.add('open'); document.body.style.overflow = 'hidden'; }
+        }
+        function renderCart() {
+            const cont = document.getElementById('cart-items-list'); const curr = dict[currentLang].currency;
+            if(cart.length === 0) { cont.innerHTML = `<div style="text-align:center; color:#aaa; margin-top:50px;"><b>${dict[currentLang].emptyCart}</b></div>`; document.getElementById('cart-total-price').innerText = `0 ${curr}`; return; }
+            let total = 0; cont.innerHTML = cart.map((item, idx) => { total += (item.price * item.qty); return `<div class="cart-item"><img src="${item.image}"><div style="flex:1;"><b>${item.title}</b><br><small>${item.size||''} ${item.color||''}</small><br><b style="color:var(--primary);">${item.price} ${curr}</b></div><div style="display:flex;flex-direction:column;align-items:center;gap:5px;"><button style="border:none;padding:5px 10px;border-radius:5px;" onclick="updateQty(${idx}, 1)">+</button> <b>${item.qty}</b> <button style="border:none;padding:5px 10px;border-radius:5px;" onclick="updateQty(${idx}, -1)">-</button></div></div>`; }).join(''); document.getElementById('cart-total-price').innerText = `${total} ${curr}`;
+        }
+        function updateQty(idx, val) { cart[idx].qty += val; if(cart[idx].qty <= 0) cart.splice(idx, 1); localStorage.setItem('okaz_cart', JSON.stringify(cart)); updateCartBadge(); renderCart(); }
+
+        function toggleAuth() {
+            const d = document.getElementById('auth-drawer'); const o = document.getElementById('auth-overlay');
+            if(d.classList.contains('open')) { d.classList.remove('open'); o.classList.remove('open'); document.body.style.overflow = 'auto'; }
+            else { d.classList.add('open'); o.classList.add('open'); document.body.style.overflow = 'hidden'; }
+        }
+
+        function toggleLanguage() { currentLang = currentLang === 'ar' ? 'en' : 'ar'; localStorage.setItem('site_lang', currentLang); applyLanguageUI(); renderProducts(allProducts); }
+        function applyLanguageUI() {
+            const d = dict[currentLang]; document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('btn-lang').innerText = currentLang === 'ar' ? 'EN' : 'عربي';
+            document.getElementById('search-input').placeholder = d.search; document.getElementById('text-new-arrivals').innerHTML = `<i class="fas fa-sparkles"></i> ${d.newArrivals}`;
+            document.getElementById('nav-home').innerText = d.home; document.getElementById('nav-cats').innerText = d.cats; document.getElementById('nav-cart').innerText = d.cart; document.getElementById('nav-account').innerText = d.account;
+            document.getElementById('text-cart-title').innerText = d.cartTitle; document.getElementById('text-total').innerText = d.total; document.getElementById('btn-checkout').innerText = d.checkout;
+            document.getElementById('auth-title').innerText = d.authTitle; document.getElementById('auth-google-text').innerText = d.authGoogle; document.getElementById('auth-ms-text').innerText = d.authMs; document.getElementById('auth-or').innerText = d.authOr; document.getElementById('btn-auth-action').innerText = d.authAction; document.getElementById('auth-hint').innerText = d.authHint;
+            document.getElementById('cookie-text').innerText = d.cookieText; document.getElementById('cookie-btn').innerText = d.cookieBtn;
+            
+            const drawer = document.getElementById('cart-drawer');
+            if(currentLang === 'en') { drawer.classList.add('ltr'); } else { drawer.classList.remove('ltr'); }
+        }
+
+        initStore();
+    </script>
+</body>
+</html>
