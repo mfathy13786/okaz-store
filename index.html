@@ -257,6 +257,30 @@
             }
         }
 
+        // --- مراقب حالة تسجيل الدخول (عشان يلقط الراجع من جوجل فوراً) ---
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            const navAccountBtn = document.getElementById('nav-account-btn');
+            if (session) {
+                navAccountBtn.innerHTML = `<i class="fas fa-user-check" style="color:var(--success);"></i><span style="color:var(--success);" id="nav-account">${dict[currentLang].account}</span>`;
+                navAccountBtn.onclick = async () => {
+                    if(confirm("هل تريد تسجيل الخروج من حسابك؟")) {
+                        await supabaseClient.auth.signOut();
+                        location.reload();
+                    }
+                };
+                
+                // يقفل نافذة الدخول لو كانت مفتوحة
+                const authDrawer = document.getElementById('auth-drawer');
+                if (authDrawer && authDrawer.classList.contains('open')) {
+                    toggleAuth();
+                }
+            } else {
+                navAccountBtn.innerHTML = `<i class="fas fa-user"></i><span id="nav-account">${dict[currentLang].account}</span>`;
+                navAccountBtn.onclick = toggleAuth;
+            }
+        });
+        // -----------------------------------------------------------------
+
         async function loginWithGoogle() {
             const { data, error } = await supabaseClient.auth.signInWithOAuth({
                 provider: 'google',
@@ -298,7 +322,6 @@
                 }
             } else {
                 toggleAuth();
-                checkUserStatus();
                 alert("تم تسجيل الدخول بنجاح!");
             }
             
