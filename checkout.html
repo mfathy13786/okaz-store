@@ -36,9 +36,14 @@
         .btn-confirm:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none;}
         
         .success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);}
-        .success-modal { background: #fff; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; animation: popIn 0.5s ease; }
+        .success-modal { background: #fff; padding: 40px; border-radius: 20px; text-align: center; max-width: 450px; width: 90%; animation: popIn 0.5s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        .success-icon { font-size: 4em; color: #27ae60; margin-bottom: 15px; }
+        .success-icon { font-size: 4em; color: #27ae60; margin-bottom: 10px; }
+        
+        .btn-action { display: block; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; text-align: center; margin-bottom: 10px; font-size: 1em; transition: 0.2s; cursor: pointer; border:none;}
+        .btn-wa { background: #25D366; color: #fff; } .btn-wa:hover { background: #1ebe57; }
+        .btn-track { background: var(--primary); color: #fff; } .btn-track:hover { background: #d67118; }
+        .btn-home { background: #eee; color: #333; } .btn-home:hover { background: #ddd; }
     </style>
 </head>
 <body>
@@ -58,17 +63,32 @@
         <div class="totals-row"><span>مجموع المنتجات:</span><span id="items-total-price">0 ج.م</span></div>
         <div class="totals-row" style="color: #e67e22;"><span>مصاريف الشحن:</span><span id="shipping-cost">+ 0 ج.م</span></div>
         <div class="grand-total"><span>الإجمالي المطلوب:</span><span id="grand-total-price" style="color: var(--primary);">0 ج.م</span></div>
-        <button class="btn-confirm" id="confirm-order-btn" onclick="confirmOrder()">تأكيد إتمام الطلب الآن <i class="fas fa-check-circle"></i></button>
-        <a href="index.html" style="display: block; text-align: center; margin-top: 15px; color: #888; text-decoration: none; font-weight: bold;">الرجوع للتسوق</a>
+        <button class="btn-confirm" id="confirm-order-btn" onclick="confirmOrder()">تأكيد إتمام الطلب <i class="fas fa-check-circle"></i></button>
+        <a href="index.html" style="display: block; text-align: center; margin-top: 15px; color: #888; text-decoration: none; font-weight: bold;"><i class="fas fa-arrow-right"></i> الرجوع للتسوق</a>
     </div>
 </div>
 
 <div class="success-overlay" id="success-modal">
     <div class="success-modal">
         <i class="fas fa-check-circle success-icon"></i>
-        <h2 style="margin: 0 0 10px; color: #2d3436;">تم استلام طلبك بنجاح!</h2>
-        <p style="color: #777; font-size: 0.95em; line-height: 1.6;">رقم طلبك قيد المراجعة الآن.<br>سيتم تحويلك لخدمة العملاء في ثوانٍ لتأكيد موعد الشحن...</p>
-        <div style="margin-top: 20px;"><i class="fas fa-spinner fa-spin" style="font-size: 1.5em; color: var(--primary);"></i></div>
+        <h2 style="margin: 0 0 5px; color: #2d3436; font-weight: 900;">تم استلام طلبك بنجاح!</h2>
+        <h3 style="margin: 0 0 15px; color: var(--primary); background: #fff3e0; padding: 10px; border-radius: 8px; border: 1px dashed var(--primary);">رقم الطلب: <span id="display-order-id"></span></h3>
+        
+        <p style="color: #555; font-size: 0.9em; line-height: 1.6; margin-bottom:20px; font-weight: bold;">
+            لتتبع حالة طلبك في أي وقت ومعرفة موعد الوصول، يرجى الدخول لحسابك.
+        </p>
+
+        <button class="btn-action btn-track" onclick="window.location.href='index.html?login=true'">
+            <i class="fas fa-user-circle"></i> تتبع الطلب (حسابي)
+        </button>
+        
+        <button class="btn-action btn-wa" onclick="openWhatsApp()">
+            <i class="fab fa-whatsapp" style="font-size:1.2em;"></i> تواصل مع المبيعات واتساب
+        </button>
+        
+        <button class="btn-action btn-home" onclick="window.location.href='index.html'">
+            <i class="fas fa-home"></i> العودة للصفحة الرئيسية
+        </button>
     </div>
 </div>
 
@@ -79,10 +99,16 @@
 
     let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
     let itemsTotal = 0;
+    let generatedWhatsAppUrl = '';
+    let currentUserEmail = null;
 
     async function initCheckout() {
         if(cart.length === 0) { alert("سلة التسوق فارغة."); window.location.href = 'index.html'; return; }
         
+        // جلب إيميل العميل لو مسجل دخول عشان نربط الأوردر بيه
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if(session) { currentUserEmail = session.user.email; }
+
         const { data: cities } = await supabaseClient.from('shipping_rules').select('*').order('city_ar');
         const citySelect = document.getElementById('cust-city');
         if(cities && cities.length > 0) {
@@ -124,12 +150,12 @@
         if(!name || !phone || !city || !address) { alert("برجاء ملء جميع بيانات التوصيل."); return; }
 
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل الطلب...';
 
         const grandTotal = itemsTotal + shippingCost;
 
-        // 1. إدخال البيانات في جدول الطلبات الرئيسي
         const { data: orderData, error: orderError } = await supabaseClient.from('orders').insert([{
+            user_email: currentUserEmail, // ربط الطلب بالعميل
             customer_name: name, 
             customer_phone: phone, 
             customer_city: city, 
@@ -145,10 +171,9 @@
 
         if(orderError) {
             alert("حدث خطأ في تسجيل الطلب: " + orderError.message);
-            btn.disabled = false; btn.innerHTML = 'تأكيد إتمام الطلب الآن <i class="fas fa-check-circle"></i>'; return;
+            btn.disabled = false; btn.innerHTML = 'تأكيد إتمام الطلب <i class="fas fa-check-circle"></i>'; return;
         }
 
-        // 2. إدخال المنتجات في جدول تفاصيل الطلب (وهنا حل المشكلة الجذرية)
         const orderItems = cart.map(item => ({
             order_id: orderData.id,
             product_name: item.title,
@@ -158,26 +183,21 @@
             price: item.price
         }));
 
-        const { error: itemsError } = await supabaseClient.from('order_items').insert(orderItems);
+        await supabaseClient.from('order_items').insert(orderItems);
 
-        if(itemsError) {
-            console.error("Error saving items:", itemsError);
-            // لن نوقف العملية لأن الطلب الأساسي تم حفظه، لكن نسجل الخطأ
-        }
+        const shortOrderId = "OKZ-" + orderData.id.split('-')[0].toUpperCase();
+        document.getElementById('display-order-id').innerText = shortOrderId;
+        
+        let message = `*استفسار بخصوص الطلب #${shortOrderId}* 🛍️\n\n`;
+        message += `👤 *الاسم:* ${name}\n📞 *الموبايل:* ${phone}\n💰 *الإجمالي:* ${grandTotal} ج.م\n\nأرجو تأكيد موعد الشحن.`;
+        const merchantPhone = "201090921815"; 
+        generatedWhatsAppUrl = `https://wa.me/${merchantPhone}?text=${encodeURIComponent(message)}`;
 
         document.getElementById('success-modal').style.display = 'flex';
         localStorage.removeItem('okaz_cart'); 
-
-        let message = `*طلب جديد #${orderData.id.split('-')[0].toUpperCase()}* 🛍️\n\n`;
-        message += `👤 *العميل:* ${name}\n📞 *الموبايل:* ${phone}\n📍 *العنوان:* ${city} - ${address}\n\n*المنتجات:*\n`;
-        cart.forEach(i => { message += `▪️ ${i.qty}x ${i.title} (${i.size||'-'} | ${i.color||'-'})\n`; });
-        message += `\n📦 المنتجات: ${itemsTotal} ج.م\n🚚 الشحن: ${shippingCost} ج.م\n💰 *الإجمالي: ${grandTotal} ج.م*`;
-
-        const merchantPhone = "201090921815"; 
-        const whatsappUrl = `https://wa.me/${merchantPhone}?text=${encodeURIComponent(message)}`;
-
-        setTimeout(() => { window.location.href = whatsappUrl; }, 3000);
     }
+
+    function openWhatsApp() { if(generatedWhatsAppUrl) window.location.href = generatedWhatsAppUrl; }
 
     initCheckout();
 </script>
