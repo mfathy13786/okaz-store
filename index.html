@@ -7,435 +7,261 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        :root { --primary: #e67e22; --bg: #f4f7f6; --card-bg: #ffffff; --text: #2d3436; --text-muted: #636e72; --success: #44bd32; --danger: #e74c3c; }
+        :root { --primary: #e67e22; --bg: #f4f7f6; --card-bg: #ffffff; --text: #2d3436; --text-muted: #636e72; --danger: #e74c3c; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* التعديل الأول: تظبيط العرض على شاشات الكمبيوتر (Desktop Grid) */
         body { background-color: var(--bg); color: var(--text); padding-bottom: 70px; overflow-x: hidden; }
+        .main-container { max-width: 1200px; margin: 0 auto; background: #fff; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
 
         #announcement-bar { background: var(--primary); color: #fff; text-align: center; padding: 8px; font-size: 0.85em; font-weight: bold; display: none; }
 
-        header { background: var(--card-bg); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        header { background: var(--card-bg); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #eee; }
         .logo { display: flex; align-items: center; gap: 10px; }
         .logo h1 { font-size: 1.4em; color: var(--primary); font-weight: 900; margin: 0;}
-        .logo img { max-height: 35px; }
+        .logo img { max-height: 40px; }
         
         .header-actions { display: flex; align-items: center; gap: 15px; }
-        .lang-btn { background: #eee; padding: 5px 10px; border-radius: 8px; font-weight: bold; cursor: pointer; border: none; font-family: 'Cairo'; font-size: 0.9em; }
-        .cart-icon { position: relative; font-size: 1.3em; cursor: pointer; }
+        .cart-icon { position: relative; font-size: 1.3em; cursor: pointer; color: var(--text); }
         .cart-badge { position: absolute; top: -5px; right: -8px; background: red; color: #fff; font-size: 0.55em; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        .search-bar { padding: 10px 20px; background: var(--card-bg); }
-        .search-input-wrapper { background: #f1f2f6; border-radius: 20px; padding: 8px 15px; display: flex; align-items: center; gap: 10px; }
-        .search-input-wrapper input { border: none; background: none; outline: none; width: 100%; font-family: 'Cairo'; font-size: 0.9em; }
-        .search-input-wrapper i { color: var(--text-muted); }
+        .search-bar { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid #eee; }
+        .search-input-wrapper { background: #fff; border: 1px solid #ddd; border-radius: 20px; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
+        .search-input-wrapper input { border: none; background: none; outline: none; width: 100%; font-family: 'Cairo'; font-size: 0.95em; }
 
-        .categories-stories { display: flex; overflow-x: auto; padding: 15px; gap: 15px; background: var(--card-bg); scroll-behavior: smooth; border-bottom: 1px solid #eee; }
+        .categories-stories { display: flex; overflow-x: auto; padding: 15px 20px; gap: 15px; background: var(--card-bg); border-bottom: 1px solid #eee; scroll-behavior: smooth; }
         .categories-stories::-webkit-scrollbar { display: none; }
-        .story-item { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 70px; cursor: pointer; }
-        .story-img-wrap { width: 65px; height: 65px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, var(--primary), #ff9f43); }
-        .story-img { width: 100%; height: 100%; border-radius: 50%; border: 2px solid #fff; background: #eee; overflow: hidden; }
-        .story-img img { width: 100%; height: 100%; object-fit: cover; }
-        .story-item span { font-size: 0.75em; font-weight: bold; white-space: nowrap; }
+        .story-item { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 75px; cursor: pointer; transition: 0.2s; }
+        .story-item:hover { transform: translateY(-3px); }
+        .story-img-wrap { width: 70px; height: 70px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, var(--primary), #ff9f43); }
+        .story-img { width: 100%; height: 100%; border-radius: 50%; border: 2px solid #fff; background: #eee; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8em; color: #777; text-align: center; }
+        .story-item span { font-size: 0.8em; font-weight: bold; white-space: nowrap; }
 
-        .banner-slider { width: 100%; max-height: 200px; display: none; }
+        /* ستايل البانرات */
+        .banner-slider { width: 100%; aspect-ratio: 21/9; max-height: 400px; display: none; background: #eee; }
         .swiper-slide img { width: 100%; height: 100%; object-fit: cover; }
+        .static-banner { margin: 20px; border-radius: 15px; overflow: hidden; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .static-banner img { width: 100%; display: block; object-fit: cover; max-height: 300px; }
 
-        .section-title { padding: 15px 20px 5px; font-size: 1.1em; font-weight: 900; color: var(--text); display: flex; align-items: center; gap: 8px; }
-        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 10px 15px; }
-        .product-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.04); position: relative; cursor: pointer; }
-        .product-badge { position: absolute; top: 8px; right: 8px; background: #ff4757; color: #fff; font-size: 0.65em; padding: 3px 8px; border-radius: 5px; font-weight: bold; z-index: 5; }
+        .section-title { padding: 20px 20px 10px; font-size: 1.2em; font-weight: 900; color: var(--text); display: flex; align-items: center; gap: 8px; }
+        
+        /* التعديل الجوهري للديسكتوب والموبايل (Responsive Grid) */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 10px 20px 30px; }
+        @media (min-width: 768px) { .products-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; } }
+        
+        .product-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid #eee; position: relative; cursor: pointer; transition: 0.3s; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: var(--primary); }
+        .product-badge { position: absolute; top: 8px; right: 8px; background: #ff4757; color: #fff; font-size: 0.7em; padding: 4px 8px; border-radius: 5px; font-weight: bold; z-index: 5; }
         .product-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #f9f9f9; }
-        .product-info { padding: 10px; }
-        .product-title { font-size: 0.85em; font-weight: 700; height: 2.4em; overflow: hidden; margin-bottom: 5px; line-height: 1.2; }
-        .product-price { color: var(--primary); font-weight: 900; font-size: 1.1em; display: flex; align-items: center; gap: 5px; }
-        .old-price { font-size: 0.7em; color: #aaa; text-decoration: line-through; font-weight: normal; }
+        .product-info { padding: 12px; }
+        .product-title { font-size: 0.9em; font-weight: 700; height: 2.6em; overflow: hidden; margin-bottom: 5px; line-height: 1.3; color: var(--text); }
+        .product-price { color: var(--primary); font-weight: 900; font-size: 1.1em; display: flex; align-items: center; gap: 8px; }
+        .old-price { font-size: 0.75em; color: #aaa; text-decoration: line-through; font-weight: normal; }
 
-        .product-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(2px); }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 600px; height: 85vh; border-radius: 20px 20px 0 0; overflow-y: auto; position: relative; padding-bottom: 80px; animation: slideUp 0.3s ease; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .close-modal { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.9); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2em; z-index: 10; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .img-zoom-container { width: 100%; height: 350px; background: #fff; overflow: hidden; position: relative; }
-        .img-zoom-container img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.1s ease; }
+        /* Product Modal */
+        .product-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); padding: 20px; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 500px; max-height: 90vh; border-radius: 20px; overflow-y: auto; position: relative; padding-bottom: 80px; animation: scaleIn 0.3s ease; }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .close-modal { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); color: #fff; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2em; z-index: 10; cursor: pointer; }
+        .img-zoom-container { width: 100%; height: 350px; background: #f9f9f9; text-align: center;}
+        .img-zoom-container img { height: 100%; max-width: 100%; object-fit: contain; }
         .modal-details { padding: 20px; }
-        .promo-msg { background: rgba(55, 66, 250, 0.1); color: #3742fa; padding: 8px 10px; border-radius: 8px; font-size: 0.8em; font-weight: bold; margin-bottom: 15px; text-align: center; border: 1px dashed #3742fa; display: none; }
-        .options-title { font-weight: bold; font-size: 0.9em; margin: 15px 0 10px; display: block; }
+        .options-title { font-weight: bold; font-size: 0.9em; margin: 15px 0 10px; display: block; color: #555; }
         .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-        .chip { border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; font-size: 0.85em; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .chip { border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; font-size: 0.9em; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .chip.selected { border-color: var(--primary); background: var(--primary); color: #fff; }
         .color-chip { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; transition: 0.2s; padding: 2px; }
         .color-chip.selected { border-color: var(--primary); }
         .color-chip span { display: block; width: 100%; height: 100%; border-radius: 50%; }
-        .fixed-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); padding: 15px; box-shadow: 0 -2px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; z-index: 10; }
-        .btn-add-cart { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 1.1em; width: 100%; max-width: 600px; cursor: pointer; font-family: 'Cairo'; }
+        .fixed-bottom-bar { position: absolute; bottom: 0; left: 0; right: 0; background: var(--card-bg); padding: 15px; box-shadow: 0 -2px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; }
+        .btn-add-cart { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 1.1em; width: 100%; cursor: pointer; font-family: 'Cairo'; }
 
+        /* Cart Drawer */
         .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2400; display: none; }
         .cart-overlay.open { display: block; }
-        .cart-drawer { position: fixed; top: 0; bottom: 0; width: 100%; max-width: 350px; background: #fff; z-index: 2500; transition: transform 0.3s ease; display: flex; flex-direction: column; box-shadow: 0 0 15px rgba(0,0,0,0.2); }
-        html[dir="rtl"] .cart-drawer { right: 0; transform: translateX(100%); }
-        html[dir="rtl"] .cart-drawer.open { transform: translateX(0); }
-        html[dir="ltr"] .cart-drawer { left: 0; transform: translateX(-100%); }
-        html[dir="ltr"] .cart-drawer.open { transform: translateX(0); }
-        .cart-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 1.1em; }
-        .cart-items { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-        .cart-item { display: flex; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 10px; align-items: center; }
-        .cart-item img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
-        .cart-footer { padding: 20px; border-top: 1px solid #eee; }
-        .checkout-btn { background: var(--primary); color: #fff; width: 100%; border: none; padding: 15px; border-radius: 10px; font-weight: 900; font-size: 1.1em; cursor: pointer; font-family: 'Cairo'; }
+        .cart-drawer { position: fixed; top: 0; bottom: 0; right: 0; width: 100%; max-width: 400px; background: #fff; z-index: 2500; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
+        .cart-drawer.open { transform: translateX(0); }
+        .cart-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 1.2em; color: var(--primary); }
+        .cart-items { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .cart-item { display: flex; gap: 15px; background: #f9f9f9; padding: 15px; border-radius: 12px; align-items: center; border: 1px solid #eee; }
+        .cart-item img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; }
+        .cart-footer { padding: 20px; border-top: 1px solid #eee; background: #fafafa; }
+        .checkout-btn { background: #27ae60; color: #fff; width: 100%; border: none; padding: 15px; border-radius: 10px; font-weight: 900; font-size: 1.1em; cursor: pointer; font-family: 'Cairo'; margin-top: 10px; }
 
-        /* نافذة تسجيل الدخول (لغير المسجلين) */
-        .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; backdrop-filter: blur(2px); }
-        .auth-overlay.open { display: block; }
-        .auth-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 25px 25px 0 0; z-index: 3100; transform: translateY(100%); transition: transform 0.3s ease; padding: 25px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 -5px 20px rgba(0,0,0,0.15);}
-        .auth-drawer.open { transform: translateY(0); }
-        .auth-header { display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 1.2em; margin-bottom: 10px; color: var(--primary);}
-        .btn-social { background: #fff; border: 1px solid #ddd; padding: 12px; border-radius: 10px; font-weight: bold; font-family: 'Cairo'; font-size: 1em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; color: #333; transition: 0.2s;}
-        .btn-social:hover { background: #f9f9f9; }
-        .btn-social img { width: 20px; }
-        .divider { display: flex; align-items: center; text-align: center; color: #aaa; font-size: 0.9em; margin: 10px 0; }
-        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #eee; }
-        .divider span { padding: 0 10px; }
-        .auth-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Cairo'; outline: none; margin-bottom: 10px; background:#f9f9f9;}
-        .auth-input:focus { border-color: var(--primary); background:#fff;}
-        .btn-auth-submit { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-family: 'Cairo'; font-size: 1em; cursor: pointer; width: 100%; }
-
-        /* ====== نافذة حسابي الاحترافية (للمسجلين) ====== */
-        .profile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; backdrop-filter: blur(2px); }
-        .profile-overlay.open { display: block; }
-        .profile-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 25px 25px 0 0; z-index: 3100; transform: translateY(100%); transition: transform 0.3s ease; padding: 25px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 -5px 20px rgba(0,0,0,0.15);}
-        .profile-drawer.open { transform: translateY(0); }
-        .profile-header { display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 1.2em; margin-bottom: 5px; color: var(--primary);}
-        .profile-info { display: flex; align-items: center; gap: 15px; padding: 15px; background: #f9f9f9; border-radius: 15px; margin-bottom: 10px; }
-        .profile-avatar { width: 50px; height: 50px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; overflow: hidden; }
-        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-details h3 { font-size: 1.1em; font-weight: 900; color: var(--text); margin-bottom: 3px; }
-        .profile-details p { font-size: 0.8em; color: var(--text-muted); margin: 0; }
-        .profile-menu { display: flex; flex-direction: column; gap: 10px; }
-        .profile-menu-item { background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 12px; font-family: 'Cairo'; font-size: 1em; font-weight: bold; text-align: right; cursor: pointer; display: flex; align-items: center; gap: 12px; color: var(--text); transition: 0.2s; }
-        html[dir="ltr"] .profile-menu-item { text-align: left; }
-        .profile-menu-item:hover { background: #f9f9f9; border-color: #ddd; }
-        .profile-menu-item i { color: var(--primary); font-size: 1.2em; width: 25px; text-align: center; }
-        .btn-logout { background: #fff; color: var(--danger); border: 1px solid rgba(231, 76, 60, 0.3); padding: 15px; border-radius: 12px; font-weight: 900; font-size: 1em; width: 100%; cursor: pointer; font-family: 'Cairo'; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; transition: 0.2s;}
-        .btn-logout:hover { background: rgba(231, 76, 60, 0.05); }
-
-        .app-bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50; border-top: 1px solid #eee; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 0.7em; font-weight: bold; cursor: pointer; }
+        /* Bottom Nav */
+        .app-bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50; border-top: 1px solid #eee; max-width: 1200px; margin: 0 auto; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 0.75em; font-weight: bold; cursor: pointer; transition: 0.2s;}
         .nav-item.active { color: var(--primary); }
-        .nav-item i { font-size: 1.5em; }
-
-        .cookie-banner { position: fixed; bottom: 70px; left: 10px; right: 10px; background: #2d3436; color: #fff; padding: 15px; border-radius: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); font-size: 0.85em; transition: 0.4s; }
-        .cookie-banner button { background: var(--primary); color: #fff; border: none; padding: 8px; border-radius: 5px; font-family: 'Cairo'; font-weight: bold; cursor: pointer; }
+        .nav-item i { font-size: 1.4em; }
 
         #page-loader { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div id="page-loader"><div class="spinner"></div><p style="margin-top:15px; font-weight:bold; color:var(--text-muted);" id="loader-text">جاري تجهيز المتجر...</p></div>
+    <div id="page-loader"><div class="spinner"></div><p style="margin-top:15px; font-weight:bold; color:#777;">جاري تجهيز المتجر...</p></div>
 
-    <div id="announcement-bar"></div>
+    <div class="main-container">
+        <div id="announcement-bar"></div>
 
-    <header>
-        <div class="logo" id="site-logo"><h1 id="header-store-name">المتجر</h1></div>
-        <div class="header-actions">
-            <button class="lang-btn" onclick="toggleLanguage()" id="btn-lang">EN</button>
-            <div class="cart-icon" onclick="toggleCart()">
-                <i class="fas fa-shopping-bag"></i>
-                <span class="cart-badge" id="cart-count">0</span>
+        <header>
+            <div class="logo" id="site-logo"><h1>المتجر</h1></div>
+            <div class="header-actions">
+                <div class="cart-icon" onclick="toggleCart()">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cart-count">0</span>
+                </div>
             </div>
+        </header>
+
+        <div class="search-bar">
+            <div class="search-input-wrapper"><i class="fas fa-search" style="color:#aaa;"></i><input type="text" id="search-input" placeholder="بتبحث عن إيه؟ (كوتشي، بنطلون...)" onkeyup="filterProducts()"></div>
         </div>
-    </header>
 
-    <div class="search-bar">
-        <div class="search-input-wrapper"><i class="fas fa-search"></i><input type="text" id="search-input" placeholder="بتبحث عن إيه؟ (كوتشي، بنطلون...)" onkeyup="filterProducts()"></div>
-    </div>
+        <div class="categories-stories" id="stories-container"></div>
 
-    <div class="categories-stories" id="stories-container"></div>
+        <div class="swiper banner-slider" id="top-slider"><div class="swiper-wrapper" id="top-slider-wrapper"></div><div class="swiper-pagination"></div></div>
+        
+        <h2 class="section-title"><i class="fas fa-fire" style="color:var(--danger);"></i> وصل حديثاً</h2>
+        <div class="products-grid" id="products-container"></div>
 
-    <div class="swiper banner-slider" id="top-slider"><div class="swiper-wrapper" id="top-slider-wrapper"></div><div class="swiper-pagination"></div></div>
-
-    <h2 class="section-title" id="text-new-arrivals"><i class="fas fa-sparkles" style="color:var(--primary);"></i> وصل حديثاً</h2>
-    <div class="products-grid" id="products-container"></div>
-
-    <div class="cookie-banner" id="cookie-banner" style="display:none;">
-        <span id="cookie-text">نحن نستخدم ملفات تعريف الارتباط (Cookies) لتحسين تجربتك وتقديم عروض تناسب اهتماماتك.</span>
-        <button onclick="acceptCookies()" id="cookie-btn">موافق</button>
-    </div>
+        <div class="static-banner" id="middle-banner"></div>
+        <div class="static-banner" id="bottom-banner"></div>
+        <div style="height: 40px;"></div> </div>
 
     <nav class="app-bottom-nav">
-        <div class="nav-item active"><i class="fas fa-home"></i><span id="nav-home">الرئيسية</span></div>
-        <div class="nav-item"><i class="fas fa-th-large"></i><span id="nav-cats">الأقسام</span></div>
-        <div class="nav-item" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i><span id="nav-cart">السلة</span></div>
-        <div class="nav-item" id="nav-account-btn" onclick="toggleAuth()"><i class="fas fa-user"></i><span id="nav-account">حسابي</span></div>
+        <div class="nav-item active" onclick="window.scrollTo(0,0)"><i class="fas fa-home"></i><span>الرئيسية</span></div>
+        <div class="nav-item" onclick="document.getElementById('search-input').focus()"><i class="fas fa-search"></i><span>بحث</span></div>
+        <div class="nav-item" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i><span>السلة</span></div>
     </nav>
 
     <div class="product-modal" id="prod-modal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
-            <div class="img-zoom-container" id="zoom-container" onmousemove="zoomImg(event)" onmouseleave="resetZoom()"><img id="modal-img" src=""></div>
+            <div class="img-zoom-container"><img id="modal-img" src=""></div>
             <div class="modal-details">
-                <div id="modal-promo" class="promo-msg"></div>
-                <h2 id="modal-title" style="font-weight:900; font-size:1.3em; margin-bottom:5px;"></h2>
-                <div class="product-price" style="font-size:1.4em; margin-bottom:15px;"><span id="modal-price"></span><span class="old-price" id="modal-old-price"></span></div>
-                <div id="modal-colors-section" style="display:none;"><span class="options-title" id="text-colors">الألوان المتاحة</span><div class="chips" id="modal-colors-list"></div></div>
-                <div id="modal-sizes-section" style="display:none;"><span class="options-title" id="text-sizes">المقاسات</span><div class="chips" id="modal-sizes-list"></div></div>
+                <p id="modal-promo" style="color: var(--primary); font-weight: bold; font-size: 0.9em; margin-bottom: 5px;"></p>
+                <h2 id="modal-title" style="font-weight:900; font-size:1.3em; margin-bottom:5px; color:#000;"></h2>
+                <div class="product-price" style="font-size:1.5em; margin-bottom:15px;"><span id="modal-price"></span><span class="old-price" id="modal-old-price"></span></div>
+                
+                <div id="modal-colors-section" style="display:none;"><span class="options-title">اختر اللون:</span><div class="chips" id="modal-colors-list"></div></div>
+                <div id="modal-sizes-section" style="display:none;"><span class="options-title">اختر المقاس:</span><div class="chips" id="modal-sizes-list"></div></div>
             </div>
-            <div class="fixed-bottom-bar"><button class="btn-add-cart" id="btn-add-to-cart" onclick="addToCart()">إضافة إلى السلة <i class="fas fa-cart-plus"></i></button></div>
+            <div class="fixed-bottom-bar"><button class="btn-add-cart" onclick="addToCart()">أضف للسلة <i class="fas fa-cart-plus"></i></button></div>
         </div>
     </div>
 
     <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
     <div class="cart-drawer" id="cart-drawer">
-        <div class="cart-header"><span id="text-cart-title">حقيبة التسوق</span><i class="fas fa-times" style="cursor:pointer;" onclick="toggleCart()"></i></div>
+        <div class="cart-header"><span><i class="fas fa-shopping-bag"></i> حقيبة التسوق</span><i class="fas fa-times" style="cursor:pointer;" onclick="toggleCart()"></i></div>
         <div class="cart-items" id="cart-items-list"></div>
         <div class="cart-footer">
-            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.2em; margin-bottom:15px;"><span id="text-total">المجموع:</span><span id="cart-total-price" style="color:var(--primary);">0 ج.م</span></div>
-            <button class="checkout-btn" id="btn-checkout" onclick="window.location.href='checkout.html'">إتمام الطلب الآن</button>
+            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.3em; margin-bottom:15px; color:#000;"><span>المجموع:</span><span id="cart-total-price" style="color:var(--primary);">0 ج.م</span></div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">إتمام الطلب الآن</button>
         </div>
-    </div>
-
-    <div class="auth-overlay" id="auth-overlay" onclick="toggleAuth()"></div>
-    <div class="auth-drawer" id="auth-drawer">
-        <div class="auth-header"><span id="auth-title">تسجيل الدخول أو حساب جديد</span><i class="fas fa-times" style="cursor:pointer; color:#888;" onclick="toggleAuth()"></i></div>
-        
-        <button class="btn-social" onclick="loginWithGoogle()">
-            <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="Google">
-            <span id="auth-google-text">المتابعة باستخدام Google</span>
-        </button>
-        
-        <div class="divider"><span id="auth-or">أو عبر الإيميل</span></div>
-        
-        <input type="email" class="auth-input" id="auth-email" placeholder="البريد الإلكتروني">
-        <input type="password" class="auth-input" id="auth-password" placeholder="كلمة المرور">
-        
-        <button class="btn-auth-submit" id="btn-auth-action" onclick="handleEmailAuth()">تسجيل الدخول</button>
-        
-        <p style="text-align:center; font-size:0.8em; color:#888; margin-top:10px;" id="auth-hint">إذا لم يكن لديك حساب، سيتم إنشاؤه تلقائياً.</p>
-    </div>
-
-    <div class="profile-overlay" id="profile-overlay" onclick="toggleProfile()"></div>
-    <div class="profile-drawer" id="profile-drawer">
-        <div class="profile-header"><span id="profile-header-title">لوحة التحكم</span><i class="fas fa-times" style="cursor:pointer; color:#888;" onclick="toggleProfile()"></i></div>
-        
-        <div class="profile-info">
-            <div class="profile-avatar" id="profile-pic"><i class="fas fa-user"></i></div>
-            <div class="profile-details">
-                <h3 id="profile-name">مستخدم</h3>
-                <p id="profile-email">email@example.com</p>
-            </div>
-        </div>
-
-        <div class="profile-menu">
-            <button class="profile-menu-item" onclick="alert('جاري برمجة صفحة الطلبات في الخطوات القادمة...')">
-                <i class="fas fa-box-open"></i> <span id="text-my-orders">طلباتي السابقة</span>
-            </button>
-            <button class="profile-menu-item" onclick="alert('جاري برمجة صفحة العناوين في الخطوات القادمة...')">
-                <i class="fas fa-map-marker-alt"></i> <span id="text-my-address">عناويني المحفوظة</span>
-            </button>
-            <button class="profile-menu-item" onclick="alert('جاري برمجة الإعدادات في الخطوات القادمة...')">
-                <i class="fas fa-cog"></i> <span id="text-my-settings">إعدادات الحساب</span>
-            </button>
-        </div>
-
-        <button class="btn-logout" id="btn-logout" onclick="performLogout()">تسجيل الخروج <i class="fas fa-sign-out-alt"></i></button>
     </div>
 
     <script>
         const SUPABASE_URL = 'https://wkfiocqhkspsvqgyjpea.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_l2vgR8Xbt0Csw8W_Slo_1Q_9glKlIoN'; 
-        
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let systemSettings = {};
         let allProducts = [];
         let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
-        let currentLang = localStorage.getItem('site_lang') || 'ar';
         let currentProd = null;
         let selectedSize = '';
         let selectedColor = '';
 
-        const dict = {
-            ar: { loading: "جاري التحميل...", newArrivals: "وصل حديثاً", search: "بتبحث عن إيه؟", home: "الرئيسية", cats: "الأقسام", cart: "السلة", account: "حسابي", colors: "الألوان المتاحة", sizes: "المقاسات", addCart: "إضافة إلى السلة", cartTitle: "حقيبة التسوق", total: "المجموع:", checkout: "إتمام الطلب", currency: "ج.م", emptyCart: "السلة فارغة", chooseSize: "اختر المقاس", chooseColor: "اختر اللون", authTitle: "تسجيل دخول / حساب جديد", authGoogle: "المتابعة باستخدام Google", authOr: "أو عبر الإيميل", authAction: "تسجيل الدخول", authHint: "إذا لم يكن لديك حساب، سيتم إنشاؤه تلقائياً.", cookieText: "نحن نستخدم ملفات تعريف الارتباط.", cookieBtn: "موافق", profileTitle: "لوحة التحكم", myOrders: "طلباتي السابقة", myAddress: "عناويني المحفوظة", mySettings: "إعدادات الحساب", logout: "تسجيل الخروج" },
-            en: { loading: "Loading...", newArrivals: "New Arrivals", search: "Search...", home: "Home", cats: "Categories", cart: "Cart", account: "Account", colors: "Colors", sizes: "Sizes", addCart: "Add to Cart", cartTitle: "Shopping Cart", total: "Total:", checkout: "Checkout", currency: "EGP", emptyCart: "Cart is empty", chooseSize: "Select Size", chooseColor: "Select Color", authTitle: "Login / Sign Up", authGoogle: "Continue with Google", authOr: "OR via Email", authAction: "Continue", authHint: "If you don't have an account, one will be created.", cookieText: "We use cookies.", cookieBtn: "Got it", profileTitle: "Dashboard", myOrders: "My Orders", myAddress: "My Addresses", mySettings: "Account Settings", logout: "Log Out" }
-        };
-
         async function initStore() {
             try {
                 await fetchSettings(); 
-                applyLanguageUI(); 
-                checkCookies();
-                await checkUserStatus();
                 await Promise.all([ fetchCategories(), fetchBanners(), fetchProducts() ]);
                 updateCartBadge();
-            } catch(e) { console.error("Error initializing store:", e); } 
+            } catch(e) { console.error(e); } 
             finally { document.getElementById('page-loader').style.display = 'none'; }
         }
-
-        function populateProfileData(session) {
-            let name = session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'مستخدم مميز';
-            let email = session.user.email;
-            let avatar = session.user.user_metadata?.avatar_url;
-
-            document.getElementById('profile-name').innerText = name;
-            document.getElementById('profile-email').innerText = email;
-            if(avatar) {
-                document.getElementById('profile-pic').innerHTML = `<img src="${avatar}">`;
-            }
-        }
-
-        async function checkUserStatus() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            const navAccountBtn = document.getElementById('nav-account-btn');
-            
-            if (session) {
-                navAccountBtn.innerHTML = `<i class="fas fa-user-check" style="color:var(--success);"></i><span style="color:var(--success);" id="nav-account">${dict[currentLang].account}</span>`;
-                populateProfileData(session);
-                navAccountBtn.onclick = toggleProfile;
-            } else {
-                navAccountBtn.innerHTML = `<i class="fas fa-user"></i><span id="nav-account">${dict[currentLang].account}</span>`;
-                navAccountBtn.onclick = toggleAuth;
-            }
-        }
-
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            const navAccountBtn = document.getElementById('nav-account-btn');
-            if (session) {
-                navAccountBtn.innerHTML = `<i class="fas fa-user-check" style="color:var(--success);"></i><span style="color:var(--success);" id="nav-account">${dict[currentLang].account}</span>`;
-                populateProfileData(session);
-                navAccountBtn.onclick = toggleProfile;
-                
-                const authDrawer = document.getElementById('auth-drawer');
-                if (authDrawer && authDrawer.classList.contains('open')) toggleAuth();
-            } else {
-                navAccountBtn.innerHTML = `<i class="fas fa-user"></i><span id="nav-account">${dict[currentLang].account}</span>`;
-                navAccountBtn.onclick = toggleAuth;
-            }
-        });
-
-        function toggleProfile() {
-            const d = document.getElementById('profile-drawer'); const o = document.getElementById('profile-overlay');
-            if(d.classList.contains('open')) { d.classList.remove('open'); o.classList.remove('open'); document.body.style.overflow = 'auto'; }
-            else { d.classList.add('open'); o.classList.add('open'); document.body.style.overflow = 'hidden'; }
-        }
-
-        async function performLogout() {
-            document.getElementById('btn-logout').innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الخروج...';
-            await supabaseClient.auth.signOut();
-            location.reload();
-        }
-
-        async function loginWithGoogle() {
-            const { data, error } = await supabaseClient.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: window.location.origin }
-            });
-            if(error) alert("حدث خطأ في الاتصال بجوجل: " + error.message);
-        }
-
-        async function handleEmailAuth() {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value.trim();
-            const btn = document.getElementById('btn-auth-action');
-            if(!email || !password) return alert("برجاء كتابة الإيميل وكلمة المرور.");
-            if(password.length < 6) return alert("كلمة المرور يجب أن تكون 6 أحرف على الأقل.");
-            
-            btn.innerText = "جاري التحميل...";
-            
-            // 1. محاولة تسجيل الدخول أولاً
-            const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
-            
-            if (signInError) {
-                if (signInError.message.includes("Invalid login credentials")) {
-                    // 2. لو اترفض، بنحاول نعمل حساب جديد
-                    const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({ email: email, password: password });
-                    
-                    if (signUpError) { 
-                        // 3. لو طلع إن الإيميل موجود فعلاً، نطلع رسالة بالعربي
-                        if(signUpError.message.includes("User already registered")) {
-                            alert("هذا الإيميل مسجل بالفعل! كلمة المرور غير صحيحة، أو ربما قمت بالتسجيل باستخدام جوجل سابقاً.");
-                        } else {
-                            alert("حدث خطأ: " + signUpError.message); 
-                        }
-                    } else { 
-                        alert("تم إنشاء الحساب وتسجيل الدخول بنجاح!"); 
-                        toggleAuth(); 
-                    }
-                } else if (signInError.message.includes("Email not confirmed")) { 
-                    alert("برجاء مراجعة بريدك الإلكتروني والضغط على رابط التفعيل أولاً.");
-                } else { 
-                    alert("حدث خطأ: " + signInError.message); 
-                }
-            } else { 
-                toggleAuth(); // تم تسجيل الدخول بنجاح
-            }
-            btn.innerText = dict[currentLang].authAction;
-        }
-
-        function checkCookies() { if(!localStorage.getItem('cookies_accepted')) { document.getElementById('cookie-banner').style.display = 'flex'; } }
-        function acceptCookies() { localStorage.setItem('cookies_accepted', 'true'); document.getElementById('cookie-banner').style.display = 'none'; }
 
         async function fetchSettings() {
             const {data} = await supabaseClient.from('store_settings').select('*');
             if(data) data.forEach(s => systemSettings[s.setting_key] = s.setting_value);
             if(systemSettings.theme_color) document.documentElement.style.setProperty('--primary', systemSettings.theme_color);
-            const storeName = systemSettings.store_name || dict[currentLang].loading;
-            document.title = storeName;
+            document.title = systemSettings.store_name || "المتجر";
             if(systemSettings.site_logo_header) document.getElementById('site-logo').innerHTML = `<img src="${systemSettings.site_logo_header}">`;
-            else document.getElementById('header-store-name').innerText = storeName;
-            const annBar = document.getElementById('announcement-bar');
-            if(systemSettings.announcement_text) { annBar.innerText = systemSettings.announcement_text; annBar.style.display = 'block'; }
+            else document.getElementById('site-logo').innerHTML = `<h1>${systemSettings.store_name || 'المتجر'}</h1>`;
+            if(systemSettings.announcement_text) { 
+                document.getElementById('announcement-bar').innerText = systemSettings.announcement_text; 
+                document.getElementById('announcement-bar').style.display = 'block'; 
+            }
         }
 
         async function fetchCategories() {
             const {data} = await supabaseClient.from('categories').select('*').eq('show_on_home', true);
             const cont = document.getElementById('stories-container');
             if(!data || data.length === 0) return cont.style.display = 'none';
-            cont.innerHTML = data.map(c => {
-                const title = currentLang === 'en' && c.title_en ? c.title_en : c.title_ar;
-                return `<div class="story-item"><div class="story-img-wrap"><div class="story-img"><img src="${c.image||''}"></div></div><span>${title}</span></div>`;
-            }).join('');
+            cont.innerHTML = data.map(c => `<div class="story-item" onclick="filterByCategory('${c.id}')"><div class="story-img-wrap"><div class="story-img">${c.title_ar.substring(0,4)}</div></div><span>${c.title_ar}</span></div>`).join('');
+            cont.innerHTML = `<div class="story-item" onclick="renderProducts(allProducts)"><div class="story-img-wrap"><div class="story-img" style="background:var(--primary); color:#fff;">الكل</div></div><span>كل المنتجات</span></div>` + cont.innerHTML;
         }
 
         async function fetchBanners() {
-            const {data} = await supabaseClient.from('store_banners').select('*').eq('position_name', 'top').eq('is_active', true).single();
-            if(data && data.images && data.images.length > 0) {
-                document.getElementById('top-slider').style.display = 'block';
-                document.getElementById('top-slider-wrapper').innerHTML = data.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join('');
-                new Swiper('#top-slider', { loop: true, autoplay: { delay: 3500 }, pagination: { el: '.swiper-pagination' } });
-            }
+            const {data} = await supabaseClient.from('store_banners').select('*').eq('is_active', true);
+            if(!data) return;
+            data.forEach(b => {
+                if(b.images && b.images.length > 0) {
+                    if(b.position_name === 'top') {
+                        document.getElementById('top-slider').style.display = 'block';
+                        document.getElementById('top-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join('');
+                        new Swiper('#top-slider', { loop: true, autoplay: { delay: 3500 }, pagination: { el: '.swiper-pagination' } });
+                    } else if(b.position_name === 'middle') {
+                        document.getElementById('middle-banner').style.display = 'block';
+                        document.getElementById('middle-banner').innerHTML = `<img src="${b.images[0]}">`;
+                    } else if(b.position_name === 'bottom') {
+                        document.getElementById('bottom-banner').style.display = 'block';
+                        document.getElementById('bottom-banner').innerHTML = `<img src="${b.images[0]}">`;
+                    }
+                }
+            });
         }
 
+        // التعديل: جلب المنتجات المفعلة فقط (is_visible = true)
         async function fetchProducts() {
-            const {data} = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
-            allProducts = data || []; renderProducts(allProducts);
+            const {data} = await supabaseClient.from('products').select('*').eq('is_visible', true).order('created_at', { ascending: false });
+            allProducts = data || []; 
+            renderProducts(allProducts);
         }
 
         function renderProducts(productsArray) {
             const cont = document.getElementById('products-container');
+            if(productsArray.length === 0) { cont.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#888;">لا توجد منتجات حالياً.</p>'; return; }
             cont.innerHTML = productsArray.map(p => {
-                const title = currentLang === 'en' && p.title_en ? p.title_en : p.title_ar;
                 const badge = (p.badge_ar && p.badge_ar !== 'لا يوجد') ? `<div class="product-badge">${p.badge_ar}</div>` : '';
-                return `<div class="product-card" onclick="openProduct('${p.id}')">${badge}<img class="product-img" src="${p.image}"><div class="product-info"><div class="product-title">${title}</div><div class="product-price">${p.price} ${dict[currentLang].currency}</div></div></div>`;
+                const oldPrice = p.old_price > p.price ? `<span class="old-price">${p.old_price}</span>` : '';
+                return `<div class="product-card" onclick="openProduct('${p.id}')">${badge}<img class="product-img" src="${p.image||'https://via.placeholder.com/300'}"><div class="product-info"><div class="product-title">${p.title_ar}</div><div class="product-price">${p.price} ج.م ${oldPrice}</div></div></div>`;
             }).join('');
         }
 
         function filterProducts() {
             const q = document.getElementById('search-input').value.toLowerCase();
-            renderProducts(allProducts.filter(p => p.title_ar.toLowerCase().includes(q) || p.title_en.toLowerCase().includes(q)));
+            renderProducts(allProducts.filter(p => p.title_ar.toLowerCase().includes(q)));
+        }
+        function filterByCategory(id) {
+            renderProducts(allProducts.filter(p => p.category_id === id));
         }
 
         async function openProduct(id) {
             currentProd = allProducts.find(x => x.id === id); selectedSize = ''; selectedColor = '';
-            document.getElementById('modal-img').src = currentProd.image;
-            document.getElementById('modal-title').innerText = currentLang === 'en' && currentProd.title_en ? currentProd.title_en : currentProd.title_ar;
-            document.getElementById('modal-price').innerText = `${currentProd.price} ${dict[currentLang].currency}`;
+            document.getElementById('modal-img').src = currentProd.image || 'https://via.placeholder.com/400';
+            document.getElementById('modal-title').innerText = currentProd.title_ar;
+            document.getElementById('modal-price').innerText = `${currentProd.price} ج.م`;
+            document.getElementById('modal-old-price').innerText = currentProd.old_price > currentProd.price ? currentProd.old_price : '';
+            document.getElementById('modal-promo').innerText = currentProd.promo_message || '';
             
             const [sz, cl] = await Promise.all([supabaseClient.from('product_sizes').select('*').eq('product_id', id), supabaseClient.from('product_colors').select('*').eq('product_id', id)]);
             
@@ -447,59 +273,39 @@
 
             document.getElementById('prod-modal').style.display = 'flex'; document.body.style.overflow = 'hidden';
         }
+        
         function selectSize(el, val) { document.querySelectorAll('#modal-sizes-list .chip').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedSize = val; }
         function selectColor(el, val, img) { document.querySelectorAll('#modal-colors-list .color-chip').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedColor = val; if(img) document.getElementById('modal-img').src = img; }
-        function zoomImg(e) { const img = document.getElementById('modal-img'); const x = e.offsetX / e.target.offsetWidth * 100; const y = e.offsetY / e.target.offsetHeight * 100; img.style.transformOrigin = `${x}% ${y}%`; img.style.transform = "scale(2)"; }
-        function resetZoom() { document.getElementById('modal-img').style.transform = "scale(1)"; }
-        function closeModal() { document.getElementById('prod-modal').style.display = 'none'; document.body.style.overflow = 'auto'; resetZoom(); }
+        function closeModal() { document.getElementById('prod-modal').style.display = 'none'; document.body.style.overflow = 'auto'; }
 
         function addToCart() {
-            if(document.getElementById('modal-sizes-section').style.display === 'block' && !selectedSize) return alert(dict[currentLang].chooseSize);
-            if(document.getElementById('modal-colors-section').style.display === 'block' && !selectedColor) return alert(dict[currentLang].chooseColor);
+            if(document.getElementById('modal-sizes-section').style.display === 'block' && !selectedSize) return alert("برجاء اختيار المقاس.");
+            if(document.getElementById('modal-colors-section').style.display === 'block' && !selectedColor) return alert("برجاء اختيار اللون.");
             const cartId = currentProd.id + selectedSize + selectedColor;
             const existing = cart.find(x => x.id === cartId);
             if(existing) existing.qty += 1;
-            else cart.push({ id: cartId, real_id: currentProd.id, title: currentLang === 'en' && currentProd.title_en ? currentProd.title_en : currentProd.title_ar, price: currentProd.price, image: document.getElementById('modal-img').src, size: selectedSize, color: selectedColor, qty: 1 });
+            else cart.push({ id: cartId, real_id: currentProd.id, title: currentProd.title_ar, price: currentProd.price, image: document.getElementById('modal-img').src, size: selectedSize, color: selectedColor, qty: 1 });
             localStorage.setItem('okaz_cart', JSON.stringify(cart)); updateCartBadge(); closeModal(); toggleCart();
         }
         function updateCartBadge() { document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0); }
+        
         function toggleCart() { 
             const d = document.getElementById('cart-drawer'); const o = document.getElementById('cart-overlay');
             if(d.classList.contains('open')) { d.classList.remove('open'); o.classList.remove('open'); document.body.style.overflow = 'auto'; } 
             else { renderCart(); d.classList.add('open'); o.classList.add('open'); document.body.style.overflow = 'hidden'; }
         }
+        
         function renderCart() {
-            const cont = document.getElementById('cart-items-list'); const curr = dict[currentLang].currency;
-            if(cart.length === 0) { cont.innerHTML = `<div style="text-align:center; color:#aaa; margin-top:50px;"><b>${dict[currentLang].emptyCart}</b></div>`; document.getElementById('cart-total-price').innerText = `0 ${curr}`; return; }
-            let total = 0; cont.innerHTML = cart.map((item, idx) => { total += (item.price * item.qty); return `<div class="cart-item"><img src="${item.image}"><div style="flex:1;"><b>${item.title}</b><br><small>${item.size||''} ${item.color||''}</small><br><b style="color:var(--primary);">${item.price} ${curr}</b></div><div style="display:flex;flex-direction:column;align-items:center;gap:5px;"><button style="border:none;padding:5px 10px;border-radius:5px;" onclick="updateQty(${idx}, 1)">+</button> <b>${item.qty}</b> <button style="border:none;padding:5px 10px;border-radius:5px;" onclick="updateQty(${idx}, -1)">-</button></div></div>`; }).join(''); document.getElementById('cart-total-price').innerText = `${total} ${curr}`;
+            const cont = document.getElementById('cart-items-list');
+            if(cart.length === 0) { cont.innerHTML = `<div style="text-align:center; color:#aaa; margin-top:50px;"><b>السلة فارغة حالياً</b></div>`; document.getElementById('cart-total-price').innerText = `0 ج.م`; return; }
+            let total = 0; 
+            cont.innerHTML = cart.map((item, idx) => { 
+                total += (item.price * item.qty); 
+                return `<div class="cart-item"><img src="${item.image}"><div style="flex:1;"><b style="color:#2d3436; font-size:0.9em;">${item.title}</b><br><small style="color:#777;">${item.size||''} ${item.color||''}</small><br><b style="color:var(--primary);">${item.price} ج.م</b></div><div style="display:flex;flex-direction:column;align-items:center;gap:8px;"><button style="background:#eee; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;" onclick="updateQty(${idx}, 1)">+</button> <b style="color:#000;">${item.qty}</b> <button style="background:#eee; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;" onclick="updateQty(${idx}, -1)">-</button></div></div>`; 
+            }).join(''); 
+            document.getElementById('cart-total-price').innerText = `${total} ج.م`;
         }
         function updateQty(idx, val) { cart[idx].qty += val; if(cart[idx].qty <= 0) cart.splice(idx, 1); localStorage.setItem('okaz_cart', JSON.stringify(cart)); updateCartBadge(); renderCart(); }
-
-        function toggleAuth() {
-            const d = document.getElementById('auth-drawer'); const o = document.getElementById('auth-overlay');
-            if(d.classList.contains('open')) { d.classList.remove('open'); o.classList.remove('open'); document.body.style.overflow = 'auto'; }
-            else { d.classList.add('open'); o.classList.add('open'); document.body.style.overflow = 'hidden'; }
-        }
-
-        function toggleLanguage() { currentLang = currentLang === 'ar' ? 'en' : 'ar'; localStorage.setItem('site_lang', currentLang); applyLanguageUI(); renderProducts(allProducts); }
-        function applyLanguageUI() {
-            const d = dict[currentLang]; document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('btn-lang').innerText = currentLang === 'ar' ? 'EN' : 'عربي';
-            document.getElementById('search-input').placeholder = d.search; document.getElementById('text-new-arrivals').innerHTML = `<i class="fas fa-sparkles"></i> ${d.newArrivals}`;
-            document.getElementById('nav-home').innerText = d.home; document.getElementById('nav-cats').innerText = d.cats; document.getElementById('nav-cart').innerText = d.cart; document.getElementById('nav-account').innerText = d.account;
-            document.getElementById('text-cart-title').innerText = d.cartTitle; document.getElementById('text-total').innerText = d.total; document.getElementById('btn-checkout').innerText = d.checkout;
-            document.getElementById('auth-title').innerText = d.authTitle; document.getElementById('auth-google-text').innerText = d.authGoogle; document.getElementById('auth-or').innerText = d.authOr; document.getElementById('btn-auth-action').innerText = d.authAction; document.getElementById('auth-hint').innerText = d.authHint;
-            document.getElementById('cookie-text').innerText = d.cookieText; document.getElementById('cookie-btn').innerText = d.cookieBtn;
-            
-            document.getElementById('profile-header-title').innerText = d.profileTitle;
-            document.getElementById('text-my-orders').innerText = d.myOrders;
-            document.getElementById('text-my-address').innerText = d.myAddress;
-            document.getElementById('text-my-settings').innerText = d.mySettings;
-            document.getElementById('btn-logout').innerHTML = `${d.logout} <i class="fas fa-sign-out-alt"></i>`;
-
-            const drawer = document.getElementById('cart-drawer');
-            if(currentLang === 'en') { drawer.classList.add('ltr'); } else { drawer.classList.remove('ltr'); }
-        }
 
         initStore();
     </script>
