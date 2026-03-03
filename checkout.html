@@ -3,31 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إتمام الطلب - سوق عكاز</title>
+    <title>إتمام الطلب - المتجر</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #e67e22; --bg: #f4f7f6; --text: #2d3436; }
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); padding: 20px; color: var(--text); }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background: var(--bg); padding: 20px; color: var(--text); margin: 0; }
         .checkout-container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        h2 { text-align: center; color: var(--primary); font-weight: 900; margin-bottom: 25px; }
+        h2 { text-align: center; color: var(--primary); font-weight: 900; margin-bottom: 25px; padding-bottom: 10px; border-bottom: 2px solid #eee;}
+        
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.9em; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 10px; font-family: 'Cairo'; outline: none; background: #f9f9f9; }
-        input:focus { border-color: var(--primary); background: #fff; }
-        .order-summary { background: #fff9f4; padding: 15px; border-radius: 15px; margin: 20px 0; border: 1px dashed var(--primary); }
-        .summary-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em; }
-        .total-price { border-top: 1px solid #eee; padding-top: 10px; margin-top: 10px; font-weight: 900; font-size: 1.2em; color: var(--primary); display: flex; justify-content: space-between; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.95em; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 0.95em; outline: none; background: #fafafa; transition: 0.2s;}
+        input:focus, textarea:focus { border-color: var(--primary); background: #fff; }
+        
+        .order-summary { background: #fff; padding: 15px; border-radius: 15px; margin: 25px 0; border: 1px solid #eee; }
+        .summary-title { font-weight: 900; font-size: 1.1em; margin-bottom: 15px; display: block; color: var(--primary);}
+        
+        .summary-item { display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #eee; align-items: center;}
+        .summary-img { width: 65px; height: 65px; border-radius: 10px; object-fit: cover; background: #f9f9f9; border: 1px solid #eee;}
+        .summary-details { flex: 1; }
+        .summary-details h4 { margin: 0 0 5px; font-size: 0.95em; color: var(--text); }
+        .summary-meta { font-size: 0.8em; color: #777; margin: 0; }
+        .summary-price-col { text-align: left; font-weight: 900; color: var(--primary); font-size: 1em;}
+        
+        .total-row { display: flex; justify-content: space-between; font-weight: 900; font-size: 1.2em; margin-top: 15px; padding-top: 10px; color: #2d3436;}
+        
         .btn-confirm { background: var(--primary); color: #fff; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: 900; font-size: 1.1em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
-        .btn-confirm:disabled { background: #ccc; }
-        .back-link { display: block; text-align: center; margin-top: 15px; color: var(--text); text-decoration: none; font-size: 0.9em; }
+        .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3); }
+        .btn-confirm:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none;}
+        .back-link { display: block; text-align: center; margin-top: 15px; color: #888; text-decoration: none; font-size: 0.9em; font-weight: bold;}
     </style>
 </head>
 <body>
 
 <div class="checkout-container">
-    <h2><i class="fas fa-shopping-check"></i> تأكيد طلبك</h2>
+    <h2><i class="fas fa-truck-fast"></i> إتمام الطلب الشحن</h2>
     
     <div class="form-group">
         <label>الاسم بالكامل</label>
@@ -35,19 +48,21 @@
     </div>
     
     <div class="form-group">
-        <label>رقم الواتساب</label>
+        <label>رقم الواتساب للتواصل</label>
         <input type="tel" id="cust-phone" placeholder="01xxxxxxxxx">
     </div>
 
     <div class="form-group">
-        <label>عنوان التوصيل بالتفصيل</label>
-        <textarea id="cust-address" rows="3" placeholder="المحافظة، المنطقة، اسم الشارع، رقم المنزل"></textarea>
+        <label>عنوان التوصيل (المدينة، المنطقة، الشارع)</label>
+        <textarea id="cust-address" rows="3" placeholder="برجاء كتابة العنوان بالتفصيل لسرعة التوصيل"></textarea>
     </div>
 
     <div class="order-summary">
+        <span class="summary-title"><i class="fas fa-shopping-bag"></i> مراجعة المنتجات</span>
         <div id="summary-items"></div>
-        <div class="total-price">
-            <span>إجمالي المبلغ:</span>
+        
+        <div class="total-row">
+            <span>الإجمالي المطلوب:</span>
             <span id="summary-total">0 ج.م</span>
         </div>
     </div>
@@ -56,7 +71,7 @@
         تأكيد الطلب وإرسال عبر واتساب <i class="fab fa-whatsapp"></i>
     </button>
     
-    <a href="index.html" class="back-link">العودة للسلة</a>
+    <a href="index.html" class="back-link">رجوع للتسوق</a>
 </div>
 
 <script>
@@ -70,14 +85,14 @@
 
     async function initCheckout() {
         if(cart.length === 0) {
-            alert("سلتك فارغة!");
+            alert("عذراً، سلة التسوق فارغة.");
             window.location.href = 'index.html';
             return;
         }
 
         const { data: { session } } = await supabaseClient.auth.getSession();
         if(session) {
-            document.getElementById('cust-name').value = session.user.user_metadata.full_name || session.user.user_metadata.name || "";
+            document.getElementById('cust-name').value = session.user.user_metadata?.full_name || session.user.user_metadata?.name || "";
             userEmail = session.user.email;
             userId = session.user.id;
         }
@@ -90,9 +105,21 @@
         let total = 0;
         cont.innerHTML = cart.map(item => {
             total += (item.price * item.qty);
-            return `<div class="summary-item">
-                <span>${item.qty} x ${item.title} (${item.size || ''})</span>
-                <span>${item.price * item.qty} ج.م</span>
+            const sizeText = item.size ? `مقاس: ${item.size}` : '';
+            const colorText = item.color ? `لون: ${item.color}` : '';
+            const separator = (item.size && item.color) ? ' | ' : '';
+            
+            return `
+            <div class="summary-item">
+                <img src="${item.image}" class="summary-img" alt="Product">
+                <div class="summary-details">
+                    <h4>${item.title}</h4>
+                    <p class="summary-meta">${sizeText}${separator}${colorText}</p>
+                    <p class="summary-meta">الكمية: ${item.qty}</p>
+                </div>
+                <div class="summary-price-col">
+                    ${item.price * item.qty} ج.م
+                </div>
             </div>`;
         }).join('');
         document.getElementById('summary-total').innerText = total + " ج.م";
@@ -105,16 +132,15 @@
         const btn = document.getElementById('confirm-order-btn');
 
         if(!name || !phone || !address) {
-            alert("برجاء ملء جميع البيانات لإتمام الشحن.");
+            alert("برجاء ملء جميع بيانات الشحن (الاسم، الواتساب، العنوان).");
             return;
         }
 
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري معالجة الطلب...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل الطلب...';
 
         const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
 
-        // 1. تسجيل الطلب في قاعدة البيانات
         const { data, error } = await supabaseClient.from('orders').insert([{
             customer_name: name,
             customer_phone: phone,
@@ -126,29 +152,34 @@
         }]);
 
         if(error) {
-            alert("حدث خطأ في تسجيل الطلب: " + error.message);
+            alert("حدث خطأ تقني، برجاء المحاولة مرة أخرى: " + error.message);
             btn.disabled = false;
+            btn.innerHTML = 'تأكيد الطلب وإرسال عبر واتساب <i class="fab fa-whatsapp"></i>';
             return;
         }
 
-        // 2. تجهيز رسالة الواتساب الاحترافية
-        let message = `طلب جديد من متجر عكاز 🛒\n\n`;
-        message += `👤 العميل: ${name}\n`;
-        message += `📞 تليفون: ${phone}\n`;
-        message += `📍 العنوان: ${address}\n`;
-        message += `----------\nالمنتجات:\n`;
+        let message = `*طلب جديد من المتجر* 🛍️\n\n`;
+        message += `👤 *العميل:* ${name}\n`;
+        message += `📞 *التليفون:* ${phone}\n`;
+        message += `📍 *العنوان:* ${address}\n\n`;
+        message += `*تفاصيل المنتجات:*\n`;
+        message += `-------------------\n`;
         cart.forEach(item => {
-            message += `- ${item.title} | مقاس: ${item.size || 'N/A'} | كمية: ${item.qty} | سعر: ${item.price} ج.م\n`;
+            message += `▪️ ${item.title}\n`;
+            if(item.size || item.color) {
+                message += `   (المقاس: ${item.size || '-'} | اللون: ${item.color || '-'})\n`;
+            }
+            message += `   الكمية: ${item.qty} | السعر: ${item.price * item.qty} ج.م\n`;
+            message += `   صورة: ${item.image}\n`;
+            message += `-------------------\n`;
         });
-        message += `----------\n💰 الإجمالي: ${total} ج.م`;
+        message += `\n💰 *الإجمالي المطلوب:* ${total} ج.م`;
 
-        // رقم واتساب م/ محمد فتحي
         const merchantPhone = "201090921815"; 
         const whatsappUrl = `https://wa.me/${merchantPhone}?text=${encodeURIComponent(message)}`;
 
-        // 3. تفريغ السلة وتوجيه العميل
         localStorage.removeItem('okaz_cart');
-        alert("تم تسجيل طلبك بنجاح! سيتم فتح واتساب الآن لإرسال تفاصيل الطلب للمدير التقني.");
+        alert("تم استلام طلبك بنجاح! سيتم تحويلك الآن للواتساب لتأكيد الشحن.");
         window.location.href = whatsappUrl;
     }
 
