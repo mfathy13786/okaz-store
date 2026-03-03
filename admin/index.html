@@ -184,7 +184,7 @@
                     <div class="flex-row">
                         <div class="input-group" style="position:relative;">
                             <label>اسم المنتج (عربي) *</label>
-                            <input type="text" id="prod-title-ar" placeholder="مثال: كوتشي أوفر سايز أبيض" onblur="smartTranslate(this.value, 'prod-title-en', 'prod-magic')">
+                            <input type="text" id="prod-title-ar" placeholder="مثال: كوتشي أوفر سايز أبيض" onkeyup="smartTranslate(this.value, 'prod-title-en', 'prod-magic')">
                             <i class="fas fa-magic auto-translate-badge" id="prod-magic"></i>
                         </div>
                         <div class="input-group"><label>الاسم (إنجليزي - تلقائي)</label><input type="text" id="prod-title-en"></div>
@@ -257,7 +257,7 @@
                     <div class="flex-row">
                         <div class="input-group" style="position:relative;">
                             <label>اسم اللون (عربي)</label>
-                            <input type="text" id="color-name-ar" placeholder="مثال: كحلي" onblur="smartTranslate(this.value, 'color-name-en', 'color-magic')">
+                            <input type="text" id="color-name-ar" placeholder="مثال: كحلي" onkeyup="smartTranslate(this.value, 'color-name-en', 'color-magic')">
                             <i class="fas fa-magic auto-translate-badge" id="color-magic"></i>
                         </div>
                         <div class="input-group"><label>اللون (إنجليزي)</label><input type="text" id="color-name-en" placeholder="مثال: Navy"></div>
@@ -492,30 +492,48 @@
             calcValue += val; display.value = calcValue;
         }
 
+        // --- التحديث الجديد الذكي لدالة الترجمة ---
+        let translateTimer;
         async function smartTranslate(text, targetId, badgeId) {
-            if(!text || text.length < 2) return;
-            const badge = document.getElementById(badgeId); 
-            if(badge) { badge.style.display = 'inline-block'; badge.innerText = ' الترجمة...'; }
-            
-            let dict = { 
-                "بنطلون":"Pants", "جينز":"Jeans", "تيشيرت":"T-Shirt", "تي شيرت":"T-Shirt", "قميص":"Shirt", "شوز":"Shoes", "حذاء":"Shoes", "كوتشي":"Sneakers",
-                "سويت شيرت":"Sweatshirt", "هودي":"Hoodie", "شروال":"Joggers", "وايد ليج":"Wide Leg", "اوفر سايز":"Oversize", "كارجو":"Cargo", 
-                "شورت":"Shorts", "جاكيت":"Jacket", "سليبر":"Slippers", "حزام":"Belt", "محفظة":"Wallet", "سادة":"Basic", "مطبوع":"Printed", 
-                "مقلم":"Striped", "كاروهات":"Plaid", "أحمر":"Red", "أسود":"Black", "ابيض":"White", "أبيض":"White", "أزرق":"Blue", 
-                "كحلي":"Navy", "بيج":"Beige", "رصاصي":"Grey", "رمادي":"Grey", "أخضر":"Green", "أصفر":"Yellow", "بني":"Brown", 
-                "هافان":"Havana", "نبيتي":"Maroon", "زيتي":"Olive", "بمبي":"Pink", "وردي":"Pink", "بنفسجي":"Purple", "برتقالي":"Orange"
-            };
-            let translated = text; 
-            for (const [ar, en] of Object.entries(dict)) { translated = translated.replace(new RegExp(ar, 'g'), en); }
-            if (/[\u0600-\u06FF]/.test(translated)) {
-                try {
-                    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=ar|en`);
-                    const data = await res.json(); translated = data.responseData.translatedText;
-                } catch(e) {}
+            clearTimeout(translateTimer);
+            const targetInput = document.getElementById(targetId);
+            const badge = document.getElementById(badgeId);
+
+            if(!text || text.length < 2) {
+                if(targetInput) targetInput.value = '';
+                if(badge) badge.style.display = 'none';
+                return;
             }
-            document.getElementById(targetId).value = translated;
-            if(badge) { badge.innerText = ' تم ✓'; setTimeout(()=>badge.style.display='none', 2000); }
+
+            if(badge) { badge.style.display = 'inline-block'; badge.innerText = ' جاري الترجمة...'; badge.style.color = 'var(--warning)'; }
+
+            translateTimer = setTimeout(async () => {
+                let dict = {
+                    "بنطلون":"Pants", "جينز":"Jeans", "تيشيرت":"T-Shirt", "تي شيرت":"T-Shirt", "قميص":"Shirt", "شوز":"Shoes", "حذاء":"Shoes", "كوتشي":"Sneakers",
+                    "سويت شيرت":"Sweatshirt", "هودي":"Hoodie", "شروال":"Joggers", "وايد ليج":"Wide Leg", "اوفر سايز":"Oversize", "كارجو":"Cargo",
+                    "شورت":"Shorts", "جاكيت":"Jacket", "سليبر":"Slippers", "حزام":"Belt", "محفظة":"Wallet", "سادة":"Basic", "مطبوع":"Printed",
+                    "مقلم":"Striped", "كاروهات":"Plaid", "أحمر":"Red", "أسود":"Black", "ابيض":"White", "أبيض":"White", "أزرق":"Blue",
+                    "كحلي":"Navy", "بيج":"Beige", "رصاصي":"Grey", "رمادي":"Grey", "أخضر":"Green", "أصفر":"Yellow", "بني":"Brown",
+                    "هافان":"Havana", "نبيتي":"Maroon", "زيتي":"Olive", "بمبي":"Pink", "وردي":"Pink", "بنفسجي":"Purple", "برتقالي":"Orange"
+                };
+                let translated = text;
+                for (const [ar, en] of Object.entries(dict)) { translated = translated.replace(new RegExp(ar, 'g'), en); }
+
+                if (/[\u0600-\u06FF]/.test(translated)) {
+                    try {
+                        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(translated)}&langpair=ar|en`);
+                        const data = await res.json();
+                        if(data.responseData && data.responseData.translatedText) {
+                            translated = data.responseData.translatedText;
+                        }
+                    } catch(e) { console.log("Translation API error:", e); }
+                }
+
+                if(targetInput) targetInput.value = translated;
+                if(badge) { badge.innerText = ' تم ✓'; badge.style.color = 'var(--success)'; setTimeout(()=>badge.style.display='none', 2000); }
+            }, 800);
         }
+        // ----------------------------------------
 
         async function loadStoreSettingsFromDB() {
             const { data } = await supabaseClient.from('store_settings').select('*');
@@ -755,7 +773,7 @@
                     let itemsString = 'منتجات غير متوفرة';
                     if (o.order_items && o.order_items.length > 0) {
                         itemsString = o.order_items.map(i=>`- ${i.product_name} (${i.selected_color || ''} | ${i.selected_size || ''}) <b style="color:#fff">x${i.quantity}</b>`).join('<br>');
-                    } else if (o.items && o.items.length > 0) { // Fallback for the checkout.html structure
+                    } else if (o.items && o.items.length > 0) { 
                         itemsString = o.items.map(i=>`- ${i.title} (${i.color || ''} | ${i.size || ''}) <b style="color:#fff">x${i.qty}</b>`).join('<br>');
                     }
                     
