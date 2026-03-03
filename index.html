@@ -104,7 +104,7 @@
         .auth-input:focus { border-color: var(--primary); background:#fff;}
         .btn-auth-submit { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-family: 'Cairo'; font-size: 1em; cursor: pointer; width: 100%; }
 
-        /* ====== نافذة حسابي الاحترافية (جديد) ====== */
+        /* ====== نافذة حسابي الاحترافية ====== */
         .profile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; backdrop-filter: blur(2px); }
         .profile-overlay.open { display: block; }
         .profile-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 25px 25px 0 0; z-index: 3100; transform: translateY(100%); transition: transform 0.3s ease; padding: 25px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 -5px 20px rgba(0,0,0,0.15);}
@@ -209,11 +209,6 @@
             <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="Google">
             <span id="auth-google-text">المتابعة باستخدام Google</span>
         </button>
-
-        <button class="btn-social" onclick="alert('مايكروسوفت لسه متفعلتش من اللوحة')">
-            <img src="https://cdn-icons-png.flaticon.com/512/732/732221.png" alt="Microsoft">
-            <span id="auth-ms-text">المتابعة باستخدام Microsoft</span>
-        </button>
         
         <div class="divider"><span id="auth-or">أو عبر الإيميل</span></div>
         
@@ -238,13 +233,13 @@
         </div>
 
         <div class="profile-menu">
-            <button class="profile-menu-item" onclick="alert('صفحة الطلبات لسه هنبرمجها الخطوة الجاية!')">
+            <button class="profile-menu-item" onclick="alert('جاري برمجة صفحة الطلبات في الخطوات القادمة...')">
                 <i class="fas fa-box-open"></i> <span id="text-my-orders">طلباتي السابقة</span>
             </button>
-            <button class="profile-menu-item" onclick="alert('صفحة العناوين لسه هنبرمجها!')">
+            <button class="profile-menu-item" onclick="alert('جاري برمجة صفحة العناوين في الخطوات القادمة...')">
                 <i class="fas fa-map-marker-alt"></i> <span id="text-my-address">عناويني المحفوظة</span>
             </button>
-            <button class="profile-menu-item" onclick="alert('إعدادات الحساب لسه هنبرمجها!')">
+            <button class="profile-menu-item" onclick="alert('جاري برمجة الإعدادات في الخطوات القادمة...')">
                 <i class="fas fa-cog"></i> <span id="text-my-settings">إعدادات الحساب</span>
             </button>
         </div>
@@ -267,8 +262,8 @@
         let selectedColor = '';
 
         const dict = {
-            ar: { loading: "جاري التحميل...", newArrivals: "وصل حديثاً", search: "بتبحث عن إيه؟", home: "الرئيسية", cats: "الأقسام", cart: "السلة", account: "حسابي", colors: "الألوان المتاحة", sizes: "المقاسات", addCart: "إضافة إلى السلة", cartTitle: "حقيبة التسوق", total: "المجموع:", checkout: "إتمام الطلب", currency: "ج.م", emptyCart: "السلة فارغة", chooseSize: "اختر المقاس", chooseColor: "اختر اللون", authTitle: "تسجيل دخول / حساب جديد", authGoogle: "المتابعة باستخدام Google", authMs: "المتابعة باستخدام Microsoft", authOr: "أو عبر الإيميل", authAction: "تسجيل الدخول", authHint: "إذا لم يكن لديك حساب، سيتم إنشاؤه تلقائياً.", cookieText: "نحن نستخدم ملفات تعريف الارتباط.", cookieBtn: "موافق", profileTitle: "لوحة التحكم", myOrders: "طلباتي السابقة", myAddress: "عناويني المحفوظة", mySettings: "إعدادات الحساب", logout: "تسجيل الخروج" },
-            en: { loading: "Loading...", newArrivals: "New Arrivals", search: "Search...", home: "Home", cats: "Categories", cart: "Cart", account: "Account", colors: "Colors", sizes: "Sizes", addCart: "Add to Cart", cartTitle: "Shopping Cart", total: "Total:", checkout: "Checkout", currency: "EGP", emptyCart: "Cart is empty", chooseSize: "Select Size", chooseColor: "Select Color", authTitle: "Login / Sign Up", authGoogle: "Continue with Google", authMs: "Continue with Microsoft", authOr: "OR via Email", authAction: "Continue", authHint: "If you don't have an account, one will be created.", cookieText: "We use cookies.", cookieBtn: "Got it", profileTitle: "Dashboard", myOrders: "My Orders", myAddress: "My Addresses", mySettings: "Account Settings", logout: "Log Out" }
+            ar: { loading: "جاري التحميل...", newArrivals: "وصل حديثاً", search: "بتبحث عن إيه؟", home: "الرئيسية", cats: "الأقسام", cart: "السلة", account: "حسابي", colors: "الألوان المتاحة", sizes: "المقاسات", addCart: "إضافة إلى السلة", cartTitle: "حقيبة التسوق", total: "المجموع:", checkout: "إتمام الطلب", currency: "ج.م", emptyCart: "السلة فارغة", chooseSize: "اختر المقاس", chooseColor: "اختر اللون", authTitle: "تسجيل دخول / حساب جديد", authGoogle: "المتابعة باستخدام Google", authOr: "أو عبر الإيميل", authAction: "تسجيل الدخول", authHint: "إذا لم يكن لديك حساب، سيتم إنشاؤه تلقائياً.", cookieText: "نحن نستخدم ملفات تعريف الارتباط.", cookieBtn: "موافق", profileTitle: "لوحة التحكم", myOrders: "طلباتي السابقة", myAddress: "عناويني المحفوظة", mySettings: "إعدادات الحساب", logout: "تسجيل الخروج" },
+            en: { loading: "Loading...", newArrivals: "New Arrivals", search: "Search...", home: "Home", cats: "Categories", cart: "Cart", account: "Account", colors: "Colors", sizes: "Sizes", addCart: "Add to Cart", cartTitle: "Shopping Cart", total: "Total:", checkout: "Checkout", currency: "EGP", emptyCart: "Cart is empty", chooseSize: "Select Size", chooseColor: "Select Color", authTitle: "Login / Sign Up", authGoogle: "Continue with Google", authOr: "OR via Email", authAction: "Continue", authHint: "If you don't have an account, one will be created.", cookieText: "We use cookies.", cookieBtn: "Got it", profileTitle: "Dashboard", myOrders: "My Orders", myAddress: "My Addresses", mySettings: "Account Settings", logout: "Log Out" }
         };
 
         async function initStore() {
@@ -355,10 +350,10 @@
             if (signInError) {
                 if (signInError.message.includes("Invalid login credentials")) {
                     const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({ email: email, password: password });
-                    if (signUpError) { alert(signUpError.message); } else { alert("تم إنشاء الحساب بنجاح! راجع بريدك الإلكتروني واضغط على رابط التفعيل."); toggleAuth(); }
+                    if (signUpError) { alert(signUpError.message); } else { alert("تم إنشاء الحساب بنجاح!"); toggleAuth(); }
                 } else if (signInError.message.includes("Email not confirmed")) { alert("برجاء مراجعة بريدك الإلكتروني والضغط على رابط التفعيل أولاً.");
                 } else { alert(signInError.message); }
-            } else { toggleAuth(); alert("تم تسجيل الدخول بنجاح!"); }
+            } else { toggleAuth(); }
             btn.innerText = dict[currentLang].authAction;
         }
 
@@ -472,10 +467,9 @@
             document.getElementById('search-input').placeholder = d.search; document.getElementById('text-new-arrivals').innerHTML = `<i class="fas fa-sparkles"></i> ${d.newArrivals}`;
             document.getElementById('nav-home').innerText = d.home; document.getElementById('nav-cats').innerText = d.cats; document.getElementById('nav-cart').innerText = d.cart; document.getElementById('nav-account').innerText = d.account;
             document.getElementById('text-cart-title').innerText = d.cartTitle; document.getElementById('text-total').innerText = d.total; document.getElementById('btn-checkout').innerText = d.checkout;
-            document.getElementById('auth-title').innerText = d.authTitle; document.getElementById('auth-google-text').innerText = d.authGoogle; document.getElementById('auth-ms-text').innerText = d.authMs; document.getElementById('auth-or').innerText = d.authOr; document.getElementById('btn-auth-action').innerText = d.authAction; document.getElementById('auth-hint').innerText = d.authHint;
+            document.getElementById('auth-title').innerText = d.authTitle; document.getElementById('auth-google-text').innerText = d.authGoogle; document.getElementById('auth-or').innerText = d.authOr; document.getElementById('btn-auth-action').innerText = d.authAction; document.getElementById('auth-hint').innerText = d.authHint;
             document.getElementById('cookie-text').innerText = d.cookieText; document.getElementById('cookie-btn').innerText = d.cookieBtn;
             
-            // تحديث نصوص صفحة البروفايل
             document.getElementById('profile-header-title').innerText = d.profileTitle;
             document.getElementById('text-my-orders').innerText = d.myOrders;
             document.getElementById('text-my-address').innerText = d.myAddress;
