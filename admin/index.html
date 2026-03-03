@@ -9,6 +9,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
         :root { --primary: #e67e22; --dark: #0a0a0a; --sidebar: #121212; --card: #1a1a1a; --text: #f1f2f6; --text-muted: #a4b0be; --danger: #ff4757; --success: #2ed573; --info: #3742fa; --warning: #ffa502; }
@@ -57,6 +58,7 @@
         .checkbox-label { display: flex; align-items: center; gap: 10px; cursor: pointer; color: #fff; font-size: 0.9em; margin-bottom: 10px; } .checkbox-label input { width: auto; transform: scale(1.2); cursor: pointer;}
         .btn-main { background: var(--primary); color: #000; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 800; font-family: 'Cairo'; width: 100%; transition: 0.3s; } .btn-main:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230,126,34,0.3); }
         .btn-sm { padding: 8px 12px; border-radius: 5px; cursor: pointer; border: none; font-family: 'Cairo'; font-weight: bold; font-size:0.8em; margin: 2px;} .btn-edit { background: var(--info); color: #fff; } .btn-print { background: var(--warning); color: #000; }
+        .btn-export { background: #3498db; color: #fff; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-family: 'Cairo'; font-weight: bold; margin-left: 10px; } .btn-import { background: var(--success); color: #fff; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-family: 'Cairo'; font-weight: bold; }
         .flex-row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;} .flex-row > div { flex: 1; min-width: 200px; }
         
         #loader { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; color: var(--primary); }
@@ -188,6 +190,27 @@
                         <div class="input-group"><label>الاسم (إنجليزي - تلقائي)</label><input type="text" id="prod-title-en"></div>
                     </div>
 
+                    <div class="flex-row" style="background:#111; padding:15px; border-radius:8px; border:1px solid #333; margin-bottom:15px;">
+                        <div class="input-group" style="margin-bottom:0;">
+                            <label style="color:var(--accent);">الموسم (الاستايل)</label>
+                            <select id="prod-season">
+                                <option value="all">كل المواسم (محايد)</option>
+                                <option value="summer">مجموعة الصيف</option>
+                                <option value="winter">مجموعة الشتاء</option>
+                                <option value="autumn">الخريف / الربيع</option>
+                            </select>
+                        </div>
+                        <div class="input-group" style="margin-bottom:0;">
+                            <label style="color:var(--accent);">الفئة المستهدفة</label>
+                            <select id="prod-gender">
+                                <option value="unisex">للجنسين</option>
+                                <option value="men">رجالي</option>
+                                <option value="women">حريمي</option>
+                                <option value="kids">أطفالي</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="input-group">
                         <label style="color:var(--danger);">العلامة المميزة (Badge)</label>
                         <select id="prod-badge" style="border-color:var(--danger);">
@@ -208,7 +231,7 @@
                         <div class="input-group"><label>المخزون المتاح</label><input type="number" id="prod-stock" value="100"></div>
                     </div>
                     <div class="input-group"><label style="color:var(--warning);">رسالة العرض (المربع الأزرق)</label><input type="text" id="prod-promo-msg" placeholder="مثال: طقم شتوي بنطلون + سويت شيرت = 1099"></div>
-                    <div class="input-group"><label>الصورة الرئيسية *</label><input type="file" id="prod-image" accept="image/*"></div>
+                    <div class="input-group"><label>الصورة الرئيسية (أو رابط خارجي) *</label><input type="file" id="prod-image" accept="image/*"><input type="text" id="prod-image-url" placeholder="أو ضع رابط صورة خارجية هنا..." style="margin-top:5px; border-color:var(--info);"></div>
                     
                     <div id="div-hard-dimensions" class="flex-row" style="background:#1a1a1a; padding:15px; border:1px dashed #444; border-radius:8px; margin-top:15px;">
                         <h4 style="width:100%; margin-top:0; color:var(--primary); font-size:0.9em; margin-bottom:10px;">الأبعاد الصلبة (طول وعرض)</h4>
@@ -280,11 +303,19 @@
 
         <section id="edit-inventory" class="section">
             <div class="panel">
-                <h2 class="panel-title"><i class="fas fa-edit"></i> كروت الصنف وتعديل المنتجات</h2>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:10px;">
+                    <h2 class="panel-title" style="margin:0; border:none; padding:0;"><i class="fas fa-edit"></i> كروت الصنف وتعديل المنتجات</h2>
+                    <div>
+                        <button class="btn-export" onclick="exportToCSV()"><i class="fas fa-file-download"></i> تصدير (CSV)</button>
+                        <input type="file" id="csv-file-input" accept=".csv" style="display:none;" onchange="importFromCSV(event)">
+                        <button class="btn-import" onclick="document.getElementById('csv-file-input').click()"><i class="fas fa-file-upload"></i> استيراد منتجات (CSV)</button>
+                    </div>
+                </div>
+                
                 <div style="overflow-x:auto;">
                     <table>
                         <thead>
-                            <tr><th>صورة</th><th>كود (SKU)</th><th>المنتج (عربي)</th><th>القسم</th><th>البيع</th><th>المخزون</th><th>إجراءات</th></tr>
+                            <tr><th>صورة</th><th>كود (SKU)</th><th>المنتج (عربي)</th><th>القسم</th><th>البيع</th><th>إخفاء/إظهار</th><th>إجراءات</th></tr>
                         </thead>
                         <tbody id="edit-products-table"></tbody>
                     </table>
@@ -369,6 +400,17 @@
             <div class="input-group"><label style="color:var(--info);">كود المنتج (SKU)</label><input type="text" id="edit-prod-code"></div>
             <div class="flex-row"><div class="input-group"><label>الاسم (عربي)</label><input type="text" id="edit-prod-title-ar"></div><div class="input-group"><label>الاسم (إنجليزي)</label><input type="text" id="edit-prod-title-en"></div></div>
             
+            <div class="flex-row">
+                <div class="input-group">
+                    <label style="color:var(--accent);">الموسم</label>
+                    <select id="edit-prod-season"><option value="all">كل المواسم</option><option value="summer">الصيف</option><option value="winter">الشتاء</option><option value="autumn">الخريف</option></select>
+                </div>
+                <div class="input-group">
+                    <label style="color:var(--accent);">الفئة</label>
+                    <select id="edit-prod-gender"><option value="unisex">للجنسين</option><option value="men">رجالي</option><option value="women">حريمي</option><option value="kids">أطفالي</option></select>
+                </div>
+            </div>
+
             <div class="input-group">
                 <label style="color:var(--danger);">العلامة (Badge)</label>
                 <select id="edit-prod-badge" style="border-color:var(--danger);">
@@ -588,13 +630,28 @@
         async function addCategory() { const tar=document.getElementById('cat-title-ar').value, ten=document.getElementById('cat-title-en').value, pid=document.getElementById('cat-parent-id').value||null, shw=document.getElementById('cat-show-home').checked; if(!tar)return alert("الاسم بالعربي!"); showLoader("حفظ..."); await supabaseClient.from('categories').insert([{title_ar:tar, title_en:ten, parent_id:pid, show_on_home:shw}]); hideLoader(); loadCategoriesForSelects(); alert("تم إضافة القسم"); document.getElementById('cat-title-ar').value=''; }
         
         async function addProduct() {
-            const cid=document.getElementById('prod-cat').value, tar=document.getElementById('prod-title-ar').value, prc=document.getElementById('prod-price').value, file=document.getElementById('prod-image');
+            const cid=document.getElementById('prod-cat').value, tar=document.getElementById('prod-title-ar').value, prc=document.getElementById('prod-price').value;
+            const file=document.getElementById('prod-image'); const imgUrlExt = document.getElementById('prod-image-url').value;
             const badge = document.getElementById('prod-badge').value;
-            if(!cid||!tar||!prc||file.files.length===0) return alert("البيانات الأساسية!"); showLoader("رفع...");
+            const season = document.getElementById('prod-season').value;
+            const gender = document.getElementById('prod-gender').value;
+
+            if(!cid||!tar||!prc||(file.files.length===0 && !imgUrlExt)) return alert("البيانات الأساسية والصورة!"); 
+            showLoader("رفع...");
             try {
-                const img = await uploadImage(file.files[0]);
-                await supabaseClient.from('products').insert([{ category_id: cid, product_code: document.getElementById('prod-code').value, title_ar: tar, title_en: document.getElementById('prod-title-en').value, badge_ar: badge, price: prc, old_price: document.getElementById('prod-old-price').value||0, promo_message: document.getElementById('prod-promo-msg').value||'', cost_price: document.getElementById('prod-cost-price').value||0, stock_quantity: document.getElementById('prod-stock').value||100, length_val: document.getElementById('prod-length')?.value||'', width_val: document.getElementById('prod-width')?.value||'', thickness_val: document.getElementById('prod-thickness')?.value||'', chest_cm: document.getElementById('prod-chest')?.value||'', shoulder_cm: document.getElementById('prod-shoulder')?.value||'', body_length_cm: document.getElementById('prod-body')?.value||'', image: img }]);
-                alert("تم الإضافة! 📦"); document.getElementById('prod-title-ar').value=''; loadProductsList();
+                let img = imgUrlExt;
+                if(file.files.length > 0) img = await uploadImage(file.files[0]);
+                
+                await supabaseClient.from('products').insert([{ 
+                    category_id: cid, product_code: document.getElementById('prod-code').value, title_ar: tar, title_en: document.getElementById('prod-title-en').value, 
+                    badge_ar: badge, season: season, gender: gender, price: prc, old_price: document.getElementById('prod-old-price').value||0, 
+                    promo_message: document.getElementById('prod-promo-msg').value||'', cost_price: document.getElementById('prod-cost-price').value||0, 
+                    stock_quantity: document.getElementById('prod-stock').value||100, length_val: document.getElementById('prod-length')?.value||'', 
+                    width_val: document.getElementById('prod-width')?.value||'', thickness_val: document.getElementById('prod-thickness')?.value||'', 
+                    chest_cm: document.getElementById('prod-chest')?.value||'', shoulder_cm: document.getElementById('prod-shoulder')?.value||'', 
+                    body_length_cm: document.getElementById('prod-body')?.value||'', image: img, is_visible: true 
+                }]);
+                alert("تم الإضافة! 📦"); document.getElementById('prod-title-ar').value=''; document.getElementById('prod-image-url').value=''; loadProductsList();
             } finally { hideLoader(); }
         }
 
@@ -619,7 +676,12 @@
                         <td style="color:#aaa; font-weight:bold;">${p.product_code || '-'}</td>
                         <td style="font-weight:bold;">${p.title_ar}</td><td>${cName}</td>
                         <td style="color:var(--primary); font-weight:bold;">${p.price} ج.م</td>
-                        <td><b>${p.stock_quantity}</b></td>
+                        <td>
+                            <label class="switch" style="transform: scale(0.8);">
+                                <input type="checkbox" ${p.is_visible !== false ? 'checked' : ''} onchange="toggleProductVisibility('${p.id}', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </td>
                         <td>
                             <button class="btn-sm btn-edit" onclick="openEditModal('${p.id}')"><i class="fas fa-edit"></i></button>
                             <button class="btn-sm btn-print" onclick="printBarcode('${p.id}')"><i class="fas fa-barcode"></i></button>
@@ -628,8 +690,48 @@
                 }); 
             } finally { hideLoader(); }
         }
-        function openEditModal(id) { const p=allProductsEdit.find(x=>x.id===id); if(p){ document.getElementById('edit-prod-id').value=p.id; document.getElementById('edit-prod-code').value=p.product_code || ''; document.getElementById('edit-prod-title-ar').value=p.title_ar; document.getElementById('edit-prod-title-en').value=p.title_en; document.getElementById('edit-prod-badge').value=p.badge_ar || 'لا يوجد'; document.getElementById('edit-prod-cost').value=p.cost_price; document.getElementById('edit-prod-price').value=p.price; document.getElementById('edit-prod-stock').value=p.stock_quantity; document.getElementById('edit-modal').style.display='block'; } }
-        async function saveProductEdit() { showLoader("جاري الحفظ..."); await supabaseClient.from('products').update({product_code: document.getElementById('edit-prod-code').value, title_ar:document.getElementById('edit-prod-title-ar').value, title_en:document.getElementById('edit-prod-title-en').value, badge_ar:document.getElementById('edit-prod-badge').value, cost_price:document.getElementById('edit-prod-cost').value, price:document.getElementById('edit-prod-price').value, stock_quantity:document.getElementById('edit-prod-stock').value}).eq('id', document.getElementById('edit-prod-id').value); alert("تم التحديث ✅"); document.getElementById('edit-modal').style.display='none'; loadEditInventory(); hideLoader(); }
+
+        async function toggleProductVisibility(id, isVisible) {
+            await supabaseClient.from('products').update({ is_visible: isVisible }).eq('id', id);
+        }
+
+        function openEditModal(id) { const p=allProductsEdit.find(x=>x.id===id); if(p){ document.getElementById('edit-prod-id').value=p.id; document.getElementById('edit-prod-code').value=p.product_code || ''; document.getElementById('edit-prod-title-ar').value=p.title_ar; document.getElementById('edit-prod-title-en').value=p.title_en; document.getElementById('edit-prod-badge').value=p.badge_ar || 'لا يوجد'; document.getElementById('edit-prod-season').value=p.season || 'all'; document.getElementById('edit-prod-gender').value=p.gender || 'unisex'; document.getElementById('edit-prod-cost').value=p.cost_price; document.getElementById('edit-prod-price').value=p.price; document.getElementById('edit-prod-stock').value=p.stock_quantity; document.getElementById('edit-modal').style.display='block'; } }
+        async function saveProductEdit() { showLoader("جاري الحفظ..."); await supabaseClient.from('products').update({product_code: document.getElementById('edit-prod-code').value, title_ar:document.getElementById('edit-prod-title-ar').value, title_en:document.getElementById('edit-prod-title-en').value, badge_ar:document.getElementById('edit-prod-badge').value, season:document.getElementById('edit-prod-season').value, gender:document.getElementById('edit-prod-gender').value, cost_price:document.getElementById('edit-prod-cost').value, price:document.getElementById('edit-prod-price').value, stock_quantity:document.getElementById('edit-prod-stock').value}).eq('id', document.getElementById('edit-prod-id').value); alert("تم التحديث ✅"); document.getElementById('edit-modal').style.display='none'; loadEditInventory(); hideLoader(); }
+
+        // التصدير إلى CSV
+        function exportToCSV() {
+            if(allProductsEdit.length === 0) return alert("المخزن فارغ.");
+            const csvData = allProductsEdit.map(p => ({
+                id: p.id, title_ar: p.title_ar, title_en: p.title_en || '', price: p.price, cost_price: p.cost_price || 0,
+                stock_quantity: p.stock_quantity || 0, image: p.image || '', season: p.season || 'all', gender: p.gender || 'unisex', is_visible: p.is_visible
+            }));
+            const csv = Papa.unparse(csvData);
+            const blob = new Blob(["\uFEFF"+csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
+            link.download = "Store_Inventory_" + new Date().getTime() + ".csv"; link.click();
+        }
+
+        // الاستيراد من CSV
+        function importFromCSV(event) {
+            const file = event.target.files[0]; if (!file) return;
+            showLoader("جاري استيراد المنتجات...");
+            Papa.parse(file, {
+                header: true, skipEmptyLines: true,
+                complete: async function(results) {
+                    const productsToInsert = results.data.map(item => ({
+                        title_ar: item.title_ar, title_en: item.title_en || '', price: parseFloat(item.price) || 0, cost_price: parseFloat(item.cost_price) || 0,
+                        stock_quantity: parseInt(item.stock_quantity) || 100, image: item.image || '', season: item.season || 'all', gender: item.gender || 'unisex',
+                        is_visible: String(item.is_visible).toLowerCase() !== 'false'
+                    })).filter(item => item.title_ar && item.price);
+                    
+                    if(productsToInsert.length > 0) {
+                        const { error } = await supabaseClient.from('products').insert(productsToInsert);
+                        if(error) alert("خطأ: " + error.message); else { alert(`تم رفع ${productsToInsert.length} منتج بنجاح!`); loadEditInventory(); }
+                    } else alert("الملف فارغ أو صيغته غير صحيحة.");
+                    hideLoader(); event.target.value = '';
+                }
+            });
+        }
 
         function printBarcode(id) {
             const p = allProductsEdit.find(x => x.id === id); if(!p) return;
@@ -649,8 +751,15 @@
                     const st=o.status; const sColor=st==='تم التوصيل'?'var(--success)':['ملغي','مرتجع'].includes(st)?'var(--danger)':'#fff'; 
                     const sel=`<select class="status-select" style="color:${sColor}; border-color:${sColor}; width:100%; margin-bottom:5px;" onchange="updateOrderStatus('${o.id}', this.value)">`+['قيد المراجعة','جاري التجهيز','مع المندوب','تم التوصيل','ملغي','مرتجع'].map(s=>`<option ${st===s?'selected':''}>${s}</option>`).join('')+'</select>'; 
                     const printBtn = `<button class="btn-sm" style="background:#555; color:#fff; width:100%;" onclick="printInvoice('${o.id}')"><i class="fas fa-print"></i> فاتورة</button>`;
-                    let loc = `${o.customer_city} - ${o.customer_area} <br><small style="color:#aaa;">ش: ${o.customer_street} / عم: ${o.customer_building} / ش: ${o.customer_apartment}</small>`;
-                    tbody.innerHTML+=`<tr><td style="color:var(--primary); font-weight:bold;">#OKZ-${o.id.split('-')[0].toUpperCase()}</td><td style="font-weight:bold;">${o.customer_name}<br>${loc}</td><td>${o.customer_phone}</td><td>${o.order_items.map(i=>`- ${i.product_name} (${i.selected_color || ''} | ${i.selected_size || ''}) <b style="color:#fff">x${i.quantity}</b>`).join('<br>')}</td><td style="color:var(--success); font-weight:bold; font-size:1.1em;">${o.grand_total} ج.م</td><td>${sel} ${printBtn}</td></tr>`; 
+                    let loc = `${o.customer_city || ''} - ${o.customer_area || ''} <br><small style="color:#aaa;">ش: ${o.customer_street || ''} / عم: ${o.customer_building || ''} / ش: ${o.customer_apartment || ''}</small>`;
+                    let itemsString = 'منتجات غير متوفرة';
+                    if (o.order_items && o.order_items.length > 0) {
+                        itemsString = o.order_items.map(i=>`- ${i.product_name} (${i.selected_color || ''} | ${i.selected_size || ''}) <b style="color:#fff">x${i.quantity}</b>`).join('<br>');
+                    } else if (o.items && o.items.length > 0) { // Fallback for the checkout.html structure
+                        itemsString = o.items.map(i=>`- ${i.title} (${i.color || ''} | ${i.size || ''}) <b style="color:#fff">x${i.qty}</b>`).join('<br>');
+                    }
+                    
+                    tbody.innerHTML+=`<tr><td style="color:var(--primary); font-weight:bold;">#OKZ-${o.id.split('-')[0].toUpperCase()}</td><td style="font-weight:bold;">${o.customer_name}<br>${loc}</td><td>${o.customer_phone}</td><td>${itemsString}</td><td style="color:var(--success); font-weight:bold; font-size:1.1em;">${o.total_price || o.grand_total || 0} ج.م</td><td>${sel} ${printBtn}</td></tr>`; 
                 }); 
             } 
         }
@@ -663,8 +772,18 @@
             const date = new Date(o.created_at).toLocaleString('ar-EG');
             const shortId = o.id.split('-')[0].toUpperCase();
             let itemsHtml = '';
-            o.order_items.forEach(i => { itemsHtml += `<tr><td style="text-align:right; padding:5px; border-bottom:1px dashed #ccc;">${i.product_name} (${i.selected_size || ''} ${i.selected_color || ''})</td><td style="text-align:center; padding:5px; border-bottom:1px dashed #ccc;">${i.quantity}</td><td style="text-align:left; padding:5px; border-bottom:1px dashed #ccc;">${i.price}</td></tr>`; });
-            printHTMLWindow(`<div style="max-width:80mm; margin:0 auto; font-family:'Cairo',sans-serif; direction:rtl; text-align:center; color:#000; padding:10px;"><h2 style="margin:5px 0; font-size:24px;">${storeName}</h2><p style="margin:0; font-size:14px; font-weight:bold;">فاتورة طلب #OKZ-${shortId}</p><p style="margin:0; font-size:12px; margin-bottom:15px; color:#555;">التاريخ: ${date}</p><div style="border-top:2px dashed #000; border-bottom:2px dashed #000; padding:10px 0; text-align:right; font-size:14px; line-height:1.6;"><div><b>العميل:</b> ${o.customer_name}</div><div><b>الموبايل:</b> ${o.customer_phone}</div><div><b>العنوان:</b> ${o.customer_city} - ${o.customer_area}</div><div style="font-size:12px;">شارع: ${o.customer_street}, عم: ${o.customer_building}, شقة: ${o.customer_apartment}</div></div><table style="width:100%; margin-top:15px; font-size:14px; border-collapse:collapse;"><thead><tr style="border-bottom:2px solid #000;"><th style="text-align:right; padding-bottom:5px;">الصنف</th><th style="text-align:center; padding-bottom:5px;">الكمية</th><th style="text-align:left; padding-bottom:5px;">السعر</th></tr></thead><tbody>${itemsHtml}</tbody></table><div style="border-top:2px solid #000; margin-top:15px; padding-top:10px; text-align:left; font-size:14px; line-height:1.6;"><div>المجموع: ${o.total_items_price} ج.م</div><div>الشحن: ${o.shipping_cost} ج.م</div>${Number(o.discount_amount)>0?`<div style="color:red;">الخصم: -${o.discount_amount} ج.م</div>`:''}<h3 style="margin:10px 0; font-size:20px; font-weight:900; background:#eee; padding:5px; text-align:center; border:2px dashed #000;">المطلوب: ${o.grand_total} ج.م</h3></div><p style="margin-top:20px; font-size:14px; text-align:center; font-weight:bold;">شكراً لتسوقكم معنا!</p></div>`);
+            
+            const itemsArray = (o.order_items && o.order_items.length > 0) ? o.order_items : (o.items || []);
+            
+            itemsArray.forEach(i => { 
+                const name = i.product_name || i.title;
+                const size = i.selected_size || i.size || '';
+                const color = i.selected_color || i.color || '';
+                const qty = i.quantity || i.qty || 1;
+                itemsHtml += `<tr><td style="text-align:right; padding:5px; border-bottom:1px dashed #ccc;">${name} (${size} ${color})</td><td style="text-align:center; padding:5px; border-bottom:1px dashed #ccc;">${qty}</td><td style="text-align:left; padding:5px; border-bottom:1px dashed #ccc;">${i.price}</td></tr>`; 
+            });
+            const totalToPay = o.grand_total || o.total_price || 0;
+            printHTMLWindow(`<div style="max-width:80mm; margin:0 auto; font-family:'Cairo',sans-serif; direction:rtl; text-align:center; color:#000; padding:10px;"><h2 style="margin:5px 0; font-size:24px;">${storeName}</h2><p style="margin:0; font-size:14px; font-weight:bold;">فاتورة طلب #OKZ-${shortId}</p><p style="margin:0; font-size:12px; margin-bottom:15px; color:#555;">التاريخ: ${date}</p><div style="border-top:2px dashed #000; border-bottom:2px dashed #000; padding:10px 0; text-align:right; font-size:14px; line-height:1.6;"><div><b>العميل:</b> ${o.customer_name}</div><div><b>الموبايل:</b> ${o.customer_phone}</div><div><b>العنوان:</b> ${o.address || o.customer_city || ''}</div></div><table style="width:100%; margin-top:15px; font-size:14px; border-collapse:collapse;"><thead><tr style="border-bottom:2px solid #000;"><th style="text-align:right; padding-bottom:5px;">الصنف</th><th style="text-align:center; padding-bottom:5px;">الكمية</th><th style="text-align:left; padding-bottom:5px;">السعر</th></tr></thead><tbody>${itemsHtml}</tbody></table><div style="border-top:2px solid #000; margin-top:15px; padding-top:10px; text-align:left; font-size:14px; line-height:1.6;"><h3 style="margin:10px 0; font-size:20px; font-weight:900; background:#eee; padding:5px; text-align:center; border:2px dashed #000;">المطلوب: ${totalToPay} ج.م</h3></div><p style="margin-top:20px; font-size:14px; text-align:center; font-weight:bold;">شكراً لتسوقكم معنا!</p></div>`);
         }
 
         function printHTMLWindow(htmlContent) {
