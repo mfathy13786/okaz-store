@@ -88,7 +88,7 @@
         .cart-footer { padding: 20px; border-top: 1px solid #eee; }
         .checkout-btn { background: var(--primary); color: #fff; width: 100%; border: none; padding: 15px; border-radius: 10px; font-weight: 900; font-size: 1.1em; cursor: pointer; font-family: 'Cairo'; }
 
-        /* نافذة تسجيل الدخول */
+        /* نافذة تسجيل الدخول (لغير المسجلين) */
         .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; backdrop-filter: blur(2px); }
         .auth-overlay.open { display: block; }
         .auth-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 25px 25px 0 0; z-index: 3100; transform: translateY(100%); transition: transform 0.3s ease; padding: 25px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 -5px 20px rgba(0,0,0,0.15);}
@@ -104,7 +104,7 @@
         .auth-input:focus { border-color: var(--primary); background:#fff;}
         .btn-auth-submit { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-family: 'Cairo'; font-size: 1em; cursor: pointer; width: 100%; }
 
-        /* ====== نافذة حسابي الاحترافية ====== */
+        /* ====== نافذة حسابي الاحترافية (للمسجلين) ====== */
         .profile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; backdrop-filter: blur(2px); }
         .profile-overlay.open { display: block; }
         .profile-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-radius: 25px 25px 0 0; z-index: 3100; transform: translateY(100%); transition: transform 0.3s ease; padding: 25px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 -5px 20px rgba(0,0,0,0.15);}
@@ -345,15 +345,36 @@
             const btn = document.getElementById('btn-auth-action');
             if(!email || !password) return alert("برجاء كتابة الإيميل وكلمة المرور.");
             if(password.length < 6) return alert("كلمة المرور يجب أن تكون 6 أحرف على الأقل.");
+            
             btn.innerText = "جاري التحميل...";
+            
+            // 1. محاولة تسجيل الدخول أولاً
             const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
+            
             if (signInError) {
                 if (signInError.message.includes("Invalid login credentials")) {
+                    // 2. لو اترفض، بنحاول نعمل حساب جديد
                     const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({ email: email, password: password });
-                    if (signUpError) { alert(signUpError.message); } else { alert("تم إنشاء الحساب بنجاح!"); toggleAuth(); }
-                } else if (signInError.message.includes("Email not confirmed")) { alert("برجاء مراجعة بريدك الإلكتروني والضغط على رابط التفعيل أولاً.");
-                } else { alert(signInError.message); }
-            } else { toggleAuth(); }
+                    
+                    if (signUpError) { 
+                        // 3. لو طلع إن الإيميل موجود فعلاً، نطلع رسالة بالعربي
+                        if(signUpError.message.includes("User already registered")) {
+                            alert("هذا الإيميل مسجل بالفعل! كلمة المرور غير صحيحة، أو ربما قمت بالتسجيل باستخدام جوجل سابقاً.");
+                        } else {
+                            alert("حدث خطأ: " + signUpError.message); 
+                        }
+                    } else { 
+                        alert("تم إنشاء الحساب وتسجيل الدخول بنجاح!"); 
+                        toggleAuth(); 
+                    }
+                } else if (signInError.message.includes("Email not confirmed")) { 
+                    alert("برجاء مراجعة بريدك الإلكتروني والضغط على رابط التفعيل أولاً.");
+                } else { 
+                    alert("حدث خطأ: " + signInError.message); 
+                }
+            } else { 
+                toggleAuth(); // تم تسجيل الدخول بنجاح
+            }
             btn.innerText = dict[currentLang].authAction;
         }
 
