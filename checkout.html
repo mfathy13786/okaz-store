@@ -35,7 +35,6 @@
         .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3); }
         .btn-confirm:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none;}
         
-        /* رسالة النجاح الاحترافية */
         .success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);}
         .success-modal { background: #fff; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; animation: popIn 0.5s ease; }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -47,51 +46,19 @@
 <div class="checkout-container">
     <div class="box">
         <h2 class="box-title"><i class="fas fa-shipping-fast"></i> بيانات التوصيل</h2>
-        
-        <div class="form-group">
-            <label>الاسم بالكامل</label>
-            <input type="text" id="cust-name" placeholder="اكتب اسمك الثلاثي">
-        </div>
-        
-        <div class="form-group">
-            <label>رقم الهاتف (للتواصل السريع)</label>
-            <input type="tel" id="cust-phone" placeholder="01xxxxxxxxx">
-        </div>
-
-        <div class="form-group">
-            <label>المحافظة (لتحديد مصاريف الشحن)</label>
-            <select id="cust-city" onchange="calculateTotal()">
-                <option value="" data-cost="0">-- جاري تحميل المحافظات --</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>العنوان بالتفصيل</label>
-            <textarea id="cust-address" rows="3" placeholder="المنطقة، اسم الشارع، رقم العمارة، رقم الشقة"></textarea>
-        </div>
+        <div class="form-group"><label>الاسم بالكامل</label><input type="text" id="cust-name" placeholder="اكتب اسمك الثلاثي"></div>
+        <div class="form-group"><label>رقم الهاتف (للتواصل السريع)</label><input type="tel" id="cust-phone" placeholder="01xxxxxxxxx"></div>
+        <div class="form-group"><label>المحافظة (لتحديد مصاريف الشحن)</label><select id="cust-city" onchange="calculateTotal()"><option value="" data-cost="0">-- جاري تحميل المحافظات --</option></select></div>
+        <div class="form-group"><label>العنوان بالتفصيل</label><textarea id="cust-address" rows="3" placeholder="المنطقة، اسم الشارع، رقم العمارة، رقم الشقة"></textarea></div>
     </div>
 
     <div class="box">
         <h2 class="box-title"><i class="fas fa-shopping-bag"></i> ملخص الطلب</h2>
         <div id="summary-items"></div>
-        
-        <div class="totals-row">
-            <span>مجموع المنتجات:</span>
-            <span id="items-total-price">0 ج.م</span>
-        </div>
-        <div class="totals-row" style="color: #e67e22;">
-            <span>مصاريف الشحن:</span>
-            <span id="shipping-cost">+ 0 ج.م</span>
-        </div>
-        
-        <div class="grand-total">
-            <span>الإجمالي المطلوب:</span>
-            <span id="grand-total-price" style="color: var(--primary);">0 ج.م</span>
-        </div>
-
-        <button class="btn-confirm" id="confirm-order-btn" onclick="confirmOrder()">
-            تأكيد إتمام الطلب الآن <i class="fas fa-check-circle"></i>
-        </button>
+        <div class="totals-row"><span>مجموع المنتجات:</span><span id="items-total-price">0 ج.م</span></div>
+        <div class="totals-row" style="color: #e67e22;"><span>مصاريف الشحن:</span><span id="shipping-cost">+ 0 ج.م</span></div>
+        <div class="grand-total"><span>الإجمالي المطلوب:</span><span id="grand-total-price" style="color: var(--primary);">0 ج.م</span></div>
+        <button class="btn-confirm" id="confirm-order-btn" onclick="confirmOrder()">تأكيد إتمام الطلب الآن <i class="fas fa-check-circle"></i></button>
         <a href="index.html" style="display: block; text-align: center; margin-top: 15px; color: #888; text-decoration: none; font-weight: bold;">الرجوع للتسوق</a>
     </div>
 </div>
@@ -116,17 +83,15 @@
     async function initCheckout() {
         if(cart.length === 0) { alert("سلة التسوق فارغة."); window.location.href = 'index.html'; return; }
         
-        // تحميل المحافظات من الداتا بيز
         const { data: cities } = await supabaseClient.from('shipping_rules').select('*').order('city_ar');
         const citySelect = document.getElementById('cust-city');
         if(cities && cities.length > 0) {
             citySelect.innerHTML = '<option value="" data-cost="0">-- اختر المحافظة --</option>';
             cities.forEach(c => { citySelect.innerHTML += `<option value="${c.city_ar}" data-cost="${c.cost}">${c.city_ar} (${c.cost} ج.م)</option>`; });
         } else {
-            citySelect.innerHTML = '<option value="القاهرة" data-cost="50">القاهرة (50 ج.م)</option>'; // احتياطي
+            citySelect.innerHTML = '<option value="القاهرة" data-cost="50">القاهرة (50 ج.م)</option>'; 
         }
 
-        // رسم المنتجات
         const cont = document.getElementById('summary-items');
         itemsTotal = 0;
         cont.innerHTML = cart.map(item => {
@@ -134,17 +99,8 @@
             let meta = [];
             if(item.size) meta.push(`مقاس: ${item.size}`);
             if(item.color) meta.push(`لون: ${item.color}`);
-            return `
-            <div class="summary-item">
-                <img src="${item.image}" class="summary-img">
-                <div class="summary-details">
-                    <h4>${item.title}</h4>
-                    <p class="summary-meta">${meta.join(' | ')}</p>
-                    <p class="summary-meta" style="font-weight:bold; color:#000;">${item.qty} × ${item.price} ج.م</p>
-                </div>
-            </div>`;
+            return `<div class="summary-item"><img src="${item.image}" class="summary-img"><div class="summary-details"><h4>${item.title}</h4><p class="summary-meta">${meta.join(' | ')}</p><p class="summary-meta" style="font-weight:bold; color:#000;">${item.qty} × ${item.price} ج.م</p></div></div>`;
         }).join('');
-        
         calculateTotal();
     }
 
@@ -152,7 +108,6 @@
         document.getElementById('items-total-price').innerText = itemsTotal + " ج.م";
         const citySelect = document.getElementById('cust-city');
         const shippingCost = parseFloat(citySelect.options[citySelect.selectedIndex].getAttribute('data-cost')) || 0;
-        
         document.getElementById('shipping-cost').innerText = "+ " + shippingCost + " ج.م";
         document.getElementById('grand-total-price').innerText = (itemsTotal + shippingCost) + " ج.م";
     }
@@ -166,40 +121,54 @@
         const address = document.getElementById('cust-address').value.trim();
         const btn = document.getElementById('confirm-order-btn');
 
-        if(!name || !phone || !city || !address) {
-            alert("برجاء ملء جميع بيانات التوصيل (الاسم، الهاتف، المحافظة، العنوان)."); return;
-        }
+        if(!name || !phone || !city || !address) { alert("برجاء ملء جميع بيانات التوصيل."); return; }
 
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
         const grandTotal = itemsTotal + shippingCost;
 
-        // تسجيل الطلب في قاعدة البيانات (الأدمن) بالأعمدة الصحيحة
-        const { data: orderData, error } = await supabaseClient.from('orders').insert([{
+        // 1. إدخال البيانات في جدول الطلبات الرئيسي
+        const { data: orderData, error: orderError } = await supabaseClient.from('orders').insert([{
             customer_name: name, 
             customer_phone: phone, 
             customer_city: city, 
-            customer_area: 'التفاصيل مدمجة',
+            customer_area: '-', 
             customer_street: address, 
             customer_building: '-',
             customer_apartment: '-',
-            items: cart, 
-            total_price: grandTotal, 
+            total_items_price: itemsTotal,
+            shipping_cost: shippingCost,
+            grand_total: grandTotal, 
             status: 'قيد المراجعة'
         }]).select().single();
 
-        if(error) {
-            alert("حدث خطأ تقني: " + error.message);
+        if(orderError) {
+            alert("حدث خطأ في تسجيل الطلب: " + orderError.message);
             btn.disabled = false; btn.innerHTML = 'تأكيد إتمام الطلب الآن <i class="fas fa-check-circle"></i>'; return;
         }
 
-        // إظهار رسالة النجاح الاحترافية للعميل
-        document.getElementById('success-modal').style.display = 'flex';
-        localStorage.removeItem('okaz_cart'); // تصفير السلة
+        // 2. إدخال المنتجات في جدول تفاصيل الطلب (وهنا حل المشكلة الجذرية)
+        const orderItems = cart.map(item => ({
+            order_id: orderData.id,
+            product_name: item.title,
+            selected_size: item.size || '',
+            selected_color: item.color || '',
+            quantity: item.qty,
+            price: item.price
+        }));
 
-        // توجيهه للواتساب في الخلفية
-        let message = `*طلب جديد #${orderData ? orderData.id.split('-')[0].toUpperCase() : 'جديد'}* 🛍️\n\n`;
+        const { error: itemsError } = await supabaseClient.from('order_items').insert(orderItems);
+
+        if(itemsError) {
+            console.error("Error saving items:", itemsError);
+            // لن نوقف العملية لأن الطلب الأساسي تم حفظه، لكن نسجل الخطأ
+        }
+
+        document.getElementById('success-modal').style.display = 'flex';
+        localStorage.removeItem('okaz_cart'); 
+
+        let message = `*طلب جديد #${orderData.id.split('-')[0].toUpperCase()}* 🛍️\n\n`;
         message += `👤 *العميل:* ${name}\n📞 *الموبايل:* ${phone}\n📍 *العنوان:* ${city} - ${address}\n\n*المنتجات:*\n`;
         cart.forEach(i => { message += `▪️ ${i.qty}x ${i.title} (${i.size||'-'} | ${i.color||'-'})\n`; });
         message += `\n📦 المنتجات: ${itemsTotal} ج.م\n🚚 الشحن: ${shippingCost} ج.م\n💰 *الإجمالي: ${grandTotal} ج.م*`;
