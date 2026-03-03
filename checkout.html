@@ -8,70 +8,101 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --primary: #e67e22; --bg: #f4f7f6; --text: #2d3436; }
+        :root { --primary: #e67e22; --bg: #f4f7f6; --text: #2d3436; --card: #ffffff; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        body { background: var(--bg); padding: 20px; color: var(--text); margin: 0; }
-        .checkout-container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        h2 { text-align: center; color: var(--primary); font-weight: 900; margin-bottom: 25px; padding-bottom: 10px; border-bottom: 2px solid #eee;}
+        body { background: var(--bg); padding: 20px; color: var(--text); margin: 0; display: flex; justify-content: center; }
+        .checkout-container { width: 100%; max-width: 800px; display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 768px) { .checkout-container { grid-template-columns: 1.2fr 1fr; align-items: start; } }
+        
+        .box { background: var(--card); padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .box-title { margin-top: 0; color: var(--primary); font-weight: 900; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; font-size: 1.2em; display: flex; align-items: center; gap: 10px;}
         
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.95em; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 0.95em; outline: none; background: #fafafa; transition: 0.2s;}
-        input:focus, textarea:focus { border-color: var(--primary); background: #fff; }
-        
-        .order-summary { background: #fff; padding: 15px; border-radius: 15px; margin: 25px 0; border: 1px solid #eee; }
-        .summary-title { font-weight: 900; font-size: 1.1em; margin-bottom: 15px; display: block; color: var(--primary);}
+        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.9em; color: #555; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95em; outline: none; background: #fafafa; transition: 0.2s; }
+        input:focus, textarea:focus, select:focus { border-color: var(--primary); background: #fff; }
         
         .summary-item { display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #eee; align-items: center;}
-        .summary-img { width: 65px; height: 65px; border-radius: 10px; object-fit: cover; background: #f9f9f9; border: 1px solid #eee;}
+        .summary-img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid #eee;}
         .summary-details { flex: 1; }
-        .summary-details h4 { margin: 0 0 5px; font-size: 0.95em; color: var(--text); }
+        .summary-details h4 { margin: 0 0 5px; font-size: 0.95em; }
         .summary-meta { font-size: 0.8em; color: #777; margin: 0; }
-        .summary-price-col { text-align: left; font-weight: 900; color: var(--primary); font-size: 1em;}
         
-        .total-row { display: flex; justify-content: space-between; font-weight: 900; font-size: 1.2em; margin-top: 15px; padding-top: 10px; color: #2d3436;}
+        .totals-row { display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; font-size: 1em; color: #555; }
+        .grand-total { display: flex; justify-content: space-between; font-weight: 900; font-size: 1.3em; margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee; color: #000; }
         
-        .btn-confirm { background: var(--primary); color: #fff; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: 900; font-size: 1.1em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+        .btn-confirm { background: var(--primary); color: #fff; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: 900; font-size: 1.1em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; margin-top: 20px;}
         .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3); }
         .btn-confirm:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none;}
-        .back-link { display: block; text-align: center; margin-top: 15px; color: #888; text-decoration: none; font-size: 0.9em; font-weight: bold;}
+        
+        /* رسالة النجاح الاحترافية */
+        .success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);}
+        .success-modal { background: #fff; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; animation: popIn 0.5s ease; }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .success-icon { font-size: 4em; color: #27ae60; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
 <div class="checkout-container">
-    <h2><i class="fas fa-truck-fast"></i> إتمام الطلب الشحن</h2>
-    
-    <div class="form-group">
-        <label>الاسم بالكامل</label>
-        <input type="text" id="cust-name" placeholder="اكتب اسمك الثلاثي">
-    </div>
-    
-    <div class="form-group">
-        <label>رقم الواتساب للتواصل</label>
-        <input type="tel" id="cust-phone" placeholder="01xxxxxxxxx">
-    </div>
-
-    <div class="form-group">
-        <label>عنوان التوصيل (المدينة، المنطقة، الشارع)</label>
-        <textarea id="cust-address" rows="3" placeholder="برجاء كتابة العنوان بالتفصيل لسرعة التوصيل"></textarea>
-    </div>
-
-    <div class="order-summary">
-        <span class="summary-title"><i class="fas fa-shopping-bag"></i> مراجعة المنتجات</span>
-        <div id="summary-items"></div>
+    <div class="box">
+        <h2 class="box-title"><i class="fas fa-shipping-fast"></i> بيانات التوصيل</h2>
         
-        <div class="total-row">
-            <span>الإجمالي المطلوب:</span>
-            <span id="summary-total">0 ج.م</span>
+        <div class="form-group">
+            <label>الاسم بالكامل</label>
+            <input type="text" id="cust-name" placeholder="اكتب اسمك الثلاثي">
+        </div>
+        
+        <div class="form-group">
+            <label>رقم الهاتف (للتواصل السريع)</label>
+            <input type="tel" id="cust-phone" placeholder="01xxxxxxxxx">
+        </div>
+
+        <div class="form-group">
+            <label>المحافظة (لتحديد مصاريف الشحن)</label>
+            <select id="cust-city" onchange="calculateTotal()">
+                <option value="" data-cost="0">-- جاري تحميل المحافظات --</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>العنوان بالتفصيل</label>
+            <textarea id="cust-address" rows="3" placeholder="المنطقة، اسم الشارع، رقم العمارة، رقم الشقة"></textarea>
         </div>
     </div>
 
-    <button class="btn-confirm" id="confirm-order-btn" onclick="confirmOrder()">
-        تأكيد الطلب وإرسال عبر واتساب <i class="fab fa-whatsapp"></i>
-    </button>
-    
-    <a href="index.html" class="back-link">رجوع للتسوق</a>
+    <div class="box">
+        <h2 class="box-title"><i class="fas fa-shopping-bag"></i> ملخص الطلب</h2>
+        <div id="summary-items"></div>
+        
+        <div class="totals-row">
+            <span>مجموع المنتجات:</span>
+            <span id="items-total-price">0 ج.م</span>
+        </div>
+        <div class="totals-row" style="color: #e67e22;">
+            <span>مصاريف الشحن:</span>
+            <span id="shipping-cost">+ 0 ج.م</span>
+        </div>
+        
+        <div class="grand-total">
+            <span>الإجمالي المطلوب:</span>
+            <span id="grand-total-price" style="color: var(--primary);">0 ج.م</span>
+        </div>
+
+        <button class="btn-confirm" id="confirm-order-btn" onclick="confirmOrder()">
+            تأكيد إتمام الطلب الآن <i class="fas fa-check-circle"></i>
+        </button>
+        <a href="index.html" style="display: block; text-align: center; margin-top: 15px; color: #888; text-decoration: none; font-weight: bold;">الرجوع للتسوق</a>
+    </div>
+</div>
+
+<div class="success-overlay" id="success-modal">
+    <div class="success-modal">
+        <i class="fas fa-check-circle success-icon"></i>
+        <h2 style="margin: 0 0 10px; color: #2d3436;">تم استلام طلبك بنجاح!</h2>
+        <p style="color: #777; font-size: 0.95em; line-height: 1.6;">رقم طلبك قيد المراجعة الآن.<br>سيتم تحويلك لخدمة العملاء في ثوانٍ لتأكيد موعد الشحن...</p>
+        <div style="margin-top: 20px;"><i class="fas fa-spinner fa-spin" style="font-size: 1.5em; color: var(--primary);"></i></div>
+    </div>
 </div>
 
 <script>
@@ -80,111 +111,98 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
-    let userEmail = "";
-    let userId = null;
+    let itemsTotal = 0;
 
     async function initCheckout() {
-        if(cart.length === 0) {
-            alert("عذراً، سلة التسوق فارغة.");
-            window.location.href = 'index.html';
-            return;
+        if(cart.length === 0) { alert("سلة التسوق فارغة."); window.location.href = 'index.html'; return; }
+        
+        // تحميل المحافظات من الداتا بيز
+        const { data: cities } = await supabaseClient.from('shipping_rules').select('*').order('city_ar');
+        const citySelect = document.getElementById('cust-city');
+        if(cities && cities.length > 0) {
+            citySelect.innerHTML = '<option value="" data-cost="0">-- اختر المحافظة --</option>';
+            cities.forEach(c => { citySelect.innerHTML += `<option value="${c.city_ar}" data-cost="${c.cost}">${c.city_ar} (${c.cost} ج.م)</option>`; });
+        } else {
+            citySelect.innerHTML = '<option value="القاهرة" data-cost="50">القاهرة (50 ج.م)</option>'; // احتياطي
         }
 
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if(session) {
-            document.getElementById('cust-name').value = session.user.user_metadata?.full_name || session.user.user_metadata?.name || "";
-            userEmail = session.user.email;
-            userId = session.user.id;
-        }
-
-        renderSummary();
-    }
-
-    function renderSummary() {
+        // رسم المنتجات
         const cont = document.getElementById('summary-items');
-        let total = 0;
+        itemsTotal = 0;
         cont.innerHTML = cart.map(item => {
-            total += (item.price * item.qty);
-            const sizeText = item.size ? `مقاس: ${item.size}` : '';
-            const colorText = item.color ? `لون: ${item.color}` : '';
-            const separator = (item.size && item.color) ? ' | ' : '';
-            
+            itemsTotal += (item.price * item.qty);
+            let meta = [];
+            if(item.size) meta.push(`مقاس: ${item.size}`);
+            if(item.color) meta.push(`لون: ${item.color}`);
             return `
             <div class="summary-item">
-                <img src="${item.image}" class="summary-img" alt="Product">
+                <img src="${item.image}" class="summary-img">
                 <div class="summary-details">
                     <h4>${item.title}</h4>
-                    <p class="summary-meta">${sizeText}${separator}${colorText}</p>
-                    <p class="summary-meta">الكمية: ${item.qty}</p>
-                </div>
-                <div class="summary-price-col">
-                    ${item.price * item.qty} ج.م
+                    <p class="summary-meta">${meta.join(' | ')}</p>
+                    <p class="summary-meta" style="font-weight:bold; color:#000;">${item.qty} × ${item.price} ج.م</p>
                 </div>
             </div>`;
         }).join('');
-        document.getElementById('summary-total').innerText = total + " ج.م";
+        
+        calculateTotal();
+    }
+
+    function calculateTotal() {
+        document.getElementById('items-total-price').innerText = itemsTotal + " ج.م";
+        const citySelect = document.getElementById('cust-city');
+        const shippingCost = parseFloat(citySelect.options[citySelect.selectedIndex].getAttribute('data-cost')) || 0;
+        
+        document.getElementById('shipping-cost').innerText = "+ " + shippingCost + " ج.م";
+        document.getElementById('grand-total-price').innerText = (itemsTotal + shippingCost) + " ج.م";
     }
 
     async function confirmOrder() {
         const name = document.getElementById('cust-name').value.trim();
         const phone = document.getElementById('cust-phone').value.trim();
+        const citySelect = document.getElementById('cust-city');
+        const city = citySelect.value;
+        const shippingCost = parseFloat(citySelect.options[citySelect.selectedIndex].getAttribute('data-cost')) || 0;
         const address = document.getElementById('cust-address').value.trim();
         const btn = document.getElementById('confirm-order-btn');
 
-        if(!name || !phone || !address) {
-            alert("برجاء ملء جميع بيانات الشحن (الاسم، الواتساب، العنوان).");
-            return;
+        if(!name || !phone || !city || !address) {
+            alert("برجاء ملء جميع بيانات التوصيل (الاسم، الهاتف، المحافظة، العنوان)."); return;
         }
 
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل الطلب...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
-        const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+        const grandTotal = itemsTotal + shippingCost;
 
-        const { data, error } = await supabaseClient.from('orders').insert([{
-            customer_name: name,
-            customer_phone: phone,
-            customer_email: userEmail,
-            address: address,
-            items: cart,
-            total_price: total,
-            user_id: userId
-        }]);
+        // 1. تسجيل الطلب في قاعدة البيانات (الأدمن)
+        const { data: orderData, error } = await supabaseClient.from('orders').insert([{
+            customer_name: name, customer_phone: phone, customer_city: city, address: address,
+            items: cart, total_price: grandTotal, status: 'قيد المراجعة'
+        }]).select().single();
 
         if(error) {
-            alert("حدث خطأ تقني، برجاء المحاولة مرة أخرى: " + error.message);
-            btn.disabled = false;
-            btn.innerHTML = 'تأكيد الطلب وإرسال عبر واتساب <i class="fab fa-whatsapp"></i>';
-            return;
+            alert("حدث خطأ تقني: " + error.message);
+            btn.disabled = false; btn.innerHTML = 'تأكيد إتمام الطلب الآن <i class="fas fa-check-circle"></i>'; return;
         }
 
-        let message = `*طلب جديد من المتجر* 🛍️\n\n`;
-        message += `👤 *العميل:* ${name}\n`;
-        message += `📞 *التليفون:* ${phone}\n`;
-        message += `📍 *العنوان:* ${address}\n\n`;
-        message += `*تفاصيل المنتجات:*\n`;
-        message += `-------------------\n`;
-        cart.forEach(item => {
-            message += `▪️ ${item.title}\n`;
-            if(item.size || item.color) {
-                message += `   (المقاس: ${item.size || '-'} | اللون: ${item.color || '-'})\n`;
-            }
-            message += `   الكمية: ${item.qty} | السعر: ${item.price * item.qty} ج.م\n`;
-            message += `   صورة: ${item.image}\n`;
-            message += `-------------------\n`;
-        });
-        message += `\n💰 *الإجمالي المطلوب:* ${total} ج.م`;
+        // 2. إظهار رسالة النجاح الاحترافية للعميل
+        document.getElementById('success-modal').style.display = 'flex';
+        localStorage.removeItem('okaz_cart'); // تصفير السلة
+
+        // 3. توجيهه في الخلفية للواتساب بعد 3 ثواني
+        let message = `*طلب جديد #${orderData ? orderData.id.split('-')[0].toUpperCase() : 'جديد'}* 🛍️\n\n`;
+        message += `👤 *العميل:* ${name}\n📞 *الموبايل:* ${phone}\n📍 *العنوان:* ${city} - ${address}\n\n*المنتجات:*\n`;
+        cart.forEach(i => { message += `▪️ ${i.qty}x ${i.title} (${i.size||'-'} | ${i.color||'-'})\n`; });
+        message += `\n📦 المنتجات: ${itemsTotal} ج.م\n🚚 الشحن: ${shippingCost} ج.م\n💰 *الإجمالي: ${grandTotal} ج.م*`;
 
         const merchantPhone = "201090921815"; 
         const whatsappUrl = `https://wa.me/${merchantPhone}?text=${encodeURIComponent(message)}`;
 
-        localStorage.removeItem('okaz_cart');
-        alert("تم استلام طلبك بنجاح! سيتم تحويلك الآن للواتساب لتأكيد الشحن.");
-        window.location.href = whatsappUrl;
+        setTimeout(() => { window.location.href = whatsappUrl; }, 3000);
     }
 
     initCheckout();
 </script>
-
 </body>
 </html>
