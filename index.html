@@ -15,7 +15,6 @@
         :root { --primary: #e67e22; --bg: #f4f7f6; --card-bg: #ffffff; --text: #2d3436; --text-muted: #636e72; --danger: #e74c3c; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        /* التعديل الأول: تظبيط العرض على شاشات الكمبيوتر (Desktop Grid) */
         body { background-color: var(--bg); color: var(--text); padding-bottom: 70px; overflow-x: hidden; }
         .main-container { max-width: 1200px; margin: 0 auto; background: #fff; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
 
@@ -36,29 +35,32 @@
 
         .categories-stories { display: flex; overflow-x: auto; padding: 15px 20px; gap: 15px; background: var(--card-bg); border-bottom: 1px solid #eee; scroll-behavior: smooth; }
         .categories-stories::-webkit-scrollbar { display: none; }
-        .story-item { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 75px; cursor: pointer; transition: 0.2s; }
+        .story-item { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 80px; max-width: 90px; cursor: pointer; transition: 0.2s; }
         .story-item:hover { transform: translateY(-3px); }
         .story-img-wrap { width: 70px; height: 70px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, var(--primary), #ff9f43); }
         .story-img { width: 100%; height: 100%; border-radius: 50%; border: 2px solid #fff; background: #eee; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8em; color: #777; text-align: center; }
-        .story-item span { font-size: 0.8em; font-weight: bold; white-space: nowrap; }
+        .story-item span { font-size: 0.8em; font-weight: bold; white-space: normal; text-align: center; line-height: 1.2; }
 
-        /* ستايل البانرات */
-        .banner-slider { width: 100%; aspect-ratio: 21/9; max-height: 400px; display: none; background: #eee; }
-        .swiper-slide img { width: 100%; height: 100%; object-fit: cover; }
+        /* البانرات */
+        .banner-slider { width: 100%; display: none; background: #eee; }
+        .swiper-slide img { width: 100%; height: auto; max-height: 400px; object-fit: cover; display: block; }
         .static-banner { margin: 20px; border-radius: 15px; overflow: hidden; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .static-banner img { width: 100%; display: block; object-fit: cover; max-height: 300px; }
 
         .section-title { padding: 20px 20px 10px; font-size: 1.2em; font-weight: 900; color: var(--text); display: flex; align-items: center; gap: 8px; }
         
-        /* التعديل الجوهري للديسكتوب والموبايل (Responsive Grid) */
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 10px 20px 30px; }
-        @media (min-width: 768px) { .products-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; } }
+        /* تصميم الـ Grid الاحترافي للديسكتوب */
+        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 10px 20px 30px; }
+        @media (min-width: 768px) { 
+            .products-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; } 
+            .product-card { max-width: 280px; margin: 0 auto; width: 100%; }
+        }
         
-        .product-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid #eee; position: relative; cursor: pointer; transition: 0.3s; }
+        .product-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid #eee; position: relative; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column;}
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: var(--primary); }
         .product-badge { position: absolute; top: 8px; right: 8px; background: #ff4757; color: #fff; font-size: 0.7em; padding: 4px 8px; border-radius: 5px; font-weight: bold; z-index: 5; }
         .product-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #f9f9f9; }
-        .product-info { padding: 12px; }
+        .product-info { padding: 12px; display: flex; flex-direction: column; flex: 1; justify-content: space-between;}
         .product-title { font-size: 0.9em; font-weight: 700; height: 2.6em; overflow: hidden; margin-bottom: 5px; line-height: 1.3; color: var(--text); }
         .product-price { color: var(--primary); font-weight: 900; font-size: 1.1em; display: flex; align-items: center; gap: 8px; }
         .old-price { font-size: 0.75em; color: #aaa; text-decoration: line-through; font-weight: normal; }
@@ -134,7 +136,9 @@
 
         <div class="static-banner" id="middle-banner"></div>
         <div class="static-banner" id="bottom-banner"></div>
-        <div style="height: 40px;"></div> </div>
+        
+        <div style="height: 40px;"></div>
+    </div>
 
     <nav class="app-bottom-nav">
         <div class="nav-item active" onclick="window.scrollTo(0,0)"><i class="fas fa-home"></i><span>الرئيسية</span></div>
@@ -230,8 +234,8 @@
             });
         }
 
-        // التعديل: جلب المنتجات المفعلة فقط (is_visible = true)
         async function fetchProducts() {
+            // التعديل: استدعاء المنتجات المفعلة فقط
             const {data} = await supabaseClient.from('products').select('*').eq('is_visible', true).order('created_at', { ascending: false });
             allProducts = data || []; 
             renderProducts(allProducts);
