@@ -175,10 +175,18 @@
 
         const grandTotal = itemsTotal + shippingCost;
 
-        // 1. تسجيل الطلب في قاعدة البيانات (الأدمن)
+        // تسجيل الطلب في قاعدة البيانات (الأدمن) بالأعمدة الصحيحة
         const { data: orderData, error } = await supabaseClient.from('orders').insert([{
-            customer_name: name, customer_phone: phone, customer_city: city, address: address,
-            items: cart, total_price: grandTotal, status: 'قيد المراجعة'
+            customer_name: name, 
+            customer_phone: phone, 
+            customer_city: city, 
+            customer_area: 'التفاصيل مدمجة',
+            customer_street: address, 
+            customer_building: '-',
+            customer_apartment: '-',
+            items: cart, 
+            total_price: grandTotal, 
+            status: 'قيد المراجعة'
         }]).select().single();
 
         if(error) {
@@ -186,11 +194,11 @@
             btn.disabled = false; btn.innerHTML = 'تأكيد إتمام الطلب الآن <i class="fas fa-check-circle"></i>'; return;
         }
 
-        // 2. إظهار رسالة النجاح الاحترافية للعميل
+        // إظهار رسالة النجاح الاحترافية للعميل
         document.getElementById('success-modal').style.display = 'flex';
         localStorage.removeItem('okaz_cart'); // تصفير السلة
 
-        // 3. توجيهه في الخلفية للواتساب بعد 3 ثواني
+        // توجيهه للواتساب في الخلفية
         let message = `*طلب جديد #${orderData ? orderData.id.split('-')[0].toUpperCase() : 'جديد'}* 🛍️\n\n`;
         message += `👤 *العميل:* ${name}\n📞 *الموبايل:* ${phone}\n📍 *العنوان:* ${city} - ${address}\n\n*المنتجات:*\n`;
         cart.forEach(i => { message += `▪️ ${i.qty}x ${i.title} (${i.size||'-'} | ${i.color||'-'})\n`; });
