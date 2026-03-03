@@ -701,6 +701,7 @@
                         <td>
                             <button class="btn-sm btn-edit" onclick="openEditModal('${p.id}')"><i class="fas fa-edit"></i></button>
                             <button class="btn-sm btn-print" onclick="printBarcode('${p.id}')"><i class="fas fa-barcode"></i></button>
+                            <button class="btn-sm" style="background:var(--danger); color:#fff;" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>`; 
                 }); 
@@ -709,6 +710,19 @@
 
         async function toggleProductVisibility(id, isVisible) {
             await supabaseClient.from('products').update({ is_visible: isVisible }).eq('id', id);
+        }
+
+        // --- زر الحذف ودالته ---
+        async function deleteProduct(id) {
+            if(!confirm("هل أنت متأكد من حذف هذا المنتج نهائياً؟ (سيتم حذفه من الموقع بالكامل مع صوره وألوانه ومقاساته)")) return;
+            showLoader("جاري الحذف...");
+            const { error } = await supabaseClient.from('products').delete().eq('id', id);
+            if(error) alert("حدث خطأ أثناء الحذف: " + error.message);
+            else {
+                alert("تم الحذف بنجاح!");
+                loadEditInventory();
+            }
+            hideLoader();
         }
 
         function openEditModal(id) { const p=allProductsEdit.find(x=>x.id===id); if(p){ document.getElementById('edit-prod-id').value=p.id; document.getElementById('edit-prod-code').value=p.product_code || ''; document.getElementById('edit-prod-title-ar').value=p.title_ar; document.getElementById('edit-prod-title-en').value=p.title_en; document.getElementById('edit-prod-badge').value=p.badge_ar || 'لا يوجد'; document.getElementById('edit-prod-season').value=p.season || 'all'; document.getElementById('edit-prod-gender').value=p.gender || 'unisex'; document.getElementById('edit-prod-cost').value=p.cost_price; document.getElementById('edit-prod-price').value=p.price; document.getElementById('edit-prod-stock').value=p.stock_quantity; document.getElementById('edit-modal').style.display='block'; } }
@@ -727,7 +741,7 @@
             link.download = "Store_Inventory_" + new Date().getTime() + ".csv"; link.click();
         }
 
-        // الاستيراد الخارق (الجديد)
+        // الاستيراد الخارق (الجديد والمعدل للأقسام)
         async function importFromCSV(event) {
             const file = event.target.files[0]; if (!file) return;
             showLoader("جاري بناء الأقسام ورفع المنتجات... (يرجى الانتظار)");
@@ -741,30 +755,36 @@
                     // جلب الأقسام الحالية عشان منكررهاش
                     const { data: existCats } = await supabaseClient.from('categories').select('*');
                     let catMap = {}; 
-                    if(existCats) existCats.forEach(c => { catMap[`${c.title_ar}_${c.parent_id || 'root'}`] = c.id; });
+                    if(existCats) existCats.forEach(c => { catMap[`${c.title_ar.trim()}_${c.parent_id || 'root'}`] = c.id; });
 
                     for(let item of rows) {
                         if(!item.title_ar || !item.price) continue;
 
-                        // 1. معالجة القسم الرئيسي
+                        // 1. تنظيف وتجهيز القسم الرئيسي
                         let mainCatId = null;
-                        if(item.main_category) {
-                            let key = `${item.main_category}_root`;
+                        let mCatName = item.main_category ? item.main_category.trim() : null;
+                        
+                        if(mCatName) {
+                            let key = `${mCatName}_root`;
                             if(catMap[key]) { mainCatId = catMap[key]; }
                             else {
-                                const {data: newMain} = await supabaseClient.from('categories').insert([{title_ar: item.main_category, show_on_home: true}]).select().single();
+                                const {data: newMain, error: errMain} = await supabaseClient.from('categories').insert([{title_ar: mCatName, show_on_home: true}]).select().single();
                                 if(newMain) { mainCatId = newMain.id; catMap[key] = newMain.id; }
+                                else { console.error("Error creating main category:", errMain); }
                             }
                         }
 
-                        // 2. معالجة القسم الفرعي
+                        // 2. تنظيف وتجهيز القسم الفرعي
                         let subCatId = null;
-                        if(item.sub_category && mainCatId) {
-                            let key = `${item.sub_category}_${mainCatId}`;
+                        let sCatName = item.sub_category ? item.sub_category.trim() : null;
+                        
+                        if(sCatName && mainCatId) {
+                            let key = `${sCatName}_${mainCatId}`;
                             if(catMap[key]) { subCatId = catMap[key]; }
                             else {
-                                const {data: newSub} = await supabaseClient.from('categories').insert([{title_ar: item.sub_category, parent_id: mainCatId, show_on_home: false}]).select().single();
+                                const {data: newSub, error: errSub} = await supabaseClient.from('categories').insert([{title_ar: sCatName, parent_id: mainCatId, show_on_home: false}]).select().single();
                                 if(newSub) { subCatId = newSub.id; catMap[key] = newSub.id; }
+                                else { console.error("Error creating sub category:", errSub); }
                             }
                         }
 
@@ -774,15 +794,15 @@
                         const { data: prodData, error: prodErr } = await supabaseClient.from('products').insert([{
                             category_id: finalCatId,
                             product_code: item.product_code || '',
-                            title_ar: item.title_ar,
-                            promo_message: item.description || '', // دمجنا الوصف هنا زي ما اتفقنا
+                            title_ar: item.title_ar.trim(),
+                            promo_message: item.description || '', 
                             price: parseFloat(item.price) || 0,
                             old_price: parseFloat(item.old_price) || 0,
                             cost_price: parseFloat(item.cost_price) || 0,
                             stock_quantity: parseInt(item.stock_quantity) || 100,
-                            image: item.image || '',
-                            season: item.season || 'all',
-                            gender: item.gender || 'unisex',
+                            image: item.image ? item.image.trim() : '',
+                            season: item.season ? item.season.trim() : 'all',
+                            gender: item.gender ? item.gender.trim() : 'unisex',
                             is_visible: String(item.is_visible).toLowerCase() !== 'false'
                         }]).select().single();
 
@@ -815,6 +835,8 @@
                                     await supabaseClient.from('product_colors').insert(colorInserts);
                                 }
                             }
+                        } else {
+                            console.error("Error creating product:", prodErr);
                         }
                     }
                     alert(`تم الانتهاء بفضل الله! تم بناء الأقسام ورفع ${successCount} منتج بألوانها ومقاساتها! 🚀`);
