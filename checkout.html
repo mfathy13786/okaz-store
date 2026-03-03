@@ -2,373 +2,158 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إتمام الطلب | الدفع</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إتمام الطلب - سوق عكاز</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
-        :root { --primary: #e67e22; --bg: #f4f7f6; --card-bg: #ffffff; --text: #2d3436; --text-muted: #636e72; --danger: #e84118; --success: #44bd32; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); color: var(--text); padding-bottom: 90px; }
-
-        /* الهيدر */
-        header { background: var(--card-bg); padding: 15px 20px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .back-btn { font-size: 1.2em; color: var(--text); text-decoration: none; cursor: pointer; }
-        header h1 { font-size: 1.2em; margin: 0; font-weight: 900; color: var(--primary); }
-
-        .container { padding: 15px; max-width: 600px; margin: auto; }
-        
-        .section-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-        .section-title { font-weight: 900; font-size: 1.1em; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; color: var(--text); border-bottom: 2px solid #f1f2f6; padding-bottom: 10px; }
-        .section-title i { color: var(--primary); }
-        
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 6px; color: var(--text-muted); }
-        .input-group input, .input-group select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #dfe4ea; background: #f8f9fa; font-family: 'Cairo'; outline: none; transition: 0.3s; font-size: 0.95em; }
-        .input-group input:focus, .input-group select:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(230,126,34,0.1); }
-
-        .flex-row { display: flex; gap: 10px; }
-        .flex-row > div { flex: 1; }
-
-        /* إنشاء حساب (Upsell) */
-        .create-account-box { background: #f8f9fa; border: 1px dashed var(--primary); padding: 15px; border-radius: 10px; margin-top: 10px; }
-        .checkbox-label { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 0.9em; cursor: pointer; color: var(--text); }
-        .checkbox-label input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
-        
-        /* ملخص الطلب */
-        .order-summary { font-size: 0.95em; }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; color: var(--text-muted); font-weight: bold; }
-        .summary-row span:last-child { color: var(--text); }
-        .summary-row.total { font-size: 1.2em; font-weight: 900; color: var(--primary); border-top: 2px dashed #eee; padding-top: 15px; margin-top: 10px; }
-        .summary-row.total span:last-child { color: var(--primary); }
-
-        /* الكوبون */
-        .promo-box { display: flex; gap: 10px; margin-top: 15px; margin-bottom: 15px; background: #f1f2f6; padding: 5px; border-radius: 10px; }
-        .promo-box input { flex: 1; padding: 10px 15px; border: none; background: transparent; outline: none; text-transform: uppercase; font-family: 'Cairo'; font-weight: bold; }
-        .promo-box button { background: var(--text); color: #fff; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold; font-family: 'Cairo'; cursor: pointer; transition: 0.2s; }
-        .promo-box button:hover { background: var(--primary); }
-
-        /* الشريط السفلي */
-        .bottom-action { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); padding: 15px 20px; box-shadow: 0 -4px 15px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; z-index: 100; border-top: 1px solid #eee; }
-        .bottom-total { display: flex; flex-direction: column; }
-        .bottom-total span { font-size: 0.8em; color: var(--text-muted); font-weight: bold; }
-        .bottom-total strong { font-size: 1.4em; font-weight: 900; color: var(--primary); line-height: 1; }
-        .btn-submit { background: var(--primary); color: #fff; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 900; font-family: 'Cairo'; font-size: 1.1em; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.15); transition: transform 0.2s; display: flex; align-items: center; gap: 8px; }
-        .btn-submit:active { transform: scale(0.95); }
-
-        /* اللودر */
-        #loader { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; }
-        .spinner { border: 4px solid #eee; border-top: 4px solid var(--primary); border-radius: 50%; width: 45px; height: 45px; animation: spin 1s linear infinite; margin-bottom:15px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* شاشة النجاح */
-        .success-screen { display: none; text-align: center; padding: 60px 20px; height: 100vh; background: var(--bg); position: fixed; inset: 0; z-index: 10000; flex-direction: column; justify-content: center; align-items: center;}
-        .success-icon { font-size: 6em; color: var(--success); margin-bottom: 20px; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        .order-number-box { background: var(--card-bg); padding: 15px 30px; border-radius: 15px; border: 2px dashed var(--primary); font-size: 1.5em; font-weight: 900; color: var(--text); margin: 20px 0; letter-spacing: 2px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);}
+        :root { --primary: #e67e22; --bg: #f4f7f6; --text: #2d3436; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); padding: 20px; color: var(--text); }
+        .checkout-container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        h2 { text-align: center; color: var(--primary); font-weight: 900; margin-bottom: 25px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.9em; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 10px; font-family: 'Cairo'; outline: none; background: #f9f9f9; }
+        input:focus { border-color: var(--primary); background: #fff; }
+        .order-summary { background: #fff9f4; padding: 15px; border-radius: 15px; margin: 20px 0; border: 1px dashed var(--primary); }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em; }
+        .total-price { border-top: 1px solid #eee; padding-top: 10px; margin-top: 10px; font-weight: 900; font-size: 1.2em; color: var(--primary); display: flex; justify-content: space-between; }
+        .btn-confirm { background: var(--primary); color: #fff; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: 900; font-size: 1.1em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+        .btn-confirm:disabled { background: #ccc; }
+        .back-link { display: block; text-align: center; margin-top: 15px; color: var(--text); text-decoration: none; font-size: 0.9em; }
     </style>
 </head>
 <body>
 
-    <div id="loader"><div class="spinner"></div><h3 id="loader-text" style="color:var(--text);">جاري تأكيد الطلب...</h3></div>
+<div class="checkout-container">
+    <h2><i class="fas fa-shopping-check"></i> تأكيد طلبك</h2>
+    
+    <div class="form-group">
+        <label>الاسم بالكامل</label>
+        <input type="text" id="cust-name" placeholder="اكتب اسمك الثلاثي">
+    </div>
+    
+    <div class="form-group">
+        <label>رقم الواتساب</label>
+        <input type="tel" id="cust-phone" placeholder="01xxxxxxxxx">
+    </div>
 
-    <header id="main-header">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-right"></i></a>
-        <h1>إتمام الطلب</h1>
-    </header>
+    <div class="form-group">
+        <label>عنوان التوصيل بالتفصيل</label>
+        <textarea id="cust-address" rows="3" placeholder="المحافظة، المنطقة، اسم الشارع، رقم المنزل"></textarea>
+    </div>
 
-    <div class="container" id="checkout-form-container">
-        
-        <div class="section-card">
-            <h2 class="section-title"><i class="fas fa-user-circle"></i> بيانات الاستلام</h2>
-            <div class="input-group">
-                <label>الاسم بالكامل *</label>
-                <input type="text" id="c-name" placeholder="اكتب اسمك الثلاثي">
-            </div>
-            <div class="input-group">
-                <label>رقم الموبايل *</label>
-                <input type="tel" id="c-phone" placeholder="مثال: 01012345678" maxlength="11">
-            </div>
-            <div class="input-group">
-                <label>البريد الإلكتروني (اختياري)</label>
-                <input type="email" id="c-email" placeholder="عشان تتابع حالة الأوردر">
-            </div>
-            
-            <div class="create-account-box">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="c-create-account" onchange="togglePasswordField()">
-                    حفظ بياناتي لإنشاء حساب وتتبع طلباتي
-                </label>
-                <div id="password-container" style="display: none; margin-top: 15px;">
-                    <input type="password" id="c-password" placeholder="اكتب كلمة مرور قوية" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; font-family:'Cairo'; outline:none;">
-                    <small style="color:var(--text-muted); font-size:0.75em; margin-top:5px; display:block;">سيتم استخدام رقم موبايلك وكلمة المرور لتسجيل الدخول لاحقاً.</small>
-                </div>
-            </div>
-        </div>
-
-        <div class="section-card">
-            <h2 class="section-title"><i class="fas fa-map-marker-alt"></i> عنوان التوصيل</h2>
-            <div class="input-group">
-                <label>المحافظة *</label>
-                <select id="c-city" onchange="calculateTotal()">
-                    <option value="">جاري تحميل المحافظات...</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>المنطقة / الحي *</label>
-                <input type="text" id="c-area" placeholder="مثال: مدينة نصر، المعادي">
-            </div>
-            <div class="input-group">
-                <label>اسم الشارع *</label>
-                <input type="text" id="c-street" placeholder="مثال: شارع مكرم عبيد">
-            </div>
-            
-            <div class="flex-row">
-                <div class="input-group"><label>رقم العمارة</label><input type="text" id="c-building" placeholder="مثال: 15"></div>
-                <div class="input-group"><label>الدور</label><input type="text" id="c-floor" placeholder="مثال: 3"></div>
-                <div class="input-group"><label>الشقة</label><input type="text" id="c-apt" placeholder="مثال: 12"></div>
-            </div>
-            <div class="input-group">
-                <label>علامة مميزة (اختياري)</label>
-                <input type="text" id="c-landmark" placeholder="بجوار صيدلية كذا...">
-            </div>
-        </div>
-
-        <div class="section-card" style="margin-bottom: 30px;">
-            <h2 class="section-title"><i class="fas fa-receipt"></i> ملخص الدفع</h2>
-            
-            <div class="promo-box">
-                <input type="text" id="promo-input" placeholder="هل لديك كود خصم؟">
-                <button onclick="applyPromo()">تفعيل</button>
-            </div>
-
-            <div class="order-summary">
-                <div class="summary-row"><span>المنتجات (<span id="sum-qty">0</span>)</span><span id="sum-items">0 ج.م</span></div>
-                <div class="summary-row"><span>مصاريف الشحن</span><span id="sum-shipping" style="color:var(--primary);">يحدد من المحافظة</span></div>
-                <div class="summary-row" id="discount-row" style="display:none; color:var(--danger);"><span>خصم الكوبون</span><span id="sum-discount">-0 ج.م</span></div>
-                
-                <div class="summary-row total"><span>الإجمالي المطلوب</span><span id="sum-total">0 ج.م</span></div>
-            </div>
+    <div class="order-summary">
+        <div id="summary-items"></div>
+        <div class="total-price">
+            <span>إجمالي المبلغ:</span>
+            <span id="summary-total">0 ج.م</span>
         </div>
     </div>
 
-    <div class="bottom-action" id="bottom-action-bar">
-        <div class="bottom-total">
-            <span>الإجمالي النهائي</span>
-            <strong id="bottom-grand-total">0 ج.م</strong>
-        </div>
-        <button class="btn-submit" onclick="submitOrder()">تأكيد الطلب <i class="fas fa-check-circle"></i></button>
-    </div>
+    <button class="btn-confirm" id="confirm-order-btn" onclick="confirmOrder()">
+        تأكيد الطلب وإرسال عبر واتساب <i class="fab fa-whatsapp"></i>
+    </button>
+    
+    <a href="index.html" class="back-link">العودة للسلة</a>
+</div>
 
-    <div class="success-screen" id="success-screen">
-        <i class="fas fa-check-circle success-icon"></i>
-        <h1 style="color:var(--primary); margin-bottom:10px;">تم استلام طلبك بنجاح!</h1>
-        <p style="color:var(--text-muted); font-weight:bold; font-size:1.1em;">رقم طلبك للمتابعة هو:</p>
-        <div class="order-number-box" id="success-order-id">OKZ-0000</div>
-        <p style="color:var(--text-muted); margin-bottom:30px; font-size:0.9em;">سنتواصل معك هاتفياً قريباً لتأكيد موعد الشحن.</p>
-        <button class="btn-submit" style="width:100%; max-width:300px; justify-content:center;" onclick="window.location.href='index.html'"><i class="fas fa-store"></i> العودة للمتجر</button>
-    </div>
+<script>
+    const SUPABASE_URL = 'https://wkfiocqhkspsvqgyjpea.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_l2vgR8Xbt0Csw8W_Slo_1Q_9glKlIoN'; 
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    <script>
-        const SUPABASE_URL = 'https://wkfiocqhkspsvqgyjpea.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_l2vgR8Xbt0Csw8W_Slo_1Q_9glKlIoN';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
+    let userEmail = "";
+    let userId = null;
 
-        let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
-        let shippingRules = [];
-        let appliedDiscountPercent = 0;
-        let subtotal = 0;
-        let shippingCost = 0;
-        let discountAmount = 0;
-        let grandTotal = 0;
-        let clientIP = 'Unknown';
-
-        async function initCheckout() {
-            if(cart.length === 0) {
-                alert("سلة المشتريات فارغة!");
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            await applyStoreTheme();
-            await loadShippingCities();
-            fetchClientIP(); 
-            
-            subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
-            
-            document.getElementById('sum-qty').innerText = totalQty;
-            document.getElementById('sum-items').innerText = `${subtotal} ج.م`;
-            calculateTotal();
+    async function initCheckout() {
+        if(cart.length === 0) {
+            alert("سلتك فارغة!");
+            window.location.href = 'index.html';
+            return;
         }
 
-        async function applyStoreTheme() {
-            const { data } = await supabaseClient.from('store_settings').select('*').eq('setting_key', 'theme_color').single();
-            if(data && data.setting_value) {
-                document.documentElement.style.setProperty('--primary', data.setting_value);
-            }
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if(session) {
+            document.getElementById('cust-name').value = session.user.user_metadata.full_name || session.user.user_metadata.name || "";
+            userEmail = session.user.email;
+            userId = session.user.id;
         }
 
-        async function loadShippingCities() {
-            const { data } = await supabaseClient.from('shipping_rules').select('*').order('city_ar');
-            shippingRules = data || [];
-            const select = document.getElementById('c-city');
-            select.innerHTML = '<option value="">-- اختر المحافظة --</option>';
-            shippingRules.forEach(rule => {
-                select.innerHTML += `<option value="${rule.id}" data-cost="${rule.cost}">${rule.city_ar}</option>`;
-            });
+        renderSummary();
+    }
+
+    function renderSummary() {
+        const cont = document.getElementById('summary-items');
+        let total = 0;
+        cont.innerHTML = cart.map(item => {
+            total += (item.price * item.qty);
+            return `<div class="summary-item">
+                <span>${item.qty} x ${item.title} (${item.size || ''})</span>
+                <span>${item.price * item.qty} ج.م</span>
+            </div>`;
+        }).join('');
+        document.getElementById('summary-total').innerText = total + " ج.م";
+    }
+
+    async function confirmOrder() {
+        const name = document.getElementById('cust-name').value.trim();
+        const phone = document.getElementById('cust-phone').value.trim();
+        const address = document.getElementById('cust-address').value.trim();
+        const btn = document.getElementById('confirm-order-btn');
+
+        if(!name || !phone || !address) {
+            alert("برجاء ملء جميع البيانات لإتمام الشحن.");
+            return;
         }
 
-        function calculateTotal() {
-            const citySelect = document.getElementById('c-city');
-            shippingCost = 0;
-            
-            if(citySelect.value) {
-                const selectedOption = citySelect.options[citySelect.selectedIndex];
-                shippingCost = Number(selectedOption.getAttribute('data-cost'));
-                document.getElementById('sum-shipping').innerText = `${shippingCost} ج.م`;
-                document.getElementById('sum-shipping').style.color = 'var(--text)';
-            } else {
-                document.getElementById('sum-shipping').innerText = 'يحدد من المحافظة';
-                document.getElementById('sum-shipping').style.color = 'var(--primary)';
-            }
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري معالجة الطلب...';
 
-            discountAmount = Math.round((subtotal * appliedDiscountPercent) / 100);
-            
-            if(discountAmount > 0) {
-                document.getElementById('discount-row').style.display = 'flex';
-                document.getElementById('sum-discount').innerText = `-${discountAmount} ج.م`;
-            }
+        const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
 
-            grandTotal = (subtotal + shippingCost) - discountAmount;
-            
-            document.getElementById('sum-total').innerText = `${grandTotal} ج.م`;
-            document.getElementById('bottom-grand-total').innerText = `${grandTotal} ج.م`;
+        // 1. تسجيل الطلب في قاعدة البيانات
+        const { data, error } = await supabaseClient.from('orders').insert([{
+            customer_name: name,
+            customer_phone: phone,
+            customer_email: userEmail,
+            address: address,
+            items: cart,
+            total_price: total,
+            user_id: userId
+        }]);
+
+        if(error) {
+            alert("حدث خطأ في تسجيل الطلب: " + error.message);
+            btn.disabled = false;
+            return;
         }
 
-        async function applyPromo() {
-            const code = document.getElementById('promo-input').value.trim().toUpperCase();
-            if(!code) return;
-            
-            document.getElementById('loader').style.display = 'flex';
-            try {
-                const { data } = await supabaseClient.from('promo_codes').select('*').eq('code', code).eq('is_active', true).single();
-                
-                if(data) {
-                    appliedDiscountPercent = data.discount_percentage;
-                    alert(`مبروك! تم تفعيل خصم بقيمة ${appliedDiscountPercent}% 🎉`);
-                    calculateTotal();
-                } else {
-                    alert("عفواً، كود الخصم غير صحيح أو منتهي الصلاحية.");
-                    appliedDiscountPercent = 0;
-                    document.getElementById('discount-row').style.display = 'none';
-                    calculateTotal();
-                }
-            } finally { document.getElementById('loader').style.display = 'none'; }
-        }
+        // 2. تجهيز رسالة الواتساب الاحترافية
+        let message = `طلب جديد من متجر عكاز 🛒\n\n`;
+        message += `👤 العميل: ${name}\n`;
+        message += `📞 تليفون: ${phone}\n`;
+        message += `📍 العنوان: ${address}\n`;
+        message += `----------\nالمنتجات:\n`;
+        cart.forEach(item => {
+            message += `- ${item.title} | مقاس: ${item.size || 'N/A'} | كمية: ${item.qty} | سعر: ${item.price} ج.م\n`;
+        });
+        message += `----------\n💰 الإجمالي: ${total} ج.م`;
 
-        function togglePasswordField() {
-            const isChecked = document.getElementById('c-create-account').checked;
-            document.getElementById('password-container').style.display = isChecked ? 'block' : 'none';
-        }
+        // رقم واتساب م/ محمد فتحي
+        const merchantPhone = "201090921815"; 
+        const whatsappUrl = `https://wa.me/${merchantPhone}?text=${encodeURIComponent(message)}`;
 
-        // سحب الـ IP لتحديد الموقع للـ CRM
-        async function fetchClientIP() {
-            try {
-                const res = await fetch('https://api.ipify.org?format=json');
-                const data = await res.json();
-                clientIP = data.ip;
-            } catch(e) { console.log("IP fetch failed"); }
-        }
+        // 3. تفريغ السلة وتوجيه العميل
+        localStorage.removeItem('okaz_cart');
+        alert("تم تسجيل طلبك بنجاح! سيتم فتح واتساب الآن لإرسال تفاصيل الطلب للمدير التقني.");
+        window.location.href = whatsappUrl;
+    }
 
-        // إرسال الطلب وحفظ العميل في الـ CRM
-        async function submitOrder() {
-            const name = document.getElementById('c-name').value.trim();
-            const phone = document.getElementById('c-phone').value.trim();
-            const email = document.getElementById('c-email').value.trim();
-            const cityEl = document.getElementById('c-city');
-            const cityId = cityEl.value;
-            const area = document.getElementById('c-area').value.trim();
-            const street = document.getElementById('c-street').value.trim();
+    initCheckout();
+</script>
 
-            if(!name || !phone || !cityId || !area || !street) {
-                return alert("برجاء إكمال جميع البيانات المطلوبة (*) لضمان وصول الشحنة بسرعة.");
-            }
-            if(phone.length < 10) return alert("برجاء كتابة رقم موبايل صحيح.");
-
-            document.getElementById('loader').style.display = 'flex';
-            
-            try {
-                const cityText = cityEl.options[cityEl.selectedIndex].text;
-                let customerId = null;
-
-                // 1. نظام الـ CRM الذكي
-                const { data: existingCustomer } = await supabaseClient.from('customers').select('*').eq('phone', phone).single();
-                
-                if(existingCustomer) {
-                    customerId = existingCustomer.id;
-                    await supabaseClient.from('customers').update({ 
-                        total_spent: Number(existingCustomer.total_spent) + grandTotal, 
-                        orders_count: Number(existingCustomer.orders_count) + 1,
-                        location_info: cityText
-                    }).eq('id', customerId);
-                } else {
-                    const { data: newCustomer } = await supabaseClient.from('customers').insert([{
-                        full_name: name, phone: phone, email: email || null,
-                        ip_address: clientIP, location_info: cityText,
-                        total_spent: grandTotal, orders_count: 1
-                    }]).select().single();
-                    customerId = newCustomer.id;
-                }
-
-                // 2. تسجيل الأوردر
-                const promoCodeUsed = appliedDiscountPercent > 0 ? document.getElementById('promo-input').value.toUpperCase() : null;
-                
-                const { data: orderData, error: orderError } = await supabaseClient.from('orders').insert([{
-                    customer_id: customerId, customer_name: name, customer_phone: phone, customer_email: email,
-                    customer_city: cityText, customer_area: area, customer_street: street,
-                    customer_building: document.getElementById('c-building').value,
-                    customer_floor: document.getElementById('c-floor').value,
-                    customer_apartment: document.getElementById('c-apt').value,
-                    customer_landmark: document.getElementById('c-landmark').value,
-                    total_items_price: subtotal, shipping_cost: shippingCost,
-                    discount_amount: discountAmount, grand_total: grandTotal,
-                    promo_code_used: promoCodeUsed, status: 'قيد المراجعة'
-                }]).select().single();
-
-                if (orderError) throw orderError;
-
-                // 3. تسجيل تفاصيل المنتجات
-                const orderItems = cart.map(item => ({
-                    order_id: orderData.id, product_name: item.title,
-                    selected_color: item.color, selected_size: item.size,
-                    quantity: item.qty, price: item.price, image_url: item.image
-                }));
-
-                await supabaseClient.from('order_items').insert(orderItems);
-
-                // 4. إنهاء الرحلة بنجاح
-                localStorage.removeItem('okaz_cart');
-                document.getElementById('checkout-form-container').style.display = 'none';
-                document.getElementById('bottom-action-bar').style.display = 'none';
-                document.getElementById('main-header').style.display = 'none';
-                
-                const shortOrderId = orderData.id.split('-')[0].toUpperCase();
-                document.getElementById('success-order-id').innerText = `OKZ-${shortOrderId}`;
-                document.getElementById('success-screen').style.display = 'flex';
-
-            } catch (e) {
-                console.error(e);
-                alert("عفواً، حدث خطأ أثناء إرسال الطلب. برجاء المحاولة مرة أخرى.");
-            } finally {
-                document.getElementById('loader').style.display = 'none';
-            }
-        }
-
-        initCheckout();
-    </script>
 </body>
 </html>
