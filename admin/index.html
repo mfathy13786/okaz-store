@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم | الإدارة الشاملة</title>
+    <title id="main-site-title">لوحة التحكم | الإدارة الشاملة</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -174,19 +174,36 @@
             <div class="flex-row">
                 <div class="panel" style="flex:1;">
                     <h3 class="panel-title"><i class="fas fa-folder-plus"></i> إضافة قسم</h3>
+                    
+                    <div class="input-group" style="background:#222; padding:10px; border-radius:8px; border:1px dashed #555;">
+                        <label>صورة القسم (التي تظهر في الدوائر على الرئيسية)</label>
+                        <input type="file" id="cat-image" accept="image/*">
+                    </div>
+
                     <div class="flex-row">
                         <div class="input-group" style="position:relative;"><label>الاسم (عربي) *</label><input type="text" id="cat-title-ar" placeholder="مثال: أحذية" onkeyup="smartTranslate(this.value, 'cat-title-en', 'cat-magic')"><i class="fas fa-magic auto-translate-badge" id="cat-magic"></i></div>
                         <div class="input-group"><label>الاسم (إنجليزي - تلقائي)</label><input type="text" id="cat-title-en" placeholder="مثال: Shoes"></div>
                     </div>
-                    <div class="input-group"><label>يتبع قسم رئيسي؟</label><select id="cat-parent-id"></select></div>
-                    <div style="background:#222; padding:15px; border-radius:8px; margin-bottom:15px;"><label class="checkbox-label"><input type="checkbox" id="cat-show-home" checked> عرض في الرئيسية؟</label></div>
-                    <button class="btn-main" onclick="addCategory()">حفظ القسم</button>
+                    
+                    <div class="input-group"><label>يتبع قسم رئيسي؟ (اختر ليصبح فرعياً)</label><select id="cat-parent-id"></select></div>
+                    <div style="background:#111; padding:15px; border-radius:8px; margin-bottom:15px;"><label class="checkbox-label"><input type="checkbox" id="cat-show-home" checked> عرض في الصفحة الرئيسية؟</label></div>
+                    
+                    <div class="input-group" style="background:#1a1a1a; padding:10px; border-radius:8px; border-right:3px solid var(--info);">
+                        <label style="color:var(--info);">بانر القسم العلوي (يمكنك تحديد أكثر من صورة للسلايدر)</label>
+                        <input type="file" id="cat-banner-top" multiple accept="image/*">
+                    </div>
+                    <div class="input-group" style="background:#1a1a1a; padding:10px; border-radius:8px; border-right:3px solid var(--warning); margin-bottom: 20px;">
+                        <label style="color:var(--warning);">بانر القسم السفلي (يمكنك تحديد أكثر من صورة للسلايدر)</label>
+                        <input type="file" id="cat-banner-bottom" multiple accept="image/*">
+                    </div>
+
+                    <button class="btn-main" onclick="addCategory()">حفظ القسم بجميع محتوياته</button>
                 </div>
                 
                 <div class="panel" style="flex:1;">
                     <h3 class="panel-title"><i class="fas fa-tags"></i> إدارة الأقسام الحالية</h3>
                     <p style="color:#aaa; font-size:0.85em; margin-top:0;">لحذف قسم، تأكد أنه فارغ من المنتجات أولاً.</p>
-                    <div id="categories-list" style="display: flex; flex-wrap: wrap; gap: 10px; max-height: 250px; overflow-y: auto; padding: 10px; background: #111; border-radius: 8px; border: 1px solid #333;"></div>
+                    <div id="categories-list" style="display: flex; flex-wrap: wrap; gap: 10px; max-height: 400px; overflow-y: auto; padding: 10px; background: #111; border-radius: 8px; border: 1px solid #333;"></div>
                 </div>
             </div>
 
@@ -425,20 +442,13 @@
             if(document.getElementById('set-theme-color')) document.getElementById('set-theme-color').value = systemSettings.theme_color || '#e67e22';
             if(document.getElementById('set-announcement')) document.getElementById('set-announcement').value = systemSettings.announcement_text || '';
 
-            // استرجاع حالة مفاتيح التشغيل من الداتا بيز
             if(document.getElementById('set-hard-dim')) document.getElementById('set-hard-dim').checked = systemSettings.hard_dim === 'true';
             if(document.getElementById('set-cloth-guide')) document.getElementById('set-cloth-guide').checked = systemSettings.cloth_guide === 'true';
             if(document.getElementById('set-colors')) document.getElementById('set-colors').checked = systemSettings.colors_active === 'true';
             if(document.getElementById('set-sizes')) document.getElementById('set-sizes').checked = systemSettings.sizes_active === 'true';
 
-            if(systemSettings.site_favicon) {
-                document.getElementById('preview-logo-favicon').src = systemSettings.site_favicon;
-                document.getElementById('preview-logo-favicon').style.display = 'block';
-            }
-            if(systemSettings.site_logo_header) {
-                document.getElementById('preview-logo-header').src = systemSettings.site_logo_header;
-                document.getElementById('preview-logo-header').style.display = 'block';
-            }
+            if(systemSettings.site_favicon) { document.getElementById('preview-logo-favicon').src = systemSettings.site_favicon; document.getElementById('preview-logo-favicon').style.display = 'block'; }
+            if(systemSettings.site_logo_header) { document.getElementById('preview-logo-header').src = systemSettings.site_logo_header; document.getElementById('preview-logo-header').style.display = 'block'; }
         }
 
         async function saveStoreSettings() {
@@ -446,51 +456,110 @@
             const sName = document.getElementById('set-store-name').value.trim();
             const tColor = document.getElementById('set-theme-color').value;
             const ann = document.getElementById('set-announcement').value.trim();
-
             const hardDim = document.getElementById('set-hard-dim').checked ? 'true' : 'false';
             const clothGuide = document.getElementById('set-cloth-guide').checked ? 'true' : 'false';
             const colorsAct = document.getElementById('set-colors').checked ? 'true' : 'false';
             const sizesAct = document.getElementById('set-sizes').checked ? 'true' : 'false';
 
             const updates = [
-                { setting_key: 'store_name', setting_value: sName },
-                { setting_key: 'theme_color', setting_value: tColor },
-                { setting_key: 'announcement_text', setting_value: ann },
-                { setting_key: 'hard_dim', setting_value: hardDim },
-                { setting_key: 'cloth_guide', setting_value: clothGuide },
-                { setting_key: 'colors_active', setting_value: colorsAct },
-                { setting_key: 'sizes_active', setting_value: sizesAct }
+                { setting_key: 'store_name', setting_value: sName }, { setting_key: 'theme_color', setting_value: tColor }, { setting_key: 'announcement_text', setting_value: ann },
+                { setting_key: 'hard_dim', setting_value: hardDim }, { setting_key: 'cloth_guide', setting_value: clothGuide }, { setting_key: 'colors_active', setting_value: colorsAct }, { setting_key: 'sizes_active', setting_value: sizesAct }
             ];
 
             const favFile = document.getElementById('logo-favicon-file').files[0];
             if (favFile) {
-                const ext = favFile.name.split('.').pop();
-                const fName = `favicon_${Date.now()}.${ext}`;
+                const ext = favFile.name.split('.').pop(); const fName = `favicon_${Date.now()}.${ext}`;
                 const { error: fErr } = await supabaseClient.storage.from('okaz_images').upload(fName, favFile);
-                if(!fErr) {
-                    const favUrl = supabaseClient.storage.from('okaz_images').getPublicUrl(fName).data.publicUrl;
-                    updates.push({ setting_key: 'site_favicon', setting_value: favUrl });
-                }
+                if(!fErr) updates.push({ setting_key: 'site_favicon', setting_value: supabaseClient.storage.from('okaz_images').getPublicUrl(fName).data.publicUrl });
             }
 
             const logoFile = document.getElementById('logo-header-file').files[0];
             if (logoFile) {
-                const ext = logoFile.name.split('.').pop();
-                const lName = `logo_${Date.now()}.${ext}`;
+                const ext = logoFile.name.split('.').pop(); const lName = `logo_${Date.now()}.${ext}`;
                 const { error: lErr } = await supabaseClient.storage.from('okaz_images').upload(lName, logoFile);
-                if(!lErr) {
-                    const logoUrl = supabaseClient.storage.from('okaz_images').getPublicUrl(lName).data.publicUrl;
-                    updates.push({ setting_key: 'site_logo_header', setting_value: logoUrl });
-                }
+                if(!lErr) updates.push({ setting_key: 'site_logo_header', setting_value: supabaseClient.storage.from('okaz_images').getPublicUrl(lName).data.publicUrl });
             }
 
-            for (let u of updates) {
-                await supabaseClient.from('store_settings').upsert(u, { onConflict: 'setting_key' });
-            }
+            for (let u of updates) { await supabaseClient.from('store_settings').upsert(u, { onConflict: 'setting_key' }); }
+            hideLoader(); alert("تم حفظ الإعدادات بنجاح!"); loadStoreSettingsFromDB(); 
+        }
 
-            hideLoader();
-            alert("تم حفظ إعدادات المتجر بنجاح! سيتم تطبيقها في الموقع الرئيسي فوراً.");
-            loadStoreSettingsFromDB(); 
+        async function uploadImage(file) {
+            const ext = file.name.split('.').pop();
+            const fName = `cat_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
+            await supabaseClient.storage.from('okaz_images').upload(fName, file);
+            return supabaseClient.storage.from('okaz_images').getPublicUrl(fName).data.publicUrl;
+        }
+
+        // --- التعديل: برمجة زرار حفظ القسم ليرفع الصورة والبانرات للـ Database ---
+        async function addCategory() {
+            const titleAr = document.getElementById('cat-title-ar').value.trim();
+            const titleEn = document.getElementById('cat-title-en').value.trim();
+            const parentId = document.getElementById('cat-parent-id').value;
+            const showHome = document.getElementById('cat-show-home').checked;
+
+            if(!titleAr) return alert("يرجى إدخال اسم القسم باللغة العربية على الأقل.");
+
+            showLoader("جاري رفع الصور وحفظ القسم...");
+            try {
+                let catImage = null;
+                let bannerTop = [];
+                let bannerBottom = [];
+
+                const imgFile = document.getElementById('cat-image').files[0];
+                if(imgFile) catImage = await uploadImage(imgFile);
+
+                const btFiles = document.getElementById('cat-banner-top').files;
+                for(let f of btFiles) { bannerTop.push(await uploadImage(f)); }
+
+                const bbFiles = document.getElementById('cat-banner-bottom').files;
+                for(let f of bbFiles) { bannerBottom.push(await uploadImage(f)); }
+
+                const { error } = await supabaseClient.from('categories').insert([{
+                    title_ar: titleAr,
+                    title_en: titleEn,
+                    parent_id: parentId || null,
+                    show_on_home: showHome,
+                    image: catImage,
+                    banner_top: bannerTop,
+                    banner_bottom: bannerBottom
+                }]);
+
+                if(error) throw error;
+
+                alert("تم حفظ القسم بنجاح!");
+                document.getElementById('cat-title-ar').value = '';
+                document.getElementById('cat-title-en').value = '';
+                document.getElementById('cat-image').value = '';
+                document.getElementById('cat-banner-top').value = '';
+                document.getElementById('cat-banner-bottom').value = '';
+                loadCategoriesForSelects();
+            } catch (err) {
+                alert("حدث خطأ أثناء الحفظ: " + err.message);
+            } finally {
+                hideLoader();
+            }
+        }
+
+        async function loadCategoriesForSelects() { 
+            const {data} = await supabaseClient.from('categories').select('*'); 
+            allCategoriesEdit = data || [];
+            const html='<option value="">-- بدون (قسم رئيسي) --</option>'+data.map(x=>`<option value="${x.id}">${x.title_ar}</option>`).join(''); 
+            document.getElementById('prod-cat').innerHTML = '<option value="">-- اختر القسم --</option>' + data.map(x=>`<option value="${x.id}">${x.title_ar}</option>`).join(''); 
+            document.getElementById('cat-parent-id').innerHTML = html; 
+            
+            const catList = document.getElementById('categories-list');
+            if(catList && data) {
+                catList.innerHTML = data.map(c => {
+                    let imgHtml = c.image ? `<img src="${c.image}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;">` : `<i class="fas fa-folder" style="color:#aaa;"></i>`;
+                    return `
+                    <div style="background:#222; padding:8px 15px; border-radius:20px; border:1px solid #444; display:flex; align-items:center; gap:10px;">
+                        ${imgHtml}
+                        <span style="color:#fff; font-weight:bold;">${c.title_ar}</span>
+                        <button style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.1em;" onclick="deleteCategory('${c.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                `}).join('');
+            }
         }
 
         async function loadBannersStatus() {
@@ -511,13 +580,7 @@
 
             if (fileInput.files.length > 0) {
                 for (let file of fileInput.files) {
-                    const ext = file.name.split('.').pop();
-                    const fileName = `banner_${position}_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
-                    const { error } = await supabaseClient.storage.from('okaz_images').upload(fileName, file);
-                    if (!error) {
-                        const url = supabaseClient.storage.from('okaz_images').getPublicUrl(fileName).data.publicUrl;
-                        uploadedUrls.push(url);
-                    }
+                    uploadedUrls.push(await uploadImage(file));
                 }
             }
 
@@ -526,48 +589,28 @@
                  if(existing && existing.images) uploadedUrls = existing.images;
             }
 
-            const { error } = await supabaseClient.from('store_banners').upsert(
-                { position_name: position, images: uploadedUrls, is_active: isActive },
-                { onConflict: 'position_name' }
-            );
-
+            const { error } = await supabaseClient.from('store_banners').upsert({ position_name: position, images: uploadedUrls, is_active: isActive }, { onConflict: 'position_name' });
             hideLoader();
-            if (error) alert("حدث خطأ أثناء الحفظ: " + error.message);
-            else alert("تم حفظ البانر وتحديثه بنجاح! سيظهر للعملاء فوراً.");
+            if (error) alert("حدث خطأ أثناء الحفظ: " + error.message); else alert("تم حفظ البانر وتحديثه بنجاح!");
         }
 
         async function loadComprehensiveReports() {
             const { data: orders, error } = await supabaseClient.from('orders').select('id, customer_name, grand_total, status, created_at');
             globalOrdersData = orders || [];
             let safe = 0, courier = 0, pending = 0, returns = 0, cancelled_admin = 0, cancelled_cust = 0;
-            
             if(orders) {
                 orders.forEach(o => {
-                    const total = Number(o.grand_total) || 0; 
-                    const st = o.status ? o.status.trim() : '';
-
-                    if(st === 'تم التوصيل') safe += total;
-                    else if(st === 'مع المندوب') courier += total;
-                    else if(st === 'قيد المراجعة' || st === 'جاري التجهيز') pending += total;
-                    else if(st === 'مرتجع') returns += total;
-                    else if(st === 'ملغي') cancelled_admin += total;
-                    else if(st === 'إلغاء من العميل') cancelled_cust += total;
+                    const total = Number(o.grand_total) || 0; const st = o.status ? o.status.trim() : '';
+                    if(st === 'تم التوصيل') safe += total; else if(st === 'مع المندوب') courier += total; else if(st === 'قيد المراجعة' || st === 'جاري التجهيز') pending += total; else if(st === 'مرتجع') returns += total; else if(st === 'ملغي') cancelled_admin += total; else if(st === 'إلغاء من العميل') cancelled_cust += total;
                 });
             }
-            
-            document.getElementById('acc-safe').innerText = safe.toFixed(2) + ' ج.م'; 
-            document.getElementById('acc-courier').innerText = courier.toFixed(2) + ' ج.م'; 
-            document.getElementById('acc-pending').innerText = pending.toFixed(2) + ' ج.م'; 
-            document.getElementById('acc-returns').innerText = returns.toFixed(2) + ' ج.م'; 
-            document.getElementById('acc-cancelled').innerText = cancelled_admin.toFixed(2) + ' ج.م'; 
-            if(document.getElementById('acc-cancelled-cust')) document.getElementById('acc-cancelled-cust').innerText = cancelled_cust.toFixed(2) + ' ج.م';
+            document.getElementById('acc-safe').innerText = safe.toFixed(2) + ' ج.م'; document.getElementById('acc-courier').innerText = courier.toFixed(2) + ' ج.م'; document.getElementById('acc-pending').innerText = pending.toFixed(2) + ' ج.م'; document.getElementById('acc-returns').innerText = returns.toFixed(2) + ' ج.م'; document.getElementById('acc-cancelled').innerText = cancelled_admin.toFixed(2) + ' ج.م'; if(document.getElementById('acc-cancelled-cust')) document.getElementById('acc-cancelled-cust').innerText = cancelled_cust.toFixed(2) + ' ج.م';
 
             const { data: products } = await supabaseClient.from('products').select('id, title_ar, product_code, price, cost_price, stock_quantity');
             globalProductsData = products || [];
             let invCost = 0, invRetail = 0;
             if(products) { products.forEach(p => { invCost += (p.cost_price||0) * (p.stock_quantity||0); invRetail += (p.price||0) * (p.stock_quantity||0); }); }
-            document.getElementById('inv-cost').innerText = invCost.toFixed(2) + ' ج.م'; 
-            document.getElementById('inv-retail').innerText = invRetail.toFixed(2) + ' ج.م'; 
+            document.getElementById('inv-cost').innerText = invCost.toFixed(2) + ' ج.م'; document.getElementById('inv-retail').innerText = invRetail.toFixed(2) + ' ج.م'; 
         }
 
         function openReportModal(type) {
@@ -586,8 +629,7 @@
                 const filteredOrders = globalOrdersData.filter(o => statusFilter.includes(o.status ? o.status.trim() : ''));
                 thead.innerHTML = `<tr><th>الطلب</th><th>العميل</th><th>التاريخ</th><th>القيمة</th></tr>`;
                 filteredOrders.forEach(o => {
-                    const t = Number(o.grand_total) || 0; 
-                    totalSum += t; const date = new Date(o.created_at).toLocaleDateString('ar-EG');
+                    const t = Number(o.grand_total) || 0; totalSum += t; const date = new Date(o.created_at).toLocaleDateString('ar-EG');
                     tbody.innerHTML += `<tr><td style="color:var(--primary);">#OKZ-${o.id.split('-')[0].toUpperCase()}</td><td>${o.customer_name} <br> <span style="font-size:0.7em; color:#888;">(${o.status})</span></td><td>${date}</td><td style="color:var(--success);">${t} ج.م</td></tr>`;
                 });
                 totalDiv.innerHTML = `الإجمالي: <span>${totalSum.toFixed(2)} ج.م</span>`;
@@ -615,14 +657,7 @@
                         <td style="color:var(--primary); font-weight:bold;">#OKZ-${o.id.split('-')[0].toUpperCase()}</td>
                         <td style="font-weight:bold;">${o.customer_name}<br>${loc}</td>
                         <td style="color:var(--success); font-weight:bold; font-size:1.2em;">${total} ج.م</td>
-                        <td>
-                            <button class="btn-sm" style="background:#3498db; color:#fff; width:100%; margin-bottom:5px;" onclick="viewOrderDetails('${o.id}')"><i class="fas fa-eye"></i> عرض التفاصيل</button>
-                            ${sel}
-                            <div style="display:flex; gap:5px; width:100%;">
-                                <button class="btn-sm" style="background:#555; color:#fff; flex:1; margin:0;" onclick="printInvoice('${o.id}')"><i class="fas fa-print"></i> فاتورة</button>
-                                <button class="btn-sm" style="background:var(--danger); color:#fff; flex:1; margin:0;" onclick="deleteOrder('${o.id}')"><i class="fas fa-trash"></i> حذف</button>
-                            </div>
-                        </td>
+                        <td><button class="btn-sm" style="background:#3498db; color:#fff; width:100%; margin-bottom:5px;" onclick="viewOrderDetails('${o.id}')"><i class="fas fa-eye"></i> عرض التفاصيل</button>${sel}<div style="display:flex; gap:5px; width:100%;"><button class="btn-sm" style="background:#555; color:#fff; flex:1; margin:0;" onclick="printInvoice('${o.id}')"><i class="fas fa-print"></i> فاتورة</button><button class="btn-sm" style="background:var(--danger); color:#fff; flex:1; margin:0;" onclick="deleteOrder('${o.id}')"><i class="fas fa-trash"></i> حذف</button></div></td>
                     </tr>`; 
                 }); 
             } 
@@ -631,101 +666,38 @@
         async function updateOrderStatus(id, status) { showLoader("تحديث الحالة..."); await supabaseClient.from('orders').update({status}).eq('id',id); hideLoader(); loadOrders(); loadComprehensiveReports();}
 
         async function deleteOrder(id) {
-            if(!confirm("هل أنت متأكد من حذف هذا الطلب نهائياً؟ لا يمكن التراجع عن هذا الإجراء.")) return;
+            if(!confirm("هل أنت متأكد من حذف هذا الطلب نهائياً؟")) return;
             showLoader("جاري الحذف...");
             await supabaseClient.from('order_items').delete().eq('order_id', id);
             const { error } = await supabaseClient.from('orders').delete().eq('id', id);
-            if(error) alert("حدث خطأ أثناء الحذف: " + error.message);
-            else { loadOrders(); loadComprehensiveReports(); }
-            hideLoader();
+            if(error) alert("حدث خطأ: " + error.message); else { loadOrders(); loadComprehensiveReports(); } hideLoader();
         }
 
         window.viewOrderDetails = function(id) {
             const o = allOrdersDetailed.find(x => x.id === id); if(!o) return;
             document.getElementById('order-modal-title').innerText = `تفاصيل طلب #OKZ-${o.id.split('-')[0].toUpperCase()}`;
-            const date = new Date(o.created_at).toLocaleString('ar-EG');
-            const total = o.grand_total || 0;
-            const shipping = o.shipping_cost || 0;
-            const address = o.customer_street || o.address || '-';
-
-            let html = `
-            <div style="background:#1a1a1a; padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid #333; font-size:0.9em; line-height:1.8;">
-                <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #444; padding-bottom:10px; margin-bottom:10px;">
-                    <span style="color:#fff;"><b>العميل:</b> ${o.customer_name}</span>
-                    <span style="color:#aaa;"><b>التاريخ:</b> ${date}</span>
-                </div>
-                <div style="color:#ccc;"><b>الموبايل:</b> ${o.customer_phone}</div>
-                <div style="color:#ccc;"><b>العنوان:</b> ${o.customer_city || ''} - ${address}</div>
-                <div style="margin-top:10px; color:var(--primary); font-weight:900; font-size:1.2em; text-align:left; border-top:1px solid #333; padding-top:10px;">
-                    الإجمالي المطلوب: ${total} ج.م <br>
-                    <small style="color:#888; font-size:0.7em;">(شامل ${shipping} ج.م مصاريف شحن)</small>
-                </div>
-            </div>
-            <h3 style="color:var(--text); margin-bottom:10px; font-size:1.1em; border-right:3px solid var(--primary); padding-right:8px;">المنتجات المطلوبة:</h3>
-            `;
-
+            const date = new Date(o.created_at).toLocaleString('ar-EG'); const total = o.grand_total || 0; const shipping = o.shipping_cost || 0; const address = o.customer_street || o.address || '-';
+            let html = `<div style="background:#1a1a1a; padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid #333; font-size:0.9em; line-height:1.8;"><div style="display:flex; justify-content:space-between; border-bottom:1px dashed #444; padding-bottom:10px; margin-bottom:10px;"><span style="color:#fff;"><b>العميل:</b> ${o.customer_name}</span><span style="color:#aaa;"><b>التاريخ:</b> ${date}</span></div><div style="color:#ccc;"><b>الموبايل:</b> ${o.customer_phone}</div><div style="color:#ccc;"><b>العنوان:</b> ${o.customer_city || ''} - ${address}</div><div style="margin-top:10px; color:var(--primary); font-weight:900; font-size:1.2em; text-align:left; border-top:1px solid #333; padding-top:10px;">الإجمالي المطلوب: ${total} ج.م <br><small style="color:#888; font-size:0.7em;">(شامل ${shipping} ج.م مصاريف شحن)</small></div></div><h3 style="color:var(--text); margin-bottom:10px; font-size:1.1em; border-right:3px solid var(--primary); padding-right:8px;">المنتجات المطلوبة:</h3>`;
             let itemsArray = (o.order_items && o.order_items.length > 0) ? o.order_items : (o.cart_info || o.items || []);
-            if(itemsArray.length === 0) html += '<p style="color:#888;">لا توجد تفاصيل منتجات مسجلة.</p>';
-            else {
-                html += itemsArray.map(i => `
-                <div style="display:flex; align-items:center; gap:15px; background:#222; padding:15px; border-radius:10px; border:1px solid #444; margin-bottom:10px;">
-                    <img src="${i.image || 'https://via.placeholder.com/60'}" style="width:70px; height:70px; border-radius:8px; object-fit:cover;">
-                    <div style="flex:1;">
-                        <b style="color:var(--primary); font-size:1.1em;">${i.product_name || i.title}</b> <span style="color:#888; font-size:0.8em;">(كود: ${i.code || '-'})</span><br>
-                        <span style="color:#ccc;">المقاس: <b>${i.selected_size || i.size || '-'}</b> | اللون: <b>${i.selected_color || i.color || '-'}</b></span> 
-                    </div>
-                    <div style="font-weight:bold; font-size:1.2em; color:var(--success); background:#111; padding:5px 15px; border-radius:8px;">x${i.quantity || i.qty}</div>
-                </div>`).join('');
-            }
-            document.getElementById('order-modal-items').innerHTML = html;
-            document.getElementById('order-details-modal').style.display = 'flex';
+            if(itemsArray.length === 0) html += '<p style="color:#888;">لا توجد تفاصيل منتجات.</p>';
+            else { html += itemsArray.map(i => `<div style="display:flex; align-items:center; gap:15px; background:#222; padding:15px; border-radius:10px; border:1px solid #444; margin-bottom:10px;"><img src="${i.image || 'https://via.placeholder.com/60'}" style="width:70px; height:70px; border-radius:8px; object-fit:cover;"><div style="flex:1;"><b style="color:var(--primary); font-size:1.1em;">${i.product_name || i.title}</b> <span style="color:#888; font-size:0.8em;">(كود: ${i.code || '-'})</span><br><span style="color:#ccc;">المقاس: <b>${i.selected_size || i.size || '-'}</b> | اللون: <b>${i.selected_color || i.color || '-'}</b></span></div><div style="font-weight:bold; font-size:1.2em; color:var(--success); background:#111; padding:5px 15px; border-radius:8px;">x${i.quantity || i.qty}</div></div>`).join(''); }
+            document.getElementById('order-modal-items').innerHTML = html; document.getElementById('order-details-modal').style.display = 'flex';
         }
 
         window.printInvoice = function(id) {
             const o = allOrdersDetailed.find(x => x.id === id); if(!o) return;
-            const storeName = systemSettings.store_name || 'سوق عكاز';
-            const date = new Date(o.created_at).toLocaleString('ar-EG');
-            const shortId = o.id.split('-')[0].toUpperCase();
-            
-            let itemsHtml = '';
-            let itemsArray = (o.order_items && o.order_items.length > 0) ? o.order_items : (o.cart_info || o.items || []);
-            itemsArray.forEach(i => { 
-                const name = i.product_name || i.title; const size = i.selected_size || i.size || '-'; const color = i.selected_color || i.color || '-'; const qty = i.quantity || i.qty || 1; const code = i.code || '-';
-                itemsHtml += `<tr><td style="text-align:right; padding:8px; border-bottom:1px dashed #ccc; font-weight:bold;">${name}<br><small style="color:#555; font-weight:normal;">المقاس: ${size} | اللون: ${color}</small></td><td style="text-align:center; padding:8px; border-bottom:1px dashed #ccc; font-family:monospace; font-weight:bold; color:#333;">${code}</td><td style="text-align:center; padding:8px; border-bottom:1px dashed #ccc; font-weight:bold;">${qty}</td><td style="text-align:left; padding:8px; border-bottom:1px dashed #ccc;">${i.price} ج.م</td></tr>`; 
-            });
+            const storeName = systemSettings.store_name || 'سوق عكاز'; const date = new Date(o.created_at).toLocaleString('ar-EG'); const shortId = o.id.split('-')[0].toUpperCase();
+            let itemsHtml = ''; let itemsArray = (o.order_items && o.order_items.length > 0) ? o.order_items : (o.cart_info || o.items || []);
+            itemsArray.forEach(i => { itemsHtml += `<tr><td style="text-align:right; padding:8px; border-bottom:1px dashed #ccc; font-weight:bold;">${i.product_name || i.title}<br><small style="color:#555; font-weight:normal;">المقاس: ${i.selected_size || i.size || '-'} | اللون: ${i.selected_color || i.color || '-'}</small></td><td style="text-align:center; padding:8px; border-bottom:1px dashed #ccc; font-family:monospace; font-weight:bold; color:#333;">${i.code || '-'}</td><td style="text-align:center; padding:8px; border-bottom:1px dashed #ccc; font-weight:bold;">${i.quantity || i.qty || 1}</td><td style="text-align:left; padding:8px; border-bottom:1px dashed #ccc;">${i.price} ج.م</td></tr>`; });
             const totalToPay = o.grand_total || 0; const address = o.customer_street || o.address || '';
             printHTMLWindow(`<div style="max-width:80mm; margin:0 auto; font-family:'Cairo',sans-serif; direction:rtl; text-align:center; color:#000; padding:10px;"><h2 style="margin:5px 0; font-size:24px;">${storeName}</h2><p style="margin:0; font-size:14px; font-weight:bold;">فاتورة طلب #OKZ-${shortId}</p><p style="margin:0; font-size:12px; margin-bottom:15px; color:#555;">التاريخ: ${date}</p><div style="border-top:2px dashed #000; border-bottom:2px dashed #000; padding:10px 0; text-align:right; font-size:14px; line-height:1.6;"><div><b>العميل:</b> ${o.customer_name}</div><div><b>الموبايل:</b> ${o.customer_phone}</div><div><b>العنوان:</b> ${o.customer_city || ''} - ${address}</div></div><table style="width:100%; margin-top:15px; font-size:13px; border-collapse:collapse;"><thead><tr style="border-bottom:2px solid #000;"><th style="text-align:right; padding-bottom:5px;">الصنف</th><th style="text-align:center; padding-bottom:5px;">الكود</th><th style="text-align:center; padding-bottom:5px;">الكمية</th><th style="text-align:left; padding-bottom:5px;">السعر</th></tr></thead><tbody>${itemsHtml}</tbody></table><div style="border-top:2px solid #000; margin-top:15px; padding-top:10px; text-align:left; font-size:14px; line-height:1.6;"><h3 style="margin:10px 0; font-size:20px; font-weight:900; background:#eee; padding:5px; text-align:center; border:2px dashed #000;">المطلوب: ${totalToPay} ج.م</h3></div><p style="margin-top:20px; font-size:14px; text-align:center; font-weight:bold;">شكراً لتسوقكم معنا!</p></div>`);
         }
 
-        function printHTMLWindow(htmlContent) {
-            const iframe = document.createElement('iframe'); iframe.style.display = 'none'; document.body.appendChild(iframe); iframe.contentWindow.document.open(); iframe.contentWindow.document.write(`<html dir="rtl"><head><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"><style>body { font-family: 'Cairo', sans-serif; padding: 0; margin: 0; color: #000; } @media print { @page { margin: 0; } body { margin: 0.5cm; } }</style></head><body>${htmlContent}</body></html>`); iframe.contentWindow.document.close();
-            setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => document.body.removeChild(iframe), 1000); }, 1000);
-        }
-
-        async function loadCategoriesForSelects() { 
-            const {data} = await supabaseClient.from('categories').select('*'); 
-            allCategoriesEdit = data || [];
-            const html='<option value="">-- اختر القسم --</option>'+data.map(x=>`<option value="${x.id}">${x.title_ar}</option>`).join(''); 
-            document.getElementById('prod-cat').innerHTML=html; 
-            document.getElementById('cat-parent-id').innerHTML='<option value="">-- قسم رئيسي --</option>'+html; 
-            
-            const catList = document.getElementById('categories-list');
-            if(catList && data) {
-                catList.innerHTML = data.map(c => `
-                    <div style="background:#222; padding:8px 15px; border-radius:20px; border:1px solid #444; display:flex; align-items:center; gap:10px;">
-                        <span style="color:#fff;">${c.title_ar}</span>
-                        <button style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.1em;" onclick="deleteCategory('${c.id}')"><i class="fas fa-trash"></i></button>
-                    </div>
-                `).join('');
-            }
-        }
-
         async function deleteCategory(id) {
-            if(!confirm("هل أنت متأكد من حذف هذا القسم؟ (يجب أن يكون فارغاً من المنتجات أولاً)")) return;
+            if(!confirm("هل أنت متأكد من حذف هذا القسم؟ (يجب أن يكون فارغاً من المنتجات)")) return;
             showLoader("جاري الحذف...");
             const { error } = await supabaseClient.from('categories').delete().eq('id', id);
-            if(error) alert("لا يمكن حذف القسم! تأكد من مسح جميع المنتجات التابعة له أولاً من شاشة (كروت الصنف).");
-            else { alert("تم حذف القسم بنجاح!"); loadCategoriesForSelects(); }
+            if(error) alert("لا يمكن الحذف! تأكد من مسح المنتجات التابعة له أولاً."); else { alert("تم الحذف بنجاح!"); loadCategoriesForSelects(); }
             hideLoader();
         }
 
@@ -742,56 +714,26 @@
 
         function exportToCSV() {
             if(allProductsEdit.length === 0) return alert("المخزن فارغ.");
-            const csvData = allProductsEdit.map(p => ({
-                id: p.id, title_ar: p.title_ar, title_en: p.title_en || '', price: p.price, cost_price: p.cost_price || 0,
-                stock_quantity: p.stock_quantity || 0, image: p.image || '', is_visible: p.is_visible
-            }));
-            const csv = Papa.unparse(csvData);
-            const blob = new Blob(["\uFEFF"+csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
-            link.download = "Store_Inventory_" + new Date().getTime() + ".csv"; link.click();
+            const csvData = allProductsEdit.map(p => ({ id: p.id, title_ar: p.title_ar, title_en: p.title_en || '', price: p.price, cost_price: p.cost_price || 0, stock_quantity: p.stock_quantity || 0, image: p.image || '', is_visible: p.is_visible }));
+            const csv = Papa.unparse(csvData); const blob = new Blob(["\uFEFF"+csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Store_Inventory_" + new Date().getTime() + ".csv"; link.click();
         }
 
         async function importFromCSV(event) {
-            const file = event.target.files[0]; if (!file) return;
-            showLoader("جاري قراءة الملف ورفع المنتجات...");
-            Papa.parse(file, {
-                header: true, skipEmptyLines: true,
-                complete: async function(results) {
+            const file = event.target.files[0]; if (!file) return; showLoader("جاري قراءة الملف ورفع المنتجات...");
+            Papa.parse(file, { header: true, skipEmptyLines: true, complete: async function(results) {
                     try {
-                        const rows = results.data;
-                        if(rows.length === 0) { alert("الملف فارغ!"); hideLoader(); return; }
-                        const firstRow = rows[0];
-                        if(!firstRow.hasOwnProperty('title_ar') || !firstRow.hasOwnProperty('price')) {
-                            alert("خطأ: يرجى التأكد من أن أسماء الأعمدة في ملف الإكسيل هي بالظبط:\n title_ar (للاسم)\n price (للسعر)\n main_category (للقسم)");
-                            hideLoader(); return;
-                        }
-                        let successCount = 0;
-                        const { data: existCats } = await supabaseClient.from('categories').select('*');
-                        let catMap = {}; 
-                        if(existCats) existCats.forEach(c => { catMap[c.title_ar.trim()] = c.id; });
+                        const rows = results.data; if(rows.length === 0) { alert("الملف فارغ!"); hideLoader(); return; }
+                        const firstRow = rows[0]; if(!firstRow.hasOwnProperty('title_ar') || !firstRow.hasOwnProperty('price')) { alert("خطأ: يرجى التأكد من أن أسماء الأعمدة في ملف الإكسيل هي بالظبط:\n title_ar (للاسم)\n price (للسعر)\n main_category (للقسم)"); hideLoader(); return; }
+                        let successCount = 0; const { data: existCats } = await supabaseClient.from('categories').select('*'); let catMap = {}; if(existCats) existCats.forEach(c => { catMap[c.title_ar.trim()] = c.id; });
                         for(let item of rows) {
                             if(!item.title_ar || !item.price) continue;
-                            let finalCatId = null;
-                            let catName = (item.sub_category || item.main_category || '').trim();
-                            if(catName) {
-                                if(catMap[catName]) { finalCatId = catMap[catName]; } else {
-                                    const {data: newCat, error: catErr} = await supabaseClient.from('categories').insert([{title_ar: catName, show_on_home: true}]).select().single();
-                                    if(newCat) { finalCatId = newCat.id; catMap[catName] = newCat.id; }
-                                }
-                            }
-                            const { data: prodData, error: prodErr } = await supabaseClient.from('products').insert([{
-                                category_id: finalCatId, product_code: item.product_code || '', title_ar: item.title_ar.trim(), promo_message: item.description || '', 
-                                price: parseFloat(item.price) || 0, old_price: parseFloat(item.old_price) || 0, cost_price: parseFloat(item.cost_price) || 0, stock_quantity: parseInt(item.stock_quantity) || 100, image: item.image ? item.image.trim() : '', is_visible: String(item.is_visible).toLowerCase() !== 'false'
-                            }]).select().single();
-                            if(prodErr) continue;
-                            successCount++;
+                            let finalCatId = null; let catName = (item.sub_category || item.main_category || '').trim();
+                            if(catName) { if(catMap[catName]) { finalCatId = catMap[catName]; } else { const {data: newCat} = await supabaseClient.from('categories').insert([{title_ar: catName, show_on_home: true}]).select().single(); if(newCat) { finalCatId = newCat.id; catMap[catName] = newCat.id; } } }
+                            const { error: prodErr } = await supabaseClient.from('products').insert([{ category_id: finalCatId, product_code: item.product_code || '', title_ar: item.title_ar.trim(), promo_message: item.description || '', price: parseFloat(item.price) || 0, old_price: parseFloat(item.old_price) || 0, cost_price: parseFloat(item.cost_price) || 0, stock_quantity: parseInt(item.stock_quantity) || 100, image: item.image ? item.image.trim() : '', is_visible: String(item.is_visible).toLowerCase() !== 'false' }]);
+                            if(!prodErr) successCount++;
                         }
-                        alert(`تم الانتهاء! تم رفع ${successCount} منتج بنجاح.`);
-                        loadEditInventory(); loadCategoriesForSelects();
-                    } catch (err) { alert("حدث خطأ غير متوقع أثناء الرفع: " + err.message); } finally { hideLoader(); event.target.value = ''; }
-                }
-            });
+                        alert(`تم الانتهاء! تم رفع ${successCount} منتج بنجاح.`); loadEditInventory(); loadCategoriesForSelects();
+                    } catch (err) { alert("حدث خطأ غير متوقع أثناء الرفع: " + err.message); } finally { hideLoader(); event.target.value = ''; } } });
         }
 
         initAdmin();
