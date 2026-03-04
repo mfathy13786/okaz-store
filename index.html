@@ -26,12 +26,10 @@
         .cart-icon { position: relative; font-size: 1.3em; cursor: pointer; }
         .cart-badge { position: absolute; top: -5px; right: -8px; background: red; color: #fff; font-size: 0.55em; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        /* شريط البحث */
         .search-bar-container { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid #eee; position: sticky; top: 60px; z-index: 90; }
         .search-input-wrapper { background: #fff; border: 1px solid #ddd; border-radius: 20px; padding: 12px 15px; display: flex; align-items: center; gap: 10px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.02); }
         .search-input-wrapper input { border: none; outline: none; width: 100%; font-family: 'Cairo'; font-size: 0.95em; background:transparent;}
         
-        /* شاشة البحث المنبثقة (Search Hub) */
         .search-hub-overlay { position: fixed; inset: 0; background: #fff; z-index: 2000; display: none; flex-direction: column; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .search-hub-header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; background: #fafafa; }
@@ -46,7 +44,6 @@
         .autocomplete-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f5f5f5; cursor: pointer; color: #333; font-weight: 600; }
         .autocomplete-item i { color: #aaa; font-size: 0.9em; }
 
-        /* الأقسام الدائرية (Scrollable) */
         .categories-stories { display: flex; overflow-x: auto; padding: 15px 20px; gap: 15px; border-bottom: 1px solid #eee; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
         .categories-stories::-webkit-scrollbar { display: none; }
         .story-item { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 75px; max-width: 85px; cursor: pointer; }
@@ -54,20 +51,19 @@
         .story-img { width: 100%; height: 100%; border-radius: 50%; border: 2px solid #fff; background: #eee; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8em; color: #777; overflow:hidden;}
         .story-item span { font-size: 0.75em; font-weight: bold; text-align: center; line-height: 1.2; }
 
-        /* الشريط السفلي (Noon Style) */
+        /* تعديلات الزر المركزي والديناميكية */
         .app-bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #eee; z-index: 500; max-width: 1200px; margin: 0 auto; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); align-items: flex-end; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; font-size: 0.7em; font-weight: bold; cursor: pointer; flex: 1; padding-bottom: 5px; transition: 0.3s;}
         .nav-item i { font-size: 1.4em; margin-bottom: 2px; }
         .nav-item.active { color: var(--primary); }
         
-        /* الزر المركزي البارز */
         .nav-fab-container { flex: 1; display: flex; justify-content: center; position: relative; }
-        .nav-fab { background: linear-gradient(135deg, var(--primary), #e74c3c); color: #fff; width: 65px; height: 65px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; bottom: 10px; box-shadow: 0 4px 15px rgba(230,126,34,0.4); border: 4px solid var(--bg); cursor: pointer; transition: 0.3s; z-index: 510; }
+        .nav-fab { color: #fff; width: 65px; height: 65px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 4px solid var(--bg); cursor: pointer; transition: 0.3s; z-index: 510; }
         .nav-fab:active { transform: scale(0.95); }
         .nav-fab i { font-size: 1.5em; margin-bottom: 2px; }
         .nav-fab span { font-size: 0.55em; font-weight: 900; font-family: 'Cairo'; line-height: 1; text-align:center;}
+        .nav-fab-img-wrapper img { width: 30px; height: 30px; object-fit: contain; margin-bottom: 2px; }
 
-        /* القائمة الجانبية (Sidebar Drawer) */
         .side-menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; backdrop-filter: blur(2px); }
         .side-menu-overlay.open { display: block; }
         .side-menu-drawer { position: fixed; top: 0; bottom: 0; right: 0; width: 85%; max-width: 320px; background: var(--card-bg); z-index: 3100; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; box-shadow: -5px 0 20px rgba(0,0,0,0.15); }
@@ -109,7 +105,6 @@
         .product-title { font-size: 0.9em; font-weight: 700; height: 2.6em; overflow: hidden; margin-bottom: 5px; }
         .product-price { color: var(--primary); font-weight: 900; font-size: 1.1em; }
 
-        /* النوافذ المنبثقة (Modal) */
         .modal-overlay, .product-modal { position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; background: rgba(0,0,0,0.8) !important; z-index: 9999 !important; display: none; align-items: center !important; justify-content: center !important; backdrop-filter: blur(3px) !important; padding: 20px !important; }
         .modal-content, .auth-content { background: var(--card-bg) !important; width: 100% !important; max-width: 500px !important; max-height: 90vh !important; overflow-y: auto !important; border-radius: 20px !important; padding: 25px !important; position: relative !important; animation: scaleIn 0.3s ease !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;}
         @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -146,7 +141,6 @@
         .color-chip { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; padding: 2px; }
         .color-chip.selected { border-color: var(--primary); } .color-chip span { display: block; width: 100%; height: 100%; border-radius: 50%; }
 
-        /* السلة الجانبية */
         .cart-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.5) !important; z-index: 2400 !important; display: none; }
         .cart-overlay.open { display: block; }
         .cart-drawer { position: fixed !important; top: 0 !important; bottom: 0 !important; right: 0 !important; width: 100% !important; max-width: 400px !important; background: #fff !important; z-index: 2500 !important; transform: translateX(100%); transition: transform 0.3s ease; display: flex !important; flex-direction: column !important; box-shadow: -5px 0 15px rgba(0,0,0,0.1) !important; }
@@ -169,7 +163,6 @@
                 <i class="fas fa-bars" style="font-size:1.4em; cursor:pointer; color:var(--text);" onclick="toggleSideMenu()"></i>
                 <div class="logo" id="site-logo"><h1>المتجر</h1></div>
             </div>
-            
             <div class="header-actions">
                 <i class="fas fa-user header-icon" onclick="openAuthModal()"></i>
                 <div class="cart-icon" onclick="toggleCart()"><i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cart-count">0</span></div>
@@ -192,19 +185,16 @@
             <div class="search-hub-body">
                 <div id="search-default-view">
                     <div class="search-trends-title">عمليات البحث الشائعة</div>
-                    <div class="search-trends-chips" id="search-trends-container">
-                        </div>
+                    <div class="search-trends-chips" id="search-trends-container"></div>
                     <img src="" id="search-banner-display" class="search-banner-img">
                 </div>
-                <div id="search-autocomplete-view" class="autocomplete-list" style="display:none;">
-                    </div>
+                <div id="search-autocomplete-view" class="autocomplete-list" style="display:none;"></div>
             </div>
         </div>
         
         <div class="categories-stories" id="stories-container"></div>
         
         <div class="swiper banner-slider" id="top-slider"><div class="swiper-wrapper" id="top-slider-wrapper"></div><div class="swiper-pagination"></div></div>
-        
         <div class="swiper banner-slider" id="cat-top-slider" style="margin-bottom:20px; display:none;"><div class="swiper-wrapper" id="cat-top-wrapper"></div><div class="swiper-pagination"></div></div>
 
         <h2 class="section-title" id="grid-title"><i class="fas fa-fire" style="color:var(--danger);"></i> وصل حديثاً</h2>
@@ -214,7 +204,6 @@
         </div>
 
         <div class="swiper banner-slider" id="cat-bottom-slider" style="margin:20px 0; display:none;"><div class="swiper-wrapper" id="cat-bottom-wrapper"></div><div class="swiper-pagination"></div></div>
-
         <div class="swiper banner-slider" id="middle-slider" style="margin:20px 0;"><div class="swiper-wrapper" id="middle-slider-wrapper"></div><div class="swiper-pagination"></div></div>
         <div class="swiper banner-slider" id="bottom-slider" style="margin:20px 0;"><div class="swiper-wrapper" id="bottom-slider-wrapper"></div><div class="swiper-pagination"></div></div>
     </div>
@@ -225,7 +214,7 @@
         
         <div class="nav-fab-container" id="fab-container" style="display:none;">
             <div class="nav-fab" id="fab-btn" onclick="executeFabAction()">
-                <i class="fas fa-bolt"></i>
+                <div id="fab-icon-img-wrap" class="nav-fab-img-wrapper"><i class="fas fa-bolt"></i></div>
                 <span id="fab-label">عروض</span>
             </div>
         </div>
@@ -245,9 +234,7 @@
             <div class="menu-tab" onclick="switchMenuTab('menu-pages', this)">اكتشف <i class="fas fa-compass"></i></div>
         </div>
         <div class="menu-content">
-            <div id="menu-cats" class="menu-section active">
-                <div id="accordion-container"></div>
-            </div>
+            <div id="menu-cats" class="menu-section active"><div id="accordion-container"></div></div>
             <div id="menu-pages" class="menu-section">
                 <div class="static-link" onclick="showAllProducts(); toggleSideMenu();"><i class="fas fa-home"></i> الصفحة الرئيسية</div>
                 <div class="static-link" onclick="showAllProducts(); toggleSideMenu();"><i class="fas fa-shopping-bag"></i> كل المنتجات</div>
@@ -332,34 +319,18 @@
         let currentProd = null; let selectedSize = ''; let selectedColor = '';
         let currentUser = null;
         let catTopSwiper = null; let catBottomSwiper = null;
-
-        // متغيرات البحث الذكي
-        let searchTrendsArray = [];
-        let searchPlaceholderInterval;
-        let currentTrendIndex = 0;
+        let searchTrendsArray = []; let searchPlaceholderInterval; let currentTrendIndex = 0;
 
         async function initStore() {
-            updateCartBadge();
-            fetchCitiesForProfile();
-            await fetchSettings(); 
-            const [catReq, prodReq] = await Promise.all([
-                supabaseClient.from('categories').select('*'),
-                supabaseClient.from('products').select('*').eq('is_visible', true).order('created_at', {ascending:false})
-            ]);
-            allCategories = catReq.data || [];
-            allProducts = prodReq.data || [];
-            
-            await fetchBanners(); 
-            await checkUser(); 
-
-            showAllProducts();
-            buildMenuAccordion(); 
-            initSmartSearch(); // تشغيل ذكاء البحث
-
+            updateCartBadge(); fetchCitiesForProfile(); await fetchSettings(); 
+            const [catReq, prodReq] = await Promise.all([ supabaseClient.from('categories').select('*'), supabaseClient.from('products').select('*').eq('is_visible', true).order('created_at', {ascending:false}) ]);
+            allCategories = catReq.data || []; allProducts = prodReq.data || [];
+            await fetchBanners(); await checkUser(); 
+            showAllProducts(); buildMenuAccordion(); initSmartSearch();
             if(window.location.search.includes('login=true') && !currentUser) openAuthModal();
         }
 
-        // --- دوال الإعدادات وتطبيقها (البحث، الزر المركزي، السوشيال) ---
+        // --- تطبيق إعدادات الواجهة (ومنها الزر المركزي الجديد) ---
         async function fetchSettings() {
             const {data} = await supabaseClient.from('store_settings').select('*');
             if(data) data.forEach(s => systemSettings[s.setting_key] = s.setting_value);
@@ -369,155 +340,65 @@
             if(systemSettings.site_logo_header) document.getElementById('site-logo').innerHTML = `<img src="${systemSettings.site_logo_header}" style="max-height:40px;">`;
             if(systemSettings.announcement_text) { document.getElementById('announcement-bar').innerText = systemSettings.announcement_text; document.getElementById('announcement-bar').style.display = 'block'; }
 
-            // تطبيق إعدادات شريط البحث
-            if(systemSettings.show_search === 'false') {
-                document.getElementById('main-search-container').style.display = 'none';
-            } else {
+            if(systemSettings.show_search === 'false') { document.getElementById('main-search-container').style.display = 'none'; } 
+            else {
                 searchTrendsArray = (systemSettings.search_trends || 'كوتشي, بنطلون, ساعة, فستان').split(',').map(s => s.trim()).filter(s => s);
-                if(systemSettings.search_banner) {
-                    const bImg = document.getElementById('search-banner-display');
-                    bImg.src = systemSettings.search_banner;
-                    bImg.style.display = 'block';
-                }
-                const trendsCont = document.getElementById('search-trends-container');
-                trendsCont.innerHTML = searchTrendsArray.map(t => `<div class="trend-chip" onclick="executeSearch('${t}')">${t}</div>`).join('');
+                if(systemSettings.search_banner) { const bImg = document.getElementById('search-banner-display'); bImg.src = systemSettings.search_banner; bImg.style.display = 'block'; }
+                document.getElementById('search-trends-container').innerHTML = searchTrendsArray.map(t => `<div class="trend-chip" onclick="executeSearch('${t}')">${t}</div>`).join('');
             }
 
-            // تطبيق إعدادات الزر المركزي (FAB)
+            // تطبيق إعدادات الزر المركزي بكل أشكاله
             if(systemSettings.show_fab === 'true') {
-                document.getElementById('fab-container').style.display = 'flex';
+                const fabCont = document.getElementById('fab-container');
+                const fabBtn = document.getElementById('fab-btn');
+                const iconImgWrap = document.getElementById('fab-icon-img-wrap');
+                
+                fabCont.style.display = 'flex';
                 document.getElementById('fab-label').innerText = systemSettings.fab_text || 'عروض';
-            } else {
-                document.getElementById('fab-container').style.display = 'none';
-            }
+                
+                // تطبيق اللون
+                if(systemSettings.fab_color) fabBtn.style.background = systemSettings.fab_color;
+                else fabBtn.style.background = `linear-gradient(135deg, var(--primary), #e74c3c)`;
+                
+                // تطبيق الشكل
+                fabBtn.style.borderRadius = systemSettings.fab_shape === 'square' ? '15px' : '50%';
 
-            // تطبيق السوشيال ميديا
+                // تطبيق النوع (أيقونة ولا صورة)
+                if(systemSettings.fab_type === 'image' && systemSettings.fab_image_url) {
+                    iconImgWrap.innerHTML = `<img src="${systemSettings.fab_image_url}">`;
+                } else {
+                    iconImgWrap.innerHTML = `<i class="${systemSettings.fab_icon || 'fas fa-bolt'}"></i>`;
+                }
+            } else { document.getElementById('fab-container').style.display = 'none'; }
+
             const socials = ['facebook', 'instagram', 'tiktok', 'whatsapp'];
             socials.forEach(platform => {
-                const linkVal = systemSettings[`social_${platform}`];
-                const key = platform === 'facebook' ? 'fb' : platform === 'instagram' ? 'ig' : platform === 'tiktok' ? 'tt' : 'wa';
+                const linkVal = systemSettings[`social_${platform}`]; const key = platform === 'facebook' ? 'fb' : platform === 'instagram' ? 'ig' : platform === 'tiktok' ? 'tt' : 'wa';
                 const el = document.getElementById(`link-${key}`);
-                if(linkVal && linkVal.trim() !== '') {
-                    el.href = platform === 'whatsapp' ? `https://wa.me/${linkVal}` : linkVal;
-                    el.style.display = 'inline-block';
-                }
+                if(linkVal && linkVal.trim() !== '') { el.href = platform === 'whatsapp' ? `https://wa.me/${linkVal}` : linkVal; el.style.display = 'inline-block'; }
             });
         }
 
-        // --- دوال البحث الذكي (Search Hub & Autocomplete) ---
-        function initSmartSearch() {
-            if(searchTrendsArray.length === 0) return;
-            const fakeInput = document.getElementById('fake-search-input');
-            searchPlaceholderInterval = setInterval(() => {
-                fakeInput.placeholder = `ابحث عن ${searchTrendsArray[currentTrendIndex]}...`;
-                currentTrendIndex = (currentTrendIndex + 1) % searchTrendsArray.length;
-            }, 2500);
-        }
+        // --- دوال البحث ---
+        function initSmartSearch() { if(searchTrendsArray.length === 0) return; const fakeInput = document.getElementById('fake-search-input'); searchPlaceholderInterval = setInterval(() => { fakeInput.placeholder = `ابحث عن ${searchTrendsArray[currentTrendIndex]}...`; currentTrendIndex = (currentTrendIndex + 1) % searchTrendsArray.length; }, 2500); }
+        function openSearchHub() { document.getElementById('search-hub').style.display = 'flex'; document.getElementById('real-search-input').focus(); }
+        function closeSearchHub() { document.getElementById('search-hub').style.display = 'none'; document.getElementById('real-search-input').value = ''; document.getElementById('search-default-view').style.display = 'block'; document.getElementById('search-autocomplete-view').style.display = 'none'; }
+        function handleLiveSearch() { const q = document.getElementById('real-search-input').value.toLowerCase().trim(); const defaultView = document.getElementById('search-default-view'); const autoView = document.getElementById('search-autocomplete-view'); if(q.length > 0) { defaultView.style.display = 'none'; autoView.style.display = 'flex'; const results = allProducts.filter(p => p.title_ar.toLowerCase().includes(q)).slice(0, 8); if(results.length > 0) { autoView.innerHTML = results.map(p => `<div class="autocomplete-item" onclick="executeSearch('${p.title_ar}')"><span>${p.title_ar}</span> <i class="fas fa-arrow-up" style="transform: rotate(45deg);"></i></div>`).join(''); } else { autoView.innerHTML = '<div style="padding:20px; text-align:center; color:#aaa;">لا توجد نتائج مطابقة</div>'; } } else { defaultView.style.display = 'block'; autoView.style.display = 'none'; } }
+        function executeSearch(query) { closeSearchHub(); document.getElementById('grid-title').innerHTML = `<i class="fas fa-search"></i> نتائج: ${query}`; renderProducts(allProducts.filter(p => p.title_ar.toLowerCase().includes(query.toLowerCase()))); document.getElementById('top-slider').style.display = 'none'; document.getElementById('middle-slider').style.display = 'none'; document.getElementById('bottom-slider').style.display = 'none'; document.getElementById('cat-top-slider').style.display = 'none'; document.getElementById('cat-bottom-slider').style.display = 'none'; window.scrollTo(0,0); }
 
-        function openSearchHub() {
-            document.getElementById('search-hub').style.display = 'flex';
-            document.getElementById('real-search-input').focus();
-        }
+        function executeFabAction() { const targetCat = systemSettings.fab_cat; if(targetCat) { const catObj = allCategories.find(c => c.id === targetCat); if(catObj) openCategory(catObj.id, catObj.title_ar); else showAllProducts(); } else { showAllProducts(); } }
+        function setNavActive(el) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); if(el) el.classList.add('active'); }
+        function toggleSideMenu() { const drawer = document.getElementById('side-menu-drawer'); const overlay = document.getElementById('side-menu-overlay'); drawer.classList.toggle('open'); overlay.classList.toggle('open'); }
+        function switchMenuTab(tabId, element) { document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.menu-section').forEach(s => s.classList.remove('active')); element.classList.add('active'); document.getElementById(tabId).classList.add('active'); }
+        function toggleAccordion(element) { const body = element.nextElementSibling; const icon = element.querySelector('i.fa-chevron-down'); if (body.classList.contains('open')) { body.classList.remove('open'); icon.style.transform = 'rotate(0deg)'; } else { document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('open')); document.querySelectorAll('.accordion-header i.fa-chevron-down').forEach(i => i.style.transform = 'rotate(0deg)'); body.classList.add('open'); icon.style.transform = 'rotate(180deg)'; } }
+        function buildMenuAccordion() { const cont = document.getElementById('accordion-container'); const mainCats = allCategories.filter(c => !c.parent_id); cont.innerHTML = mainCats.map(main => { const subCats = allCategories.filter(c => c.parent_id === main.id); if(subCats.length > 0) { return `<div class="accordion-item"><div class="accordion-header" onclick="toggleAccordion(this)"><span><i class="fas fa-folder" style="color:#aaa; margin-left:8px;"></i> ${main.title_ar}</span><i class="fas fa-chevron-down" style="font-size:0.8em; transition:0.3s;"></i></div><div class="accordion-body"><div class="sub-cat-link" onclick="openCategory('${main.id}', '${main.title_ar}'); toggleSideMenu();" style="font-weight:bold; color:var(--primary);">كل (${main.title_ar})</div>${subCats.map(sub => `<div class="sub-cat-link" onclick="openCategory('${sub.id}', '${sub.title_ar}'); toggleSideMenu();"><i class="fas fa-angle-left" style="color:#ccc; margin-left:5px;"></i> ${sub.title_ar}</div>`).join('')}</div></div>`; } else { return `<div class="static-link" onclick="openCategory('${main.id}', '${main.title_ar}'); toggleSideMenu();" style="font-weight:normal; color:#555;"><i class="fas fa-folder" style="color:#ccc;"></i> ${main.title_ar}</div>`; } }).join(''); }
 
-        function closeSearchHub() {
-            document.getElementById('search-hub').style.display = 'none';
-            document.getElementById('real-search-input').value = '';
-            document.getElementById('search-default-view').style.display = 'block';
-            document.getElementById('search-autocomplete-view').style.display = 'none';
-        }
-
-        function handleLiveSearch() {
-            const q = document.getElementById('real-search-input').value.toLowerCase().trim();
-            const defaultView = document.getElementById('search-default-view');
-            const autoView = document.getElementById('search-autocomplete-view');
-            
-            if(q.length > 0) {
-                defaultView.style.display = 'none';
-                autoView.style.display = 'flex';
-                
-                // فلترة حية (أول 8 نتايج عشان الزحمة)
-                const results = allProducts.filter(p => p.title_ar.toLowerCase().includes(q)).slice(0, 8);
-                if(results.length > 0) {
-                    autoView.innerHTML = results.map(p => `
-                        <div class="autocomplete-item" onclick="executeSearch('${p.title_ar}')">
-                            <span>${p.title_ar}</span> <i class="fas fa-arrow-up" style="transform: rotate(45deg);"></i>
-                        </div>
-                    `).join('');
-                } else {
-                    autoView.innerHTML = '<div style="padding:20px; text-align:center; color:#aaa;">لا توجد نتائج مطابقة</div>';
-                }
-            } else {
-                defaultView.style.display = 'block';
-                autoView.style.display = 'none';
-            }
-        }
-
-        function executeSearch(query) {
-            closeSearchHub();
-            document.getElementById('grid-title').innerHTML = `<i class="fas fa-search"></i> نتائج: ${query}`; 
-            renderProducts(allProducts.filter(p => p.title_ar.toLowerCase().includes(query.toLowerCase()))); 
-            
-            // إخفاء البانرات أثناء البحث
-            document.getElementById('top-slider').style.display = 'none'; document.getElementById('middle-slider').style.display = 'none'; document.getElementById('bottom-slider').style.display = 'none';
-            document.getElementById('cat-top-slider').style.display = 'none'; document.getElementById('cat-bottom-slider').style.display = 'none';
-            window.scrollTo(0,0);
-        }
-
-        // --- دالة تشغيل الزر المركزي ---
-        function executeFabAction() {
-            const targetCat = systemSettings.fab_cat;
-            if(targetCat) {
-                const catObj = allCategories.find(c => c.id === targetCat);
-                if(catObj) openCategory(catObj.id, catObj.title_ar);
-                else showAllProducts();
-            } else {
-                showAllProducts();
-            }
-        }
-
-        function setNavActive(el) {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            if(el) el.classList.add('active');
-        }
-
-        // --- دوال القائمة الجانبية والأكورديون ---
-        function toggleSideMenu() {
-            const drawer = document.getElementById('side-menu-drawer');
-            const overlay = document.getElementById('side-menu-overlay');
-            drawer.classList.toggle('open'); overlay.classList.toggle('open');
-        }
-
-        function switchMenuTab(tabId, element) {
-            document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.menu-section').forEach(s => s.classList.remove('active'));
-            element.classList.add('active'); document.getElementById(tabId).classList.add('active');
-        }
-
-        function toggleAccordion(element) {
-            const body = element.nextElementSibling; const icon = element.querySelector('i.fa-chevron-down');
-            if (body.classList.contains('open')) { body.classList.remove('open'); icon.style.transform = 'rotate(0deg)'; } 
-            else { document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('open')); document.querySelectorAll('.accordion-header i.fa-chevron-down').forEach(i => i.style.transform = 'rotate(0deg)'); body.classList.add('open'); icon.style.transform = 'rotate(180deg)'; }
-        }
-
-        function buildMenuAccordion() {
-            const cont = document.getElementById('accordion-container');
-            const mainCats = allCategories.filter(c => !c.parent_id); 
-            cont.innerHTML = mainCats.map(main => {
-                const subCats = allCategories.filter(c => c.parent_id === main.id);
-                if(subCats.length > 0) {
-                    return `<div class="accordion-item"><div class="accordion-header" onclick="toggleAccordion(this)"><span><i class="fas fa-folder" style="color:#aaa; margin-left:8px;"></i> ${main.title_ar}</span><i class="fas fa-chevron-down" style="font-size:0.8em; transition:0.3s;"></i></div><div class="accordion-body"><div class="sub-cat-link" onclick="openCategory('${main.id}', '${main.title_ar}'); toggleSideMenu();" style="font-weight:bold; color:var(--primary);">كل (${main.title_ar})</div>${subCats.map(sub => `<div class="sub-cat-link" onclick="openCategory('${sub.id}', '${sub.title_ar}'); toggleSideMenu();"><i class="fas fa-angle-left" style="color:#ccc; margin-left:5px;"></i> ${sub.title_ar}</div>`).join('')}</div></div>`;
-                } else {
-                    return `<div class="static-link" onclick="openCategory('${main.id}', '${main.title_ar}'); toggleSideMenu();" style="font-weight:normal; color:#555;"><i class="fas fa-folder" style="color:#ccc;"></i> ${main.title_ar}</div>`;
-                }
-            }).join('');
-        }
-
-        // --- باقي دوال الموقع (كما هي وتعمل بكفاءة تامة) ---
+        // --- باقي دوال الموقع (تعمل بكفاءة) ---
         async function fetchBanners() { const {data} = await supabaseClient.from('store_banners').select('*').eq('is_active', true); if(!data) return; data.forEach(b => { if(b.images && b.images.length > 0) { activeBanners[b.position_name] = true; if(b.position_name === 'top') { document.getElementById('top-slider').style.display = 'block'; document.getElementById('top-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join(''); new Swiper('#top-slider', { loop: true, autoplay: { delay: 3500 }, pagination: { el: '#top-slider .swiper-pagination' } }); } if(b.position_name === 'middle') { document.getElementById('middle-slider').style.display = 'block'; document.getElementById('middle-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join(''); new Swiper('#middle-slider', { loop: true, autoplay: { delay: 4000 }, pagination: { el: '#middle-slider .swiper-pagination' } }); } if(b.position_name === 'bottom') { document.getElementById('bottom-slider').style.display = 'block'; document.getElementById('bottom-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join(''); new Swiper('#bottom-slider', { loop: true, autoplay: { delay: 4500 }, pagination: { el: '#bottom-slider .swiper-pagination' } }); } } }); }
         function renderCategories(parentId) { const cont = document.getElementById('stories-container'); if(parentId === null) { const homeCats = allCategories.filter(c => c.show_on_home); if(homeCats.length > 0) { cont.style.display = 'flex'; cont.innerHTML = `<div class="story-item" onclick="showAllProducts()"><div class="story-img-wrap"><div class="story-img" style="background:var(--primary);color:#fff;"><i class="fas fa-home" style="font-size:1.5em;"></i></div></div><span>الرئيسية</span></div>` + homeCats.map(c => { let imgHtml = c.image ? `<img src="${c.image}" style="width:100%;height:100%;object-fit:cover;">` : `<div class="story-img">${c.title_ar.substring(0,4)}</div>`; return `<div class="story-item" onclick="openCategory('${c.id}', '${c.title_ar}')"><div class="story-img-wrap">${imgHtml}</div><span>${c.title_ar}</span></div>`; }).join(''); } else { cont.style.display = 'none'; } } else { const subCats = allCategories.filter(c => c.parent_id === parentId); cont.style.display = 'flex'; cont.innerHTML = `<div class="story-item" onclick="showAllProducts()"><div class="story-img-wrap"><div class="story-img" style="background:#555;color:#fff;"><i class="fas fa-arrow-right" style="font-size:1.5em;"></i></div></div><span>رجوع</span></div>`; if(subCats.length > 0) { cont.innerHTML += subCats.map(c => { let imgHtml = c.image ? `<img src="${c.image}" style="width:100%;height:100%;object-fit:cover;">` : `<div class="story-img">${c.title_ar.substring(0,4)}</div>`; return `<div class="story-item" onclick="openCategory('${c.id}', '${c.title_ar}')"><div class="story-img-wrap">${imgHtml}</div><span>${c.title_ar}</span></div>`; }).join(''); } } }
         function openCategory(id, title) { document.getElementById('grid-title').innerHTML = `<i class="fas fa-list"></i> ${title}`; const subCatIds = allCategories.filter(c => c.parent_id === id).map(c => c.id); const productsToShow = allProducts.filter(p => p.category_id === id || subCatIds.includes(p.category_id)); renderProducts(productsToShow); document.getElementById('top-slider').style.display = 'none'; document.getElementById('middle-slider').style.display = 'none'; document.getElementById('bottom-slider').style.display = 'none'; const cat = allCategories.find(c => c.id === id); const topCont = document.getElementById('cat-top-slider'); const bottomCont = document.getElementById('cat-bottom-slider'); if(cat && cat.banner_top && cat.banner_top.length > 0) { topCont.style.display = 'block'; document.getElementById('cat-top-wrapper').innerHTML = cat.banner_top.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join(''); if(catTopSwiper) catTopSwiper.destroy(true, true); catTopSwiper = new Swiper('#cat-top-slider', { loop: true, autoplay: { delay: 3000 }, pagination: { el: '#cat-top-slider .swiper-pagination' } }); } else { topCont.style.display = 'none'; } if(cat && cat.banner_bottom && cat.banner_bottom.length > 0) { bottomCont.style.display = 'block'; document.getElementById('cat-bottom-wrapper').innerHTML = cat.banner_bottom.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join(''); if(catBottomSwiper) catBottomSwiper.destroy(true, true); catBottomSwiper = new Swiper('#cat-bottom-slider', { loop: true, autoplay: { delay: 3500 }, pagination: { el: '#cat-bottom-slider .swiper-pagination' } }); } else { bottomCont.style.display = 'none'; } renderCategories(id); window.scrollTo(0,0); }
         function showAllProducts() { document.getElementById('grid-title').innerHTML = `<i class="fas fa-fire"></i> وصل حديثاً`; renderProducts(allProducts); if(activeBanners.top) document.getElementById('top-slider').style.display = 'block'; if(activeBanners.middle) document.getElementById('middle-slider').style.display = 'block'; if(activeBanners.bottom) document.getElementById('bottom-slider').style.display = 'block'; document.getElementById('cat-top-slider').style.display = 'none'; document.getElementById('cat-bottom-slider').style.display = 'none'; renderCategories(null); window.scrollTo(0,0); }
-        function renderProducts(arr) { const cont = document.getElementById('products-container'); if(arr.length === 0) { cont.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><i class="fas fa-box-open" style="font-size:3em; margin-bottom:10px; opacity:0.5;"></i><br>لا توجد منتجات.</div>'; return; } cont.innerHTML = arr.map(p => { const badge = (p.badge_ar && p.badge_ar !== 'لا يوجد') ? `<div class="product-badge">${p.badge_ar}</div>` : ''; const oldPrice = p.old_price > p.price ? `<span class="old-price">${p.old_price}</span>` : ''; return `<div class="product-card" onclick="openProduct('${p.id}')">${badge}<img class="product-img" src="${p.image||'https://via.placeholder.com/300'}"><div class="product-info"><div class="product-title">${p.title_ar}</div><div class="product-price">${p.price} ج.م ${oldPrice}</div></div></div>`; }).join(''); }
+        function renderProducts(arr) { const cont = document.getElementById('products-container'); if(arr.length === 0) { cont.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; color:#888;"><i class="fas fa-box-open" style="font-size:3em; margin-bottom:10px; opacity:0.5;"></i><br>لا توجد منتجات حالياً.</div>'; return; } cont.innerHTML = arr.map(p => { const badge = (p.badge_ar && p.badge_ar !== 'لا يوجد') ? `<div class="product-badge">${p.badge_ar}</div>` : ''; const oldPrice = p.old_price > p.price ? `<span class="old-price">${p.old_price}</span>` : ''; return `<div class="product-card" onclick="openProduct('${p.id}')">${badge}<img class="product-img" src="${p.image||'https://via.placeholder.com/300'}"><div class="product-info"><div class="product-title">${p.title_ar}</div><div class="product-price">${p.price} ج.م ${oldPrice}</div></div></div>`; }).join(''); }
         async function openProduct(id) { currentProd = allProducts.find(x => x.id === id); selectedSize = ''; selectedColor = ''; document.getElementById('modal-img').src = currentProd.image || 'https://via.placeholder.com/400'; document.getElementById('modal-title').innerText = currentProd.title_ar; document.getElementById('modal-price').innerText = `${currentProd.price} ج.م`; document.getElementById('modal-old-price').innerText = currentProd.old_price > currentProd.price ? currentProd.old_price : ''; document.getElementById('modal-promo').innerText = currentProd.promo_message || ''; const [sz, cl] = await Promise.all([supabaseClient.from('product_sizes').select('*').eq('product_id', id), supabaseClient.from('product_colors').select('*').eq('product_id', id)]); const cSec = document.getElementById('modal-colors-section'); if(cl.data && cl.data.length > 0) { cSec.style.display = 'block'; document.getElementById('modal-colors-list').innerHTML = cl.data.map(c => `<div class="color-chip" style="background:${c.color_hex};" onclick="selectColor(this, '${c.color_name_ar}', '${c.image_url}')"><span></span></div>`).join(''); } else { cSec.style.display = 'none'; } const sSec = document.getElementById('modal-sizes-section'); if(sz.data && sz.data.length > 0) { sSec.style.display = 'block'; document.getElementById('modal-sizes-list').innerHTML = sz.data.map(s => `<div class="chip" onclick="selectSize(this, '${s.size_name}')">${s.size_name}</div>`).join(''); } else { sSec.style.display = 'none'; } document.getElementById('prod-modal').style.display = 'flex'; }
         function selectSize(el, val) { document.querySelectorAll('#modal-sizes-list .chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); selectedSize = val; }
         function selectColor(el, val, img) { document.querySelectorAll('#modal-colors-list .color-chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); selectedColor = val; if(img) document.getElementById('modal-img').src = img; }
