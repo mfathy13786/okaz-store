@@ -105,7 +105,6 @@
     async function initCheckout() {
         if(cart.length === 0) { alert("سلة التسوق فارغة."); window.location.href = 'index.html'; return; }
         
-        // جلب إيميل العميل لو مسجل دخول عشان نربط الأوردر بيه
         const { data: { session } } = await supabaseClient.auth.getSession();
         if(session) { currentUserEmail = session.user.email; }
 
@@ -154,8 +153,9 @@
 
         const grandTotal = itemsTotal + shippingCost;
 
+        // التعديل: استخدام customer_email بدل user_email
         const { data: orderData, error: orderError } = await supabaseClient.from('orders').insert([{
-            user_email: currentUserEmail, // ربط الطلب بالعميل
+            customer_email: currentUserEmail, // <--- التعديل السحري هنا
             customer_name: name, 
             customer_phone: phone, 
             customer_city: city, 
