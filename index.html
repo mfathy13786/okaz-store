@@ -53,48 +53,43 @@
         .product-title { font-size: 0.9em; font-weight: 700; height: 2.6em; overflow: hidden; margin-bottom: 5px; }
         .product-price { color: var(--primary); font-weight: 900; font-size: 1.1em; }
 
-        /* مودال عام */
+        /* طبقات المودال والسلة المخفية */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); padding: 20px; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; border-radius: 20px; padding: 25px; position: relative; animation: scaleIn 0.3s ease; }
-        .auth-content { background: var(--card-bg); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border-radius: 20px; padding: 30px; position: relative; animation: scaleIn 0.3s ease; }
         @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .close-modal { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.1); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2em; z-index: 10; cursor: pointer; transition:0.2s;}
-        .close-modal:hover { background: var(--danger); color:#fff; }
-
-        /* لوحة تحكم العميل الاحترافية */
-        .profile-header { display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; margin-bottom: 15px;}
-        .profile-avatar { width: 65px; height: 65px; border-radius: 50%; background: #eee; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 2em; overflow: hidden; border: 2px solid var(--primary); position: relative;}
-        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .close-modal { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.1); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2em; z-index: 10; cursor: pointer; transition: 0.2s;}
+        .close-modal:hover { background: var(--danger); color: #fff;}
         
+        /* لوحة العميل */
+        .profile-header { display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; margin-bottom: 15px;}
+        .profile-avatar { width: 65px; height: 65px; border-radius: 50%; background: #eee; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 2em; overflow: hidden; border: 2px solid var(--primary); }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .profile-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
         .profile-tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-weight: bold; color: #888; border-bottom: 3px solid transparent; transition: 0.3s;}
         .profile-tab.active { color: var(--primary); border-color: var(--primary); }
         .profile-section { display: none; animation: fadeIn 0.3s ease;} .profile-section.active { display: block; }
         @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-        
         .input-group { margin-bottom: 15px; text-align: right; }
         .input-group label { display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: bold; color: #555; }
         .input-style { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Cairo'; outline: none; background: #fafafa; transition:0.2s;}
         .input-style:focus { border-color: var(--primary); background: #fff;}
         .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        @media(max-width: 500px) { .settings-grid { grid-template-columns: 1fr; gap:0;} }
-
+        @media(max-width: 500px) { .settings-grid { grid-template-columns: 1fr; gap: 0;} }
         .btn-main { background: var(--primary); color: #fff; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; font-size: 1em; transition: 0.2s;}
         .btn-main:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230,126,34,0.3); }
         .btn-gps { background: #3498db; color: #fff; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; font-weight: bold; width: 100%; margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 8px;}
         .btn-upload { background: #eee; color: #333; border: 1px dashed #aaa; padding: 10px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; width: 100%; margin-top: 5px; font-weight: bold;}
 
-        /* Product Modal */
+        /* مودال المنتج الداخلي */
         .img-zoom-container { width: 100%; height: 350px; background: #f9f9f9; text-align: center; margin: -25px -25px 20px -25px; border-radius: 20px 20px 0 0; overflow:hidden;}
         .img-zoom-container img { height: 100%; max-width: 100%; object-fit: contain; }
-        .modal-details { padding: 20px; }
-        .options-title { font-weight: bold; font-size: 0.9em; margin: 15px 0 10px; display: block; color: #555; }
         .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;}
         .chip { border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; font-size: 0.9em; cursor: pointer; font-weight: bold;}
         .chip.selected { border-color: var(--primary); background: var(--primary); color: #fff; }
         .color-chip { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; padding: 2px; }
         .color-chip.selected { border-color: var(--primary); } .color-chip span { display: block; width: 100%; height: 100%; border-radius: 50%; }
 
+        /* السلة المخفية */
         .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2400; display: none; }
         .cart-overlay.open { display: block; }
         .cart-drawer { position: fixed; top: 0; bottom: 0; right: 0; width: 100%; max-width: 400px; background: #fff; z-index: 2500; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
@@ -130,7 +125,7 @@
         <div class="search-bar">
             <div class="search-input-wrapper">
                 <i class="fas fa-search" style="color:#aaa;"></i>
-                <input type="search" id="search-input" placeholder="بتبحث عن إيه؟ (كوتشي، بنطلون...)" oninput="filterProducts()" autocomplete="off" spellcheck="false" name="q">
+                <input type="text" id="search-input" placeholder="بتبحث عن إيه؟" oninput="filterProducts()" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');">
             </div>
         </div>
         
@@ -156,14 +151,14 @@
     </nav>
 
     <div class="modal-overlay" id="auth-modal">
-        <div class="auth-content">
+        <div class="modal-content" style="max-width: 600px;">
             <button class="close-modal" onclick="document.getElementById('auth-modal').style.display='none'"><i class="fas fa-times"></i></button>
             
             <div id="login-state">
                 <h2 style="color: var(--primary); font-weight: 900; text-align:center; margin-bottom:5px;">تسجيل الدخول</h2>
                 <p style="text-align:center; color:#777; margin-bottom:20px; font-size:0.9em;">لتتبع طلباتك وحفظ بيانات الشحن</p>
-                <div class="input-group"><input type="email" id="auth-email" class="input-style" placeholder="البريد الإلكتروني"></div>
-                <div class="input-group"><input type="password" id="auth-password" class="input-style" placeholder="كلمة المرور (6 أحرف على الأقل)"></div>
+                <div class="input-group"><input type="email" id="auth-email" class="input-style" placeholder="البريد الإلكتروني" autocomplete="off"></div>
+                <div class="input-group"><input type="password" id="auth-password" class="input-style" placeholder="كلمة المرور (6 أحرف على الأقل)" autocomplete="new-password"></div>
                 <button class="btn-main" onclick="handleEmailAuth()">دخول / إنشاء حساب</button>
                 <div style="text-align:center; margin:15px 0; color:#aaa; font-size:0.9em; position:relative;">
                     <span style="background:#fff; padding:0 10px; position:relative; z-index:2;">أو</span>
@@ -196,26 +191,21 @@
                     <div style="background:#fff3e0; color:#d35400; padding:10px; border-radius:8px; font-size:0.85em; font-weight:bold; margin-bottom:15px; text-align:center;">
                         <i class="fas fa-info-circle"></i> سيتم استخدام هذه البيانات أوتوماتيكياً عند الطلب.
                     </div>
-                    
                     <div style="text-align:center; margin-bottom:15px;">
                         <input type="file" id="prof-avatar-file" accept="image/*" style="display:none;" onchange="previewAvatar(this)">
                         <button class="btn-upload" onclick="document.getElementById('prof-avatar-file').click()"><i class="fas fa-camera"></i> تغيير الصورة الشخصية</button>
                     </div>
-
                     <div class="settings-grid">
                         <div class="input-group"><label>الاسم بالكامل</label><input type="text" id="prof-name" class="input-style" placeholder="الاسم الثلاثي"></div>
                         <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="prof-phone" class="input-style" placeholder="01xxxxxxxxx"></div>
                     </div>
-
                     <div class="input-group"><label>المحافظة الافتراضية</label><select id="prof-city" class="input-style"><option value="">-- اختر المحافظة --</option></select></div>
                     <div class="input-group"><label>العنوان بالتفصيل</label><textarea id="prof-address" class="input-style" rows="2" placeholder="الشارع، العمارة، الشقة..."></textarea></div>
-                    
                     <div class="input-group">
                         <label>رابط موقعك (Google Maps)</label>
                         <input type="text" id="prof-location" class="input-style" placeholder="يستخدم لتسهيل وصول المندوب" readonly style="background:#eee;">
                         <button class="btn-gps" id="btn-gps" onclick="getCurrentLocation()"><i class="fas fa-map-marker-alt"></i> تحديد موقعي الحالي تلقائياً</button>
                     </div>
-
                     <button class="btn-main" onclick="updateProfile()" style="margin-bottom:10px;"><i class="fas fa-save"></i> حفظ التعديلات</button>
                     <button class="btn-main" style="background: #fff; color: var(--danger); border: 1px solid var(--danger); margin-top:10px;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج بأمان</button>
                 </div>
@@ -223,7 +213,7 @@
         </div>
     </div>
 
-    <div class="product-modal" id="prod-modal">
+    <div class="modal-overlay" id="prod-modal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
             <div class="img-zoom-container"><img id="modal-img" src=""></div>
@@ -293,9 +283,7 @@
 
                 document.getElementById('user-name-display').innerText = name;
                 document.getElementById('prof-name').value = name;
-                if(avatar) {
-                    document.getElementById('user-avatar-display').innerHTML = `<img src="${avatar}">`;
-                }
+                if(avatar) { document.getElementById('user-avatar-display').innerHTML = `<img src="${avatar}">`; }
                 
                 if(meta.phone) document.getElementById('prof-phone').value = meta.phone;
                 if(meta.city) document.getElementById('prof-city').value = meta.city;
@@ -311,7 +299,6 @@
         }
 
         function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; }
-        
         function switchProfileTab(tabId, element) {
             document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.profile-section').forEach(c => c.classList.remove('active'));
@@ -321,7 +308,7 @@
 
         function getCurrentLocation() {
             const btn = document.getElementById('btn-gps');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تحديد الإحداثيات...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحديد...';
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -332,13 +319,10 @@
                         btn.style.background = 'var(--success)';
                     }, 
                     (error) => {
-                        alert("تعذر الوصول للموقع. تأكد من تفعيل الـ GPS (الموقع) في هاتفك ومنح الصلاحية للمتصفح.");
+                        alert("تأكد من تفعيل الـ GPS في هاتفك.");
                         btn.innerHTML = '<i class="fas fa-map-marker-alt"></i> تحديد موقعي الحالي تلقائياً';
                     }
                 );
-            } else {
-                alert("متصفحك لا يدعم هذه الخاصية.");
-                btn.innerHTML = '<i class="fas fa-map-marker-alt"></i> تحديد موقعي الحالي تلقائياً';
             }
         }
 
@@ -378,30 +362,29 @@
             };
 
             const { error } = await supabaseClient.auth.updateUser({ data: updates });
-            
             if(error) alert("حدث خطأ: " + error.message);
-            else { alert("تم حفظ بياناتك بنجاح! سيتم استخدامها في طلباتك القادمة."); await checkUser(); }
-            
+            else { alert("تم حفظ بياناتك بنجاح!"); await checkUser(); }
             btn.innerHTML = '<i class="fas fa-save"></i> حفظ التعديلات';
             btn.disabled = false;
         }
 
-        // التعديل 2: حل مشكلة عدم ظهور المنتجات بتبسيط الاستعلام
+        // التعديل الجذري لضمان ظهور المنتجات للعميل
         async function fetchMyOrders() {
             if(!currentUser) return;
             const list = document.getElementById('my-orders-list');
             list.innerHTML = '<div style="text-align:center; padding: 20px;"><i class="fas fa-spinner fa-spin" style="font-size:2em; color:var(--primary);"></i><br>جاري جلب طلباتك...</div>';
             
-            // سحب الطلب مع المنتجات في خبطة واحدة (وفرنا الاستعلام المعقد اللي كان بيهنج)
-            const { data: orders, error: ordersError } = await supabaseClient.from('orders')
-                .select('*, order_items(*)')
-                .eq('customer_email', currentUser.email)
-                .order('created_at', { ascending: false });
+            // سحب الطلبات الخاصة بالعميل
+            const { data: orders, error: ordersError } = await supabaseClient.from('orders').select('*').eq('customer_email', currentUser.email).order('created_at', { ascending: false });
             
             if (ordersError || !orders || orders.length === 0) {
-                list.innerHTML = '<div style="text-align:center; padding: 30px; color:#888;"><i class="fas fa-box-open" style="font-size:3em; margin-bottom:10px; opacity:0.5;"></i><br>لم تقم بأي طلبات باستخدام هذا الحساب حتى الآن.</div>';
+                list.innerHTML = '<div style="text-align:center; padding: 30px; color:#888;"><i class="fas fa-box-open" style="font-size:3em; margin-bottom:10px; opacity:0.5;"></i><br>لا توجد طلبات سابقة مسجلة بهذا الإيميل.</div>';
                 return;
             }
+
+            // سحب المنتجات المرتبطة بهذه الطلبات
+            const orderIds = orders.map(o => o.id);
+            const { data: allItems } = await supabaseClient.from('order_items').select('*').in('order_id', orderIds);
             
             list.innerHTML = orders.map(o => {
                 let statusColor = '#f39c12'; let statusIcon = 'fa-clock';
@@ -410,13 +393,14 @@
                 
                 const date = new Date(o.created_at).toLocaleDateString('ar-EG');
                 let cancelBtn = '';
+                // زرار إلغاء الطلب
                 if(o.status === 'قيد المراجعة') {
                     cancelBtn = `<button style="background:var(--danger); color:#fff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-family:'Cairo'; font-size:0.8em; font-weight:bold;" onclick="cancelMyOrder('${o.id}')"><i class="fas fa-times"></i> إلغاء الطلب</button>`;
                 }
                 
-                // رسم المنتجات مباشرة من الداتا المسحوبة
+                // مطابقة المنتجات للطلب
+                const myItems = (allItems || []).filter(i => i.order_id === o.id);
                 let itemsHtml = '';
-                const myItems = o.order_items || [];
                 if (myItems.length > 0) {
                      itemsHtml = myItems.map(i => `
                         <div style="display:flex; justify-content:space-between; margin-bottom:3px; border-bottom:1px dashed #e1e1e1; padding-bottom:3px;">
@@ -425,7 +409,7 @@
                         </div>
                     `).join('');
                 } else {
-                     itemsHtml = '<div style="text-align:center; color:#aaa; font-size:0.9em;">(لا توجد تفاصيل للمنتجات في هذا الطلب)</div>';
+                     itemsHtml = '<div style="text-align:center; color:#aaa; font-size:0.9em;">لا توجد تفاصيل متاحة للمنتجات</div>';
                 }
 
                 return `
@@ -449,10 +433,11 @@
             }).join('');
         }
 
+        // دالة إلغاء الطلب
         async function cancelMyOrder(orderId) {
             if(!confirm('هل أنت متأكد من رغبتك في إلغاء هذا الطلب نهائياً؟')) return;
             const { error } = await supabaseClient.from('orders').update({status: 'ملغي'}).eq('id', orderId);
-            if(error) alert('حدث خطأ أثناء الإلغاء');
+            if(error) alert('حدث خطأ أثناء الإلغاء: ' + error.message);
             else { alert('تم إلغاء الطلب بنجاح.'); fetchMyOrders(); }
         }
 
@@ -511,8 +496,7 @@
 
         async function fetchProducts() {
             const {data} = await supabaseClient.from('products').select('*').eq('is_visible', true).order('created_at', {ascending:false});
-            allProducts = data || []; 
-            renderProducts(allProducts);
+            allProducts = data || []; renderProducts(allProducts);
         }
 
         function renderProducts(arr) {
