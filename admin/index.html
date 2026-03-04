@@ -385,7 +385,7 @@
         }
         async function saveStoreSettings() { alert("تم حفظ الإعدادات بنجاح!"); }
 
-        // 1. تصحيح الماليات لتقرأ من total_price
+        // --- تصحيح أرقام الماليات (total_price) ---
         async function loadComprehensiveReports() {
             const { data: orders } = await supabaseClient.from('orders').select('id, customer_name, total_price, status, created_at');
             globalOrdersData = orders || [];
@@ -436,7 +436,7 @@
             document.getElementById('report-modal').style.display = 'block';
         }
 
-        // 2. جدول الطلبات النظيف (زرار العين للصور)
+        // --- تصميم جدول الطلبات النظيفوزرار التفاصيل ---
         async function loadOrders() { 
             const {data} = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at',{ascending:false}); 
             allOrdersDetailed = data || []; 
@@ -462,8 +462,8 @@
         
         async function updateOrderStatus(id, status) { showLoader("تحديث الحالة..."); await supabaseClient.from('orders').update({status}).eq('id',id); hideLoader(); loadOrders();}
 
-        // 3. مودال التفاصيل اللي بيعرض الصور زي ما العميل طلبها
-        function viewOrderDetails(id) {
+        // دالة عرض التفاصيل في المودال للأدمن
+        window.viewOrderDetails = function(id) {
             const o = allOrdersDetailed.find(x => x.id === id); if(!o) return;
             document.getElementById('order-modal-title').innerText = `طلب #OKZ-${o.id.split('-')[0].toUpperCase()}`;
             const itemsArray = (o.order_items && o.order_items.length > 0) ? o.order_items : [];
