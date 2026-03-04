@@ -35,6 +35,7 @@
         .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3); }
         .btn-confirm:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none;}
         
+        /* Modal Success */
         .success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);}
         .success-modal { background: #fff; padding: 40px; border-radius: 20px; text-align: center; max-width: 480px; width: 95%; animation: popIn 0.5s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -265,14 +266,19 @@
         btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التسجيل...';
         const grandTotal = itemsTotal + shippingCost;
 
-        // التعديل: إرسال total_price كقيمة أساسية لضمان نجاح الحفظ في قاعدة البيانات
+        // الحل الجذري: استخدام العواميد المعتمدة فعلياً في قاعدة بياناتك (Supabase)
         const { data: orderData, error: orderError } = await supabaseClient.from('orders').insert([{
             customer_email: email, 
             customer_name: name, 
             customer_phone: phone, 
             customer_city: city, 
+            customer_area: '-', 
             customer_street: address, 
-            total_price: grandTotal, 
+            customer_building: '-', 
+            customer_apartment: '-',
+            total_items_price: itemsTotal,
+            shipping_cost: shippingCost,
+            grand_total: grandTotal, // تم استبدال total_price بـ grand_total بشكل نهائي
             status: 'قيد المراجعة'
         }]).select().single();
 
