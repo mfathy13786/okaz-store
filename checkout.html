@@ -6,12 +6,16 @@
     <title>إتمام الطلب - المتجر</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root { --primary: #e67e22; --bg: #f4f7f6; --text: #2d3436; --card: #ffffff; }
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
         body { background: var(--bg); padding: 20px; color: var(--text); margin: 0; display: flex; justify-content: center; }
-        .checkout-container { width: 100%; max-width: 800px; display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .checkout-container { width: 100%; max-width: 900px; display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 768px) { .checkout-container { grid-template-columns: 1.2fr 1fr; align-items: start; } }
         
         .box { background: var(--card); padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
@@ -33,20 +37,23 @@
         
         /* Modal Success */
         .success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);}
-        .success-modal { background: #fff; padding: 40px; border-radius: 20px; text-align: center; max-width: 450px; width: 90%; animation: popIn 0.5s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .success-modal { background: #fff; padding: 40px; border-radius: 20px; text-align: center; max-width: 480px; width: 95%; animation: popIn 0.5s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .success-icon { font-size: 4em; color: #27ae60; margin-bottom: 10px; }
         
         .order-id-box { display: flex; align-items: center; justify-content: center; gap: 10px; background: #fff3e0; padding: 10px; border-radius: 8px; border: 1px dashed var(--primary); margin-bottom: 15px; }
-        .order-id-box h3 { margin: 0; color: var(--primary); }
+        .order-id-box h3 { margin: 0; color: var(--primary); font-size:1.4em;}
         .icon-btn { cursor: pointer; color: #555; font-size: 1.2em; transition: 0.2s; background: none; border: none; } .icon-btn:hover { color: var(--primary); }
         
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;}
-        .btn-action { padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; text-align: center; font-size: 0.9em; cursor: pointer; border:none; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 5px; transition:0.2s;}
-        .btn-wa { background: #25D366; color: #fff; grid-column: span 2; flex-direction: row; justify-content: center;} .btn-wa:hover {background: #1ebe57;}
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;}
+        .btn-action { padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; text-align: center; font-size: 0.9em; cursor: pointer; border:none; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 5px; transition:0.2s; font-family: 'Cairo';}
+        .btn-wa { background: #25D366; color: #fff; grid-column: span 2; flex-direction: row; justify-content: center; font-size:1.1em; padding:15px;} .btn-wa:hover {background: #1ebe57;}
         .btn-track { background: var(--primary); color: #fff; } .btn-track:hover {background: #d67118;}
         .btn-pdf { background: #e74c3c; color: #fff; } .btn-pdf:hover {background: #c0392b;}
         .btn-home { background: #eee; color: #333; grid-column: span 2; flex-direction: row; justify-content: center;} .btn-home:hover {background: #ddd;}
+        
+        /* خريطة */
+        #map-container { height: 250px; border-radius: 8px; border: 1px solid #ddd; margin-top: 10px; z-index: 1; }
     </style>
 </head>
 <body>
@@ -54,15 +61,23 @@
 <div class="checkout-container">
     <div class="box">
         <h2 class="box-title"><i class="fas fa-shipping-fast"></i> بيانات التوصيل</h2>
-        <div id="logged-in-badge" style="display:none; background:#e8f8f5; color:#27ae60; padding:10px; border-radius:8px; margin-bottom:15px; font-size:0.85em; font-weight:bold; border:1px solid #2ecc71;">
-            <i class="fas fa-user-check"></i> تم سحب بياناتك المحفوظة تلقائياً لتسريع الطلب.
+        
+        <div class="form-group">
+            <label>البريد الإلكتروني (اختياري)</label>
+            <input type="email" id="cust-email" placeholder="example@mail.com">
         </div>
 
-        <div class="form-group"><label>الاسم بالكامل</label><input type="text" id="cust-name"></div>
-        <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="cust-phone"></div>
-        <div class="form-group"><label>المحافظة</label><select id="cust-city" onchange="calculateTotal()"><option value="" data-cost="0">-- جاري التحميل --</option></select></div>
-        <div class="form-group"><label>العنوان بالتفصيل</label><textarea id="cust-address" rows="2"></textarea></div>
-        <div class="form-group"><label>رابط الموقع (Google Maps) اختياري</label><input type="text" id="cust-location" placeholder="تسهيلاً لوصول المندوب"></div>
+        <div class="form-group"><label>الاسم بالكامل *</label><input type="text" id="cust-name"></div>
+        <div class="form-group"><label>رقم الهاتف *</label><input type="tel" id="cust-phone"></div>
+        <div class="form-group"><label>المحافظة *</label><select id="cust-city" onchange="calculateTotal()"><option value="" data-cost="0">-- جاري التحميل --</option></select></div>
+        <div class="form-group"><label>العنوان بالتفصيل *</label><textarea id="cust-address" rows="2" placeholder="اسم الشارع، رقم العمارة، الشقة..."></textarea></div>
+        
+        <div class="form-group" style="background: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee;">
+            <label><i class="fas fa-map-marker-alt" style="color:var(--danger);"></i> حدد موقعك على الخريطة (لتسهيل وصول المندوب)</label>
+            <p style="font-size:0.8em; color:#777; margin:0 0 10px 0;">قم بتحريك الدبوس الأحمر ليطابق موقعك بدقة.</p>
+            <div id="map-container"></div>
+            <input type="hidden" id="cust-location">
+        </div>
     </div>
 
     <div class="box">
@@ -79,19 +94,24 @@
 <div class="success-overlay" id="success-modal">
     <div class="success-modal">
         <i class="fas fa-check-circle success-icon"></i>
-        <h2 style="margin: 0 0 10px; color: #2d3436; font-weight: 900;">تم استلام طلبك بنجاح!</h2>
+        <h2 style="margin: 0 0 5px; color: #2d3436; font-weight: 900;">تم استلام طلبك بنجاح!</h2>
+        <p style="color: #27ae60; font-weight: bold; margin-bottom: 15px; font-size:1.1em;">سيتم التواصل من خلالنا لتأكيد الشحنة.</p>
         
         <div class="order-id-box">
             <h3>رقم الطلب: <span id="display-order-id"></span></h3>
-            <button class="icon-btn" onclick="copyOrderId()" title="نسخ"><i class="fas fa-copy"></i></button>
+            <button class="icon-btn" onclick="copyOrderId()" title="نسخ رقم الطلب"><i class="fas fa-copy"></i></button>
         </div>
         
-        <p style="color: #555; font-size: 0.9em; margin-bottom:20px; font-weight: bold;">يرجى الاحتفاظ برقم الطلب لتتبعه أو تواصل معنا.</p>
+        <div style="color: #555; font-size: 0.95em; line-height: 1.8; margin-bottom:15px; font-weight:bold;">
+            يرجى الاحتفاظ برقم الطلب لتتبعه.<br>
+            أو قم بالتسجيل على موقعنا لتتبع شحنتك أو طلبك.<br>
+            <span style="color:var(--primary);">أو للتواصل معنا مباشرة بطلبك اضغط على علامة الواتساب.</span>
+        </div>
 
         <div class="action-grid">
-            <button class="btn-action btn-pdf" onclick="downloadPDFInvoice()"><i class="fas fa-file-pdf" style="font-size:1.5em;"></i> تحميل فاتورة</button>
-            <button class="btn-action btn-track" onclick="window.location.href='index.html?login=true'"><i class="fas fa-user-circle" style="font-size:1.5em;"></i> تتبع (حسابي)</button>
-            <button class="btn-action btn-wa" onclick="openWhatsApp()"><i class="fab fa-whatsapp" style="font-size:1.2em;"></i> تأكيد الطلب عبر واتساب</button>
+            <button class="btn-action btn-wa" onclick="openWhatsApp()"><i class="fab fa-whatsapp" style="font-size:1.3em;"></i> تواصل مع المبيعات واتساب</button>
+            <button class="btn-action btn-track" onclick="window.location.href='index.html?login=true'"><i class="fas fa-user-circle" style="font-size:1.5em;"></i> تسجيل الدخول / تتبع</button>
+            <button class="btn-action btn-pdf" onclick="downloadPDFInvoice()"><i class="fas fa-file-pdf" style="font-size:1.5em;"></i> تحميل الفاتورة</button>
             <button class="btn-action btn-home" onclick="window.location.href='index.html'"><i class="fas fa-home"></i> العودة للرئيسية</button>
         </div>
     </div>
@@ -103,14 +123,13 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
-    let itemsTotal = 0;
-    let generatedWhatsAppUrl = '';
-    let currentUserEmail = null;
-    let finalizedOrderData = null; 
+    let itemsTotal = 0; let generatedWhatsAppUrl = ''; let currentUserEmail = null; let finalizedOrderData = null; 
+    let map, marker;
 
     async function initCheckout() {
         if(cart.length === 0) { window.location.href = 'index.html'; return; }
         
+        // جلب المحافظات
         const { data: cities } = await supabaseClient.from('shipping_rules').select('*').order('city_ar');
         const citySelect = document.getElementById('cust-city');
         if(cities && cities.length > 0) {
@@ -118,23 +137,51 @@
             cities.forEach(c => { citySelect.innerHTML += `<option value="${c.city_ar}" data-cost="${c.cost}">${c.city_ar} (${c.cost} ج.م)</option>`; });
         }
 
+        // سحب البيانات لو مسجل
         const { data: { session } } = await supabaseClient.auth.getSession();
         if(session) { 
             currentUserEmail = session.user.email; 
+            document.getElementById('cust-email').value = currentUserEmail;
             const meta = session.user.user_metadata;
             if(meta) {
                 if(meta.full_name) document.getElementById('cust-name').value = meta.full_name;
                 if(meta.phone) document.getElementById('cust-phone').value = meta.phone;
                 if(meta.address) document.getElementById('cust-address').value = meta.address;
-                if(meta.location_url) document.getElementById('cust-location').value = meta.location_url;
-                if(meta.city) {
-                    citySelect.value = meta.city;
-                }
-                document.getElementById('logged-in-badge').style.display = 'block';
+                if(meta.city) citySelect.value = meta.city;
             }
         }
         
         renderSummary();
+        initMap(); // تفعيل الخريطة
+    }
+
+    // تهيئة الخريطة التفاعلية
+    function initMap() {
+        // افتراضياً يفتح على القاهرة
+        map = L.map('map-container').setView([30.0444, 31.2357], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        marker = L.marker([30.0444, 31.2357], {draggable: true}).addTo(map);
+
+        // تحديث الرابط عند تحريك الدبوس
+        marker.on('dragend', function(e) {
+            const lat = marker.getLatLng().lat;
+            const lng = marker.getLatLng().lng;
+            document.getElementById('cust-location').value = `https://maps.google.com/?q=${lat},${lng}`;
+        });
+
+        // محاولة سحب موقع العميل الفعلي الـ GPS
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                map.setView([lat, lng], 15);
+                marker.setLatLng([lat, lng]);
+                document.getElementById('cust-location').value = `https://maps.google.com/?q=${lat},${lng}`;
+            });
+        }
     }
 
     function renderSummary() {
@@ -157,6 +204,7 @@
     }
 
     async function confirmOrder() {
+        const email = document.getElementById('cust-email').value.trim() || currentUserEmail;
         const name = document.getElementById('cust-name').value.trim();
         const phone = document.getElementById('cust-phone').value.trim();
         const citySelect = document.getElementById('cust-city');
@@ -168,16 +216,14 @@
 
         if(!name || !phone || !city || !address) return alert("برجاء ملء جميع بيانات التوصيل الأساسية.");
 
-        if(locationUrl) {
-            address += ` | اللوكيشن: ${locationUrl}`;
-        }
+        if(locationUrl) { address += ` | اللوكيشن: ${locationUrl}`; }
 
         btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التسجيل...';
         const grandTotal = itemsTotal + shippingCost;
 
-        // التعديل الجذري: رجوع أسماء العواميد الصحيحة لقاعدة البيانات
+        // الحفظ في جدول orders بالعواميد الأساسية بتاعتك
         const { data: orderData, error: orderError } = await supabaseClient.from('orders').insert([{
-            customer_email: currentUserEmail,
+            customer_email: email, // ربط بالإيميل
             customer_name: name, 
             customer_phone: phone, 
             customer_city: city, 
@@ -204,6 +250,7 @@
         
         finalizedOrderData = { id: shortOrderId, name, phone, city, address, grandTotal, shippingCost, date: new Date().toLocaleDateString('ar-EG') };
 
+        // رسالة الواتساب 
         let message = `*طلب جديد #${shortOrderId}* 🛍️\n\n`;
         message += `👤 *العميل:* ${name}\n📞 *الموبايل:* ${phone}\n📍 *العنوان:* ${city} - ${address}\n\n*المنتجات:*\n`;
         cart.forEach(i => { message += `▪️ ${i.qty}x ${i.title} (${i.size||'-'} | ${i.color||'-'}) - ${i.price}ج\n`; });
