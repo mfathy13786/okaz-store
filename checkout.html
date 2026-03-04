@@ -64,7 +64,12 @@
 <div class="checkout-container">
     <div class="box">
         <h2 class="box-title"><i class="fas fa-shipping-fast"></i> بيانات التوصيل</h2>
-        <div class="form-group"><label>البريد الإلكتروني (اختياري)</label><input type="email" id="cust-email" placeholder="example@mail.com"></div>
+        
+        <div class="form-group">
+            <label>البريد الإلكتروني (اختياري)</label>
+            <input type="email" id="cust-email" placeholder="example@mail.com">
+        </div>
+
         <div class="form-group"><label>الاسم بالكامل *</label><input type="text" id="cust-name"></div>
         <div class="form-group"><label>رقم الهاتف *</label><input type="tel" id="cust-phone"></div>
         <div class="form-group"><label>المحافظة *</label><select id="cust-city" onchange="calculateTotal()"><option value="" data-cost="0">-- جاري التحميل --</option></select></div>
@@ -172,7 +177,7 @@
                         addressField.value = data.display_name + "\n(برجاء إضافة رقم العمارة والشقة)";
                     }
                 }
-            } catch(err) {}
+            } catch(err) { console.error("Geocoding Error:", err); }
         });
 
         if(navigator.geolocation) {
@@ -226,7 +231,11 @@
 
     function saveAndReRender() {
         localStorage.setItem('okaz_cart', JSON.stringify(cart));
-        if(cart.length === 0) { window.location.href = 'index.html'; return; }
+        if(cart.length === 0) {
+            alert("السلة أصبحت فارغة، سيتم إرجاعك للرئيسية.");
+            window.location.href = 'index.html';
+            return;
+        }
         renderSummary();
     }
 
@@ -250,12 +259,13 @@
         const btn = document.getElementById('confirm-order-btn');
 
         if(!name || !phone || !city || !address) return alert("برجاء ملء جميع بيانات التوصيل الأساسية (*).");
+
         if(locationUrl) { address += ` | اللوكيشن: ${locationUrl}`; }
 
         btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التسجيل...';
         const grandTotal = itemsTotal + shippingCost;
 
-        // الحل الجذري: الحفظ في عمود cart_info ككتلة JSON واحدة 
+        // التعديل السحري: إرسال المنتجات كـ JSON للعمود الجديد اللي إنت عملته (cart_info)
         const { data: orderData, error: orderError } = await supabaseClient.from('orders').insert([{
             customer_email: email, 
             customer_name: name, 
@@ -268,11 +278,18 @@
             total_items_price: itemsTotal,
             shipping_cost: shippingCost,
             grand_total: grandTotal, 
-            cart_info: cart, // <--- السحر كله هنا
-            status: 'قيد المراجعة'
+            status: 'قيد المراجعة',
+            cart_info: cart // رمي المنتجات هنا
         }]).select().single();
 
-        if(orderError) { alert("تأكد من إنشاء عمود cart_info من نوع JSON في قاعدة البيانات\n" + orderError.message); btn.disabled = false; btn.innerHTML = 'تأكيد إتمام الطلب <i class="fas fa-check-circle"></i>'; return; }
+        if(orderError) { alert("حدث خطأ تقني: " + orderError.message); btn.disabled = false; btn.innerHTML = 'تأكيد إتمام الطلب <i class="fas fa-check-circle"></i>'; return; }
+
+        // الاحتفاظ بجدول order_items عشان الأدمن
+        const orderItems = cart.map(item => ({
+            order_id: orderData.id, product_name: item.title, selected_size: item.size || '', selected_color: item.color || '',
+            quantity: item.qty, price: item.price, image: item.image, code: item.code
+        }));
+        await supabaseClient.from('order_items').insert(orderItems);
 
         const shortOrderId = "OKZ-" + orderData.id.split('-')[0].toUpperCase();
         document.getElementById('display-order-id').innerText = shortOrderId;
