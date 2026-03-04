@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سوق عكاز | الإدارة الشاملة (POS & ERP)</title>
+    <title>لوحة التحكم | الإدارة الشاملة</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -117,10 +117,18 @@
                             <div class="stat-card info" onclick="openReportModal('courier')"><div class="stat-info"><h3>مع المناديب (جاري)</h3><p id="acc-courier">0 ج.م</p></div><i class="fas fa-motorcycle stat-icon"></i></div>
                             <div class="stat-card warning" onclick="openReportModal('pending')"><div class="stat-info"><h3>أرباح (قيد المراجعة)</h3><p id="acc-pending">0 ج.م</p></div><i class="fas fa-hourglass-half stat-icon"></i></div>
                         </div>
+                        
                         <h2 class="panel-title" style="margin-top:40px;"><i class="fas fa-exclamation-triangle"></i> تقارير الخسائر والمرتجعات</h2>
-                        <div class="stats-grid">
-                            <div class="stat-card danger" onclick="openReportModal('returns')"><div class="stat-info"><h3>قيمة المرتجعات المرفوضة</h3><p id="acc-returns">0 ج.م</p></div><i class="fas fa-undo stat-icon"></i></div>
-                            <div class="stat-card danger" onclick="openReportModal('cancelled')"><div class="stat-info"><h3>قيمة الطلبات الملغاة</h3><p id="acc-cancelled">0 ج.م</p></div><i class="fas fa-ban stat-icon"></i></div>
+                        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+                            <div class="stat-card danger" onclick="openReportModal('returns')">
+                                <div class="stat-info"><h3>قيمة المرتجعات المرفوضة</h3><p id="acc-returns">0 ج.م</p></div><i class="fas fa-undo stat-icon"></i>
+                            </div>
+                            <div class="stat-card danger" onclick="openReportModal('cancelled_admin')">
+                                <div class="stat-info"><h3>ملغي (من الإدارة)</h3><p id="acc-cancelled">0 ج.م</p></div><i class="fas fa-ban stat-icon"></i>
+                            </div>
+                            <div class="stat-card warning" style="border-color:#d35400; background: linear-gradient(135deg, rgba(211, 84, 0, 0.15), rgba(0,0,0,0.8));" onclick="openReportModal('cancelled_cust')">
+                                <div class="stat-info"><h3>إلغاء (من العميل)</h3><p id="acc-cancelled-cust">0 ج.م</p></div><i class="fas fa-user-times stat-icon" style="color:#d35400;"></i>
+                            </div>
                         </div>
                     </div>
                     <div class="panel">
@@ -286,7 +294,7 @@
                     <div class="input-group" style="background:#222; padding:15px; border-radius:8px; border:1px dashed #555;"><label>أيقونة المتصفح (Favicon)</label><input type="file" id="logo-favicon-file" accept="image/*"><img id="preview-logo-favicon" style="max-height:30px; margin-top:10px; display:none; border-radius:5px;"></div>
                     <div class="input-group" style="background:#222; padding:15px; border-radius:8px; border:1px dashed #555;"><label>لوجو الموقع (الهيدر والفوتر)</label><input type="file" id="logo-header-file" accept="image/*"><img id="preview-logo-header" style="max-height:50px; margin-top:10px; display:none; border-radius:5px;"></div>
                 </div>
-                <button class="btn-main" onclick="saveStoreSettings()" style="margin-top:20px; padding:15px; font-size:1.1em;">حفظ الإعدادات بالكامل</button>
+                <button class="btn-main" onclick="saveStoreSettings()" style="margin-top:20px; padding:15px; font-size:1.1em;"><i class="fas fa-save"></i> حفظ الإعدادات بالكامل</button>
             </div>
         </section>
 
@@ -343,7 +351,7 @@
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
 
         async function initAdmin() {
-            try { showLoader("تحميل النظام..."); await loadStoreSettingsFromDB(); await loadBannersStatus(); switchTab('accounting', document.querySelector('.nav-btn.active')); } 
+            try { showLoader("تحميل النظام..."); await loadStoreSettingsFromDB(); switchTab('accounting', document.querySelector('.nav-btn.active')); } 
             catch (e) {} finally { hideLoader(); }
         }
 
@@ -354,12 +362,13 @@
             if(btnElement) btnElement.classList.add('active');
             document.getElementById('sidebar').classList.remove('active'); document.getElementById('sidebar-overlay').classList.remove('active');
             
-            if(tabId === 'inventory') { loadCategoriesForSelects(); loadProductsList(); loadSizeTemplatesDropdown(); }
+            if(tabId === 'inventory') { loadCategoriesForSelects(); loadProductsList(); }
             if(tabId === 'accounting') loadComprehensiveReports();
             if(tabId === 'orders') loadOrders();
-            if(tabId === 'templates') loadTemplatesList();
-            if(tabId === 'shipping') loadCitiesForDropdown();
             if(tabId === 'edit-inventory') loadEditInventory();
+            // الدوال دي هتحتاج ربط في الخطوة الجاية
+            // if(tabId === 'templates') loadTemplatesList();
+            // if(tabId === 'shipping') loadCitiesForDropdown();
         }
 
         async function uploadImage(file) { const fName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`; await supabaseClient.storage.from('okaz_images').upload(fName, file); return supabaseClient.storage.from('okaz_images').getPublicUrl(fName).data.publicUrl; }
@@ -379,33 +388,57 @@
             }, 800);
         }
 
+        // --- التعديل 2: سحب إعدادات المتجر وتطبيقها ديناميكياً ---
         async function loadStoreSettingsFromDB() {
             const { data } = await supabaseClient.from('store_settings').select('*');
             if(data) data.forEach(x => systemSettings[x.setting_key] = x.setting_value);
+            
             const storeNameDisplay = systemSettings.store_name || 'سوق عكاز';
             document.getElementById('admin-logo-text').innerText = storeNameDisplay;
             document.getElementById('mobile-logo-text').innerText = storeNameDisplay;
-            if(systemSettings.theme_color) document.documentElement.style.setProperty('--primary', systemSettings.theme_color);
-            if(systemSettings.site_favicon) { document.getElementById('preview-logo-favicon').src = systemSettings.site_favicon; document.getElementById('preview-logo-favicon').style.display = 'block'; }
-            if(systemSettings.site_logo_header) { document.getElementById('preview-logo-header').src = systemSettings.site_logo_header; document.getElementById('preview-logo-header').style.display = 'block'; }
-        }
-        async function saveStoreSettings() { alert("تم حفظ الإعدادات بنجاح!"); }
+            
+            // تغيير اسم المتصفح بناءً على اسم المتجر من الداتا بيز
+            document.title = storeNameDisplay + ' | لوحة الإدارة الشاملة';
 
-        // --- التعديل الجذري: إصلاح دالة الحسابات لتعتمد على الداتا بيز الفعلية فقط ---
-        async function loadComprehensiveReports() {
-            // تم مسح total_price من الـ select لأنها غير موجودة بالداتا بيز وكانت بتوقف الكود
-            const { data: orders, error } = await supabaseClient.from('orders').select('id, customer_name, grand_total, status, created_at');
+            if(systemSettings.theme_color) document.documentElement.style.setProperty('--primary', systemSettings.theme_color);
             
-            if (error) {
-                console.error("خطأ في جلب بيانات التقارير:", error);
+            // ملء الخانات عشان الأدمن يشوف الإعدادات الحالية
+            if(document.getElementById('set-store-name')) document.getElementById('set-store-name').value = systemSettings.store_name || '';
+            if(document.getElementById('set-theme-color')) document.getElementById('set-theme-color').value = systemSettings.theme_color || '#e67e22';
+            if(document.getElementById('set-announcement')) document.getElementById('set-announcement').value = systemSettings.announcement_text || '';
+        }
+
+        // --- التعديل 2: ربط حفظ الإعدادات بالداتا بيز ---
+        async function saveStoreSettings() {
+            showLoader("جاري تحديث إعدادات المتجر...");
+            const sName = document.getElementById('set-store-name').value.trim();
+            const tColor = document.getElementById('set-theme-color').value;
+            const ann = document.getElementById('set-announcement').value.trim();
+
+            const updates = [
+                { setting_key: 'store_name', setting_value: sName },
+                { setting_key: 'theme_color', setting_value: tColor },
+                { setting_key: 'announcement_text', setting_value: ann }
+            ];
+
+            // تحديث أو إدخال البيانات في قاعدة البيانات
+            for (let u of updates) {
+                await supabaseClient.from('store_settings').upsert(u, { onConflict: 'setting_key' });
             }
-            
+
+            hideLoader();
+            alert("تم حفظ إعدادات المتجر بنجاح! سيتم تطبيقها فوراً.");
+            loadStoreSettingsFromDB(); // تحديث الواجهة فوراً
+        }
+
+        // --- التعديل 1: فصل تقارير الإلغاء للعميل وللأدمن ---
+        async function loadComprehensiveReports() {
+            const { data: orders, error } = await supabaseClient.from('orders').select('id, customer_name, grand_total, status, created_at');
             globalOrdersData = orders || [];
-            let safe = 0, courier = 0, pending = 0, returns = 0, cancelled = 0;
+            let safe = 0, courier = 0, pending = 0, returns = 0, cancelled_admin = 0, cancelled_cust = 0;
             
             if(orders) {
                 orders.forEach(o => {
-                    // الاعتماد على grand_total فقط زي ما متأسس عندك
                     const total = Number(o.grand_total) || 0; 
                     const st = o.status ? o.status.trim() : '';
 
@@ -413,7 +446,9 @@
                     else if(st === 'مع المندوب') courier += total;
                     else if(st === 'قيد المراجعة' || st === 'جاري التجهيز') pending += total;
                     else if(st === 'مرتجع') returns += total;
-                    else if(st === 'ملغي' || st === 'إلغاء من العميل') cancelled += total;
+                    // الفصل هنا
+                    else if(st === 'ملغي') cancelled_admin += total;
+                    else if(st === 'إلغاء من العميل') cancelled_cust += total;
                 });
             }
             
@@ -421,7 +456,12 @@
             document.getElementById('acc-courier').innerText = courier.toFixed(2) + ' ج.م'; 
             document.getElementById('acc-pending').innerText = pending.toFixed(2) + ' ج.م'; 
             document.getElementById('acc-returns').innerText = returns.toFixed(2) + ' ج.م'; 
-            document.getElementById('acc-cancelled').innerText = cancelled.toFixed(2) + ' ج.م';
+            document.getElementById('acc-cancelled').innerText = cancelled_admin.toFixed(2) + ' ج.م'; 
+            
+            // المربع الجديد
+            if(document.getElementById('acc-cancelled-cust')) {
+                document.getElementById('acc-cancelled-cust').innerText = cancelled_cust.toFixed(2) + ' ج.م';
+            }
 
             const { data: products } = await supabaseClient.from('products').select('id, title_ar, product_code, price, cost_price, stock_quantity');
             globalProductsData = products || [];
@@ -431,21 +471,26 @@
             document.getElementById('inv-retail').innerText = invRetail.toFixed(2) + ' ج.م'; 
         }
 
+        // --- التعديل 1: فتح المودال للنوعين من الإلغاء ---
         function openReportModal(type) {
             const thead = document.getElementById('report-thead'); const tbody = document.getElementById('report-tbody'); const title = document.getElementById('report-modal-title'); const totalDiv = document.getElementById('report-total-amount');
             thead.innerHTML = ''; tbody.innerHTML = ''; let totalSum = 0;
-            if (['delivered', 'courier', 'pending', 'returns', 'cancelled'].includes(type)) {
+            
+            if (['delivered', 'courier', 'pending', 'returns', 'cancelled_admin', 'cancelled_cust'].includes(type)) {
                 let statusFilter = [];
                 if(type === 'delivered') { statusFilter = ['تم التوصيل']; title.innerHTML = 'المبيعات'; }
                 if(type === 'courier') { statusFilter = ['مع المندوب']; title.innerHTML = 'المناديب'; }
                 if(type === 'pending') { statusFilter = ['قيد المراجعة', 'جاري التجهيز']; title.innerHTML = 'تحت المراجعة'; }
                 if(type === 'returns') { statusFilter = ['مرتجع']; title.innerHTML = 'المرتجعات'; }
-                if(type === 'cancelled') { statusFilter = ['ملغي', 'إلغاء من العميل']; title.innerHTML = 'الطلبات الملغاة'; }
+                
+                // التمييز هنا في الفلتر
+                if(type === 'cancelled_admin') { statusFilter = ['ملغي']; title.innerHTML = 'الطلبات الملغاة (بواسطة الإدارة)'; }
+                if(type === 'cancelled_cust') { statusFilter = ['إلغاء من العميل']; title.innerHTML = 'الطلبات الملغاة (بواسطة العميل)'; }
                 
                 const filteredOrders = globalOrdersData.filter(o => statusFilter.includes(o.status ? o.status.trim() : ''));
                 thead.innerHTML = `<tr><th>الطلب</th><th>العميل</th><th>التاريخ</th><th>القيمة</th></tr>`;
                 filteredOrders.forEach(o => {
-                    const t = Number(o.grand_total) || 0; // تم التعديل هنا أيضاً
+                    const t = Number(o.grand_total) || 0; 
                     totalSum += t; const date = new Date(o.created_at).toLocaleDateString('ar-EG');
                     tbody.innerHTML += `<tr><td style="color:var(--primary);">#OKZ-${o.id.split('-')[0].toUpperCase()}</td><td>${o.customer_name} <br> <span style="font-size:0.7em; color:#888;">(${o.status})</span></td><td>${date}</td><td style="color:var(--success);">${t} ج.م</td></tr>`;
                 });
@@ -476,7 +521,7 @@
                                 '</select>'; 
                                 
                     let loc = `${o.customer_city || ''} - ${o.customer_street || o.address || ''} <br><small style="color:#aaa;">موبايل: ${o.customer_phone}</small>`;
-                    const total = o.grand_total || 0; // الاعتماد على grand_total
+                    const total = o.grand_total || 0; 
                     
                     tbody.innerHTML+=`<tr>
                         <td style="color:var(--primary); font-weight:bold;">#OKZ-${o.id.split('-')[0].toUpperCase()}</td>
