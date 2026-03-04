@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="main-site-title">لوحة التحكم | الإدارة الشاملة</title>
+    <title id="main-site-title">لوحة الإدارة</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -88,7 +88,7 @@
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
     
     <aside class="sidebar" id="sidebar">
-        <div class="logo-area"><h2 id="admin-logo-text">سوق عكاز</h2><span style="color:var(--text-muted); font-size:0.8em;">الإدارة الشاملة</span></div>
+        <div class="logo-area"><h2 id="admin-logo-text">لوحة الإدارة</h2><span style="color:var(--text-muted); font-size:0.8em;">الإدارة الشاملة</span></div>
         <button class="nav-btn active" onclick="switchTab('accounting', this)"><i class="fas fa-chart-pie"></i> الحسابات والماليات</button>
         <button class="nav-btn" onclick="switchTab('orders', this)"><i class="fas fa-box-open"></i> إدارة الطلبات</button>
         <button class="nav-btn" onclick="switchTab('inventory', this)"><i class="fas fa-plus-square"></i> إضافة للمخزن</button>
@@ -102,7 +102,7 @@
 
     <main class="main-content">
         <div class="mobile-header">
-            <h2 id="mobile-logo-text" style="color:var(--primary); margin:0; font-family:'Reem Kufi';">سوق عكاز</h2>
+            <h2 id="mobile-logo-text" style="color:var(--primary); margin:0; font-family:'Reem Kufi';">لوحة الإدارة</h2>
             <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
         </div>
 
@@ -163,10 +163,7 @@
             <div class="flex-row">
                 <div class="panel" style="flex:1;">
                     <h3 class="panel-title"><i class="fas fa-folder-plus"></i> إضافة قسم</h3>
-                    <div class="input-group" style="background:#222; padding:10px; border-radius:8px; border:1px dashed #555;">
-                        <label>صورة القسم</label>
-                        <input type="file" id="cat-image" accept="image/*"><input type="text" id="cat-image-url" placeholder="أو رابط..." style="margin-top:5px;">
-                    </div>
+                    <div class="input-group" style="background:#222; padding:10px; border-radius:8px; border:1px dashed #555;"><label>صورة القسم</label><input type="file" id="cat-image" accept="image/*"><input type="text" id="cat-image-url" placeholder="أو رابط..." style="margin-top:5px;"></div>
                     <div class="flex-row">
                         <div class="input-group" style="position:relative;"><label>الاسم (عربي) *</label><input type="text" id="cat-title-ar" onkeyup="smartTranslate(this.value, 'cat-title-en', 'cat-magic')"><i class="fas fa-magic auto-translate-badge" id="cat-magic"></i></div>
                         <div class="input-group"><label>الاسم (إنجليزي)</label><input type="text" id="cat-title-en"></div>
@@ -282,7 +279,7 @@
                 <h3 style="color:var(--primary); margin-top:30px; border-bottom:1px solid #333; padding-bottom:10px;"><i class="fas fa-star"></i> إعدادات الزر المركزي (الشريط السفلي)</h3>
                 <div class="switch-container"><span>تفعيل الزرار البارز في المنتصف؟</span><label class="switch"><input type="checkbox" id="set-show-fab" checked><span class="slider"></span></label></div>
                 <div class="flex-row">
-                    <div class="input-group"><label>اسم الزرار (مثال: عروض)</label><input type="text" id="set-fab-text" placeholder="عروض تريند"></div>
+                    <div class="input-group"><label>اسم الزرار</label><input type="text" id="set-fab-text" placeholder="عروض تريند"></div>
                     <div class="input-group"><label>القسم المربوط به</label><select id="set-fab-cat"></select></div>
                 </div>
                 <div class="flex-row" style="background:#1a1a1a; padding:15px; border-radius:8px; border:1px solid #333; margin-bottom:15px;">
@@ -381,7 +378,12 @@
             const { data } = await supabaseClient.from('store_settings').select('*');
             if(data) data.forEach(x => systemSettings[x.setting_key] = x.setting_value);
             
-            // SaaS Toggles
+            // هنا بنخلي الكلمة الافتراضية "لوحة الإدارة" وبنغيرها من الداتا بيز عشان نلغي كلمة سوق عكاز
+            const storeNameDisplay = systemSettings.store_name || 'لوحة الإدارة';
+            document.getElementById('admin-logo-text').innerText = storeNameDisplay;
+            document.getElementById('mobile-logo-text').innerText = storeNameDisplay;
+            document.title = storeNameDisplay + ' | لوحة التحكم';
+
             if(document.getElementById('set-show-wishlist')) document.getElementById('set-show-wishlist').checked = systemSettings.show_wishlist !== 'false';
             if(document.getElementById('set-show-reviews')) document.getElementById('set-show-reviews').checked = systemSettings.show_reviews !== 'false';
             if(document.getElementById('set-show-flashsale')) document.getElementById('set-show-flashsale').checked = systemSettings.show_flash_sale !== 'false';
@@ -455,7 +457,7 @@
             if(catList && data) { catList.innerHTML = data.map(c => { let imgHtml = c.image ? `<img src="${c.image}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;">` : `<i class="fas fa-folder" style="color:#aaa;"></i>`; return `<div style="background:#222; padding:8px 15px; border-radius:20px; border:1px solid #444; display:flex; align-items:center; gap:10px;">${imgHtml}<span style="color:#fff; font-weight:bold;">${c.title_ar}</span><button style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.1em;" onclick="deleteCategory('${c.id}')"><i class="fas fa-trash"></i></button></div>` }).join(''); }
         }
 
-        async function addCategory() { const titleAr = document.getElementById('cat-title-ar').value.trim(); const titleEn = document.getElementById('cat-title-en').value.trim(); const parentId = document.getElementById('cat-parent-id').value; const showHome = document.getElementById('cat-show-home').checked; if(!titleAr) return alert("يرجى إدخال اسم القسم."); const fileInput = document.getElementById('cat-image').files[0]; const urlInput = document.getElementById('cat-image-url') ? document.getElementById('cat-image-url').value.trim() : ''; let catImage = null; showLoader("جاري حفظ القسم..."); try { if(fileInput) { catImage = await uploadImage(fileInput); } else if(urlInput) { catImage = urlInput; } let bannerTop = []; let bannerBottom = []; const btFiles = document.getElementById('cat-banner-top').files; for(let f of btFiles) { bannerTop.push(await uploadImage(f)); } const bbFiles = document.getElementById('cat-banner-bottom').files; for(let f of bbFiles) { bannerBottom.push(await uploadImage(f)); } const { error } = await supabaseClient.from('categories').insert([{ title_ar: titleAr, title_en: titleEn, parent_id: parentId || null, show_on_home: showHome, image: catImage, banner_top: bannerTop, banner_bottom: bannerBottom }]); if(error) throw error; alert("تم حفظ القسم بنجاح!"); document.getElementById('cat-title-ar').value = ''; document.getElementById('cat-title-en').value = ''; document.getElementById('cat-image').value = ''; if(document.getElementById('cat-image-url')) document.getElementById('cat-image-url').value = ''; document.getElementById('cat-banner-top').value = ''; document.getElementById('cat-banner-bottom').value = ''; loadCategoriesForSelects(); } catch (err) { alert("خطأ: " + err.message); } finally { hideLoader(); } }
+        async function addCategory() { const titleAr = document.getElementById('cat-title-ar').value.trim(); const titleEn = document.getElementById('cat-title-en').value.trim(); const parentId = document.getElementById('cat-parent-id').value; const showHome = document.getElementById('cat-show-home').checked; if(!titleAr) return alert("يرجى إدخال اسم القسم باللغة العربية على الأقل."); const fileInput = document.getElementById('cat-image').files[0]; const urlInput = document.getElementById('cat-image-url') ? document.getElementById('cat-image-url').value.trim() : ''; let catImage = null; showLoader("جاري حفظ القسم..."); try { if(fileInput) { catImage = await uploadImage(fileInput); } else if(urlInput) { catImage = urlInput; } let bannerTop = []; let bannerBottom = []; const btFiles = document.getElementById('cat-banner-top').files; for(let f of btFiles) { bannerTop.push(await uploadImage(f)); } const bbFiles = document.getElementById('cat-banner-bottom').files; for(let f of bbFiles) { bannerBottom.push(await uploadImage(f)); } const { error } = await supabaseClient.from('categories').insert([{ title_ar: titleAr, title_en: titleEn, parent_id: parentId || null, show_on_home: showHome, image: catImage, banner_top: bannerTop, banner_bottom: bannerBottom }]); if(error) throw error; alert("تم حفظ القسم بنجاح!"); document.getElementById('cat-title-ar').value = ''; document.getElementById('cat-title-en').value = ''; document.getElementById('cat-image').value = ''; if(document.getElementById('cat-image-url')) document.getElementById('cat-image-url').value = ''; document.getElementById('cat-banner-top').value = ''; document.getElementById('cat-banner-bottom').value = ''; loadCategoriesForSelects(); } catch (err) { alert("خطأ: " + err.message); } finally { hideLoader(); } }
         
         async function addProduct() { 
             const catId = document.getElementById('prod-cat').value; const code = document.getElementById('prod-code').value.trim(); const titleAr = document.getElementById('prod-title-ar').value.trim(); const titleEn = document.getElementById('prod-title-en').value.trim(); const season = document.getElementById('prod-season').value; const gender = document.getElementById('prod-gender').value; const badge = document.getElementById('prod-badge').value; const costPrice = document.getElementById('prod-cost-price').value || 0; const price = document.getElementById('prod-price').value; const oldPrice = document.getElementById('prod-old-price').value || 0; const stock = document.getElementById('prod-stock').value || 100; const promoMsg = document.getElementById('prod-promo-msg').value.trim(); const fileInput = document.getElementById('prod-image').files[0]; const urlInput = document.getElementById('prod-image-url').value.trim(); 
