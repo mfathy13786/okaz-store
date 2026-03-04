@@ -78,8 +78,7 @@
         @media(max-width: 500px) { .settings-grid { grid-template-columns: 1fr; } }
 
         .btn-main { background: var(--primary); color: #fff; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; font-size: 1em; transition: 0.2s;}
-        .btn-gps { background: #3498db; color: #fff; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; font-weight: bold; width: 100%; margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 8px;}
-        .btn-upload { background: #eee; color: #333; border: 1px dashed #aaa; padding: 10px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; width: 100%; margin-top: 5px; font-weight: bold;}
+        .btn-upload { background: #eee; color: #333; border: 1px dashed #aaa; padding: 10px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; width: 100%; font-weight: bold;}
 
         /* Product Modal */
         .img-zoom-container { width: 100%; height: 350px; background: #f9f9f9; text-align: center; margin: -25px -25px 20px -25px; border-radius: 20px 20px 0 0; overflow:hidden;}
@@ -132,17 +131,20 @@
     </nav>
 
     <div class="modal-overlay" id="auth-modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 600px;">
             <button class="close-modal" onclick="document.getElementById('auth-modal').style.display='none'"><i class="fas fa-times"></i></button>
             
             <div id="login-state">
                 <h2 style="color: var(--primary); font-weight: 900; text-align:center; margin-bottom:5px;">تسجيل الدخول</h2>
-                <p style="text-align:center; color:#777; margin-bottom:20px; font-size:0.9em;">لتتبع طلباتك وحفظ بيانات الشحن</p>
+                <p style="text-align:center; color:#777; margin-bottom:20px; font-size:0.9em;">لتتبع طلباتك وإدارة حسابك</p>
                 <div class="input-group"><input type="email" id="auth-email" class="input-style" placeholder="البريد الإلكتروني"></div>
                 <div class="input-group"><input type="password" id="auth-password" class="input-style" placeholder="كلمة المرور (6 أحرف على الأقل)"></div>
                 <button class="btn-main" onclick="handleEmailAuth()">دخول / إنشاء حساب</button>
-                <div class="divider">أو</div>
-                <button class="btn-main" style="background: #fff; color: #333; border: 1px solid #ddd;" onclick="signInWithGoogle()">
+                <div style="text-align:center; margin:15px 0; color:#aaa; font-size:0.9em; position:relative;">
+                    <span style="background:#fff; padding:0 10px; position:relative; z-index:2;">أو</span>
+                    <hr style="position:absolute; top:50%; left:0; right:0; margin:0; border:none; border-top:1px solid #eee; z-index:1;">
+                </div>
+                <button class="btn-main" style="background: #fff; color: #333; border: 1px solid #ddd; display:flex; align-items:center; justify-content:center; gap:10px;" onclick="signInWithGoogle()">
                     <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" style="width: 22px;"> المتابعة باستخدام جوجل
                 </button>
             </div>
@@ -158,7 +160,7 @@
                 
                 <div class="profile-tabs">
                     <div class="profile-tab active" onclick="switchProfileTab('orders-tab', this)"><i class="fas fa-box"></i> طلباتي</div>
-                    <div class="profile-tab" onclick="switchProfileTab('settings-tab', this)"><i class="fas fa-cog"></i> إعداداتي</div>
+                    <div class="profile-tab" onclick="switchProfileTab('settings-tab', this)"><i class="fas fa-cog"></i> إعدادات الحساب</div>
                 </div>
 
                 <div id="orders-tab" class="profile-section active">
@@ -166,10 +168,6 @@
                 </div>
 
                 <div id="settings-tab" class="profile-section">
-                    <div style="background:#fff3e0; color:#d35400; padding:10px; border-radius:8px; font-size:0.85em; font-weight:bold; margin-bottom:15px; text-align:center;">
-                        هذه البيانات سيتم ملؤها تلقائياً عند الشراء.
-                    </div>
-                    
                     <div style="text-align:center; margin-bottom:15px;">
                         <input type="file" id="prof-avatar-file" accept="image/*" style="display:none;" onchange="previewAvatar(this)">
                         <button class="btn-upload" onclick="document.getElementById('prof-avatar-file').click()"><i class="fas fa-camera"></i> تغيير الصورة الشخصية</button>
@@ -182,32 +180,37 @@
 
                     <div class="input-group"><label>المحافظة الافتراضية</label><select id="prof-city" class="input-style"><option value="">-- اختر المحافظة --</option></select></div>
                     <div class="input-group"><label>العنوان بالتفصيل</label><textarea id="prof-address" class="input-style" rows="2" placeholder="الشارع، العمارة، الشقة..."></textarea></div>
-                    
-                    <div class="input-group">
-                        <label>رابط موقعك (Google Maps)</label>
-                        <input type="text" id="prof-location" class="input-style" placeholder="يستخدم لتسهيل وصول المندوب" readonly style="background:#eee;">
-                        <button class="btn-gps" id="btn-gps" onclick="getCurrentLocation()"><i class="fas fa-map-marker-alt"></i> تحديد موقعي الحالي تلقائياً</button>
-                    </div>
 
-                    <button class="btn-main" onclick="updateProfile()" style="margin-top:10px;"><i class="fas fa-save"></i> حفظ التعديلات</button>
-                    <button class="btn-main" style="background: #fff; color: var(--danger); border: 1px solid var(--danger); margin-top:10px;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+                    <button class="btn-main" onclick="updateProfile()" style="margin-bottom:15px; font-size:1.1em;"><i class="fas fa-save"></i> حفظ التعديلات</button>
+                    <button class="btn-main" style="background: #fff; color: var(--danger); border: 1px solid var(--danger);" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="prod-modal">
+    <div class="product-modal" id="prod-modal">
         <div class="modal-content">
-            <button class="close-modal" onclick="document.getElementById('prod-modal').style.display='none'"><i class="fas fa-times"></i></button>
+            <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
             <div class="img-zoom-container"><img id="modal-img" src=""></div>
-            <p id="modal-promo" style="color: var(--primary); font-weight: bold; font-size: 0.9em; margin-bottom: 5px;"></p>
-            <h2 id="modal-title" style="font-weight:900; font-size:1.3em; margin-bottom:5px;"></h2>
-            <div class="product-price" style="font-size:1.5em; margin-bottom:15px;"><span id="modal-price"></span> <span class="old-price" id="modal-old-price"></span></div>
-            
-            <div id="modal-colors-section" style="display:none;"><b class="options-title">اللون:</b><div class="chips" id="modal-colors-list"></div></div>
-            <div id="modal-sizes-section" style="display:none;"><b class="options-title">المقاس:</b><div class="chips" id="modal-sizes-list"></div></div>
-            
-            <button class="btn-main" style="margin-top:15px; font-size:1.1em; padding:15px;" onclick="addToCart()">أضف للسلة <i class="fas fa-cart-plus"></i></button>
+            <div class="modal-details">
+                <p id="modal-promo" style="color: var(--primary); font-weight: bold; font-size: 0.9em; margin-bottom: 5px;"></p>
+                <h2 id="modal-title" style="font-weight:900; font-size:1.3em; margin-bottom:5px; color:#000;"></h2>
+                <div class="product-price" style="font-size:1.5em; margin-bottom:15px;"><span id="modal-price"></span><span class="old-price" id="modal-old-price"></span></div>
+                
+                <div id="modal-colors-section" style="display:none;"><span class="options-title">اختر اللون:</span><div class="chips" id="modal-colors-list"></div></div>
+                <div id="modal-sizes-section" style="display:none;"><span class="options-title">اختر المقاس:</span><div class="chips" id="modal-sizes-list"></div></div>
+            </div>
+            <div class="fixed-bottom-bar"><button class="btn-add-cart" onclick="addToCart()">أضف للسلة <i class="fas fa-cart-plus"></i></button></div>
+        </div>
+    </div>
+
+    <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+    <div class="cart-drawer" id="cart-drawer">
+        <div class="cart-header"><span><i class="fas fa-shopping-bag"></i> حقيبة التسوق</span><i class="fas fa-times" style="cursor:pointer;" onclick="toggleCart()"></i></div>
+        <div class="cart-items" id="cart-items-list"></div>
+        <div class="cart-footer">
+            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.3em; margin-bottom:15px; color:#000;"><span>المجموع:</span><span id="cart-total-price" style="color:var(--primary);">0 ج.م</span></div>
+            <button class="checkout-btn" onclick="window.location.href='checkout.html'">إتمام الطلب الآن</button>
         </div>
     </div>
 
@@ -222,15 +225,14 @@
         let currentProd = null; let selectedSize = ''; let selectedColor = '';
         let currentUser = null;
 
-        // دالة التهيئة الأساسية (تأكدنا إن المنتجات بتتحمل في كل الأحوال)
         async function initStore() {
             updateCartBadge();
             fetchCitiesForProfile();
             await fetchSettings(); 
             await fetchCategories(); 
-            await fetchProducts(); // جلب المنتجات فوراً بغض النظر عن الحساب
+            await fetchProducts(); // تحميل المنتجات في الخلفية
             await fetchBanners();
-            await checkUser(); // فحص الحساب في الخلفية
+            await checkUser(); 
             
             if(window.location.search.includes('login=true') && !currentUser) openAuthModal();
         }
@@ -243,7 +245,7 @@
             }
         }
 
-        // --- نظام الحسابات وإدارة العميل ---
+        // --- نظام الحسابات ---
         async function checkUser() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if(session) {
@@ -252,21 +254,17 @@
                 document.getElementById('dashboard-state').style.display = 'block';
                 document.getElementById('user-email-display').innerText = currentUser.email;
                 
-                // سحب بيانات الميتا (اسم وصورة جوجل أو البيانات المحفوظة)
                 const meta = currentUser.user_metadata || {};
                 const name = meta.full_name || meta.name || 'عميلنا العزيز';
                 const avatar = meta.avatar_url || meta.picture || '';
 
                 document.getElementById('user-name-display').innerText = name;
                 document.getElementById('prof-name').value = name;
-                if(avatar) {
-                    document.getElementById('user-avatar-display').innerHTML = `<img src="${avatar}">`;
-                }
+                if(avatar) { document.getElementById('user-avatar-display').innerHTML = `<img src="${avatar}">`; }
                 
                 if(meta.phone) document.getElementById('prof-phone').value = meta.phone;
                 if(meta.city) document.getElementById('prof-city').value = meta.city;
                 if(meta.address) document.getElementById('prof-address').value = meta.address;
-                if(meta.location_url) document.getElementById('prof-location').value = meta.location_url;
                 
                 fetchMyOrders();
             } else {
@@ -285,30 +283,6 @@
             document.getElementById(tabId).classList.add('active');
         }
 
-        // زرار تحديد الموقع بالـ GPS
-        function getCurrentLocation() {
-            const btn = document.getElementById('btn-gps');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تحديد الإحداثيات...';
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-                        document.getElementById('prof-location').value = `https://maps.google.com/?q=${lat},${lon}`;
-                        btn.innerHTML = '<i class="fas fa-check"></i> تم التقاط الموقع بنجاح';
-                        btn.style.background = 'var(--success)';
-                    }, 
-                    (error) => {
-                        alert("تعذر الوصول للموقع. تأكد من تفعيل الـ GPS (الموقع) في هاتفك ومنح الصلاحية للمتصفح.");
-                        btn.innerHTML = '<i class="fas fa-map-marker-alt"></i> تحديد موقعي الحالي تلقائياً';
-                    }
-                );
-            } else {
-                alert("متصفحك لا يدعم هذه الخاصية.");
-                btn.innerHTML = '<i class="fas fa-map-marker-alt"></i> تحديد موقعي الحالي تلقائياً';
-            }
-        }
-
         function previewAvatar(input) {
             if(input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -317,16 +291,14 @@
             }
         }
 
-        // تحديث ورفع الصورة والبيانات
         async function updateProfile() {
             const btn = event.target;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
             btn.disabled = true;
 
-            let finalAvatarUrl = currentUser.user_metadata?.avatar_url || '';
+            let finalAvatarUrl = currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture || '';
             const fileInput = document.getElementById('prof-avatar-file');
             
-            // لو العميل اختار صورة جديدة، نرفعها
             if(fileInput.files.length > 0) {
                 const file = fileInput.files[0];
                 const ext = file.name.split('.').pop();
@@ -342,23 +314,17 @@
                 phone: document.getElementById('prof-phone').value,
                 city: document.getElementById('prof-city').value,
                 address: document.getElementById('prof-address').value,
-                location_url: document.getElementById('prof-location').value,
                 avatar_url: finalAvatarUrl
             };
 
             const { error } = await supabaseClient.auth.updateUser({ data: updates });
-            
             if(error) alert("حدث خطأ: " + error.message);
-            else { 
-                alert("تم حفظ بياناتك بنجاح! سيتم استخدامها في طلباتك القادمة."); 
-                await checkUser(); 
-            }
+            else { alert("تم حفظ بياناتك بنجاح!"); await checkUser(); }
             
             btn.innerHTML = '<i class="fas fa-save"></i> حفظ التعديلات';
             btn.disabled = false;
         }
 
-        // جلب الطلبات للإيميل
         async function fetchMyOrders() {
             if(!currentUser) return;
             const list = document.getElementById('my-orders-list');
@@ -377,12 +343,20 @@
                 if(o.status === 'ملغي' || o.status === 'مرتجع') { statusColor = '#e74c3c'; statusIcon = 'fa-times-circle'; }
                 
                 const date = new Date(o.created_at).toLocaleDateString('ar-EG');
+                let cancelBtn = '';
+                // إضافة زر الإلغاء للعميل لو الطلب لسه جديد
+                if(o.status === 'قيد المراجعة') {
+                    cancelBtn = `<button style="background:var(--danger); color:#fff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-family:'Cairo'; font-size:0.8em; font-weight:bold;" onclick="cancelMyOrder('${o.id}')"><i class="fas fa-times"></i> إلغاء الطلب</button>`;
+                }
                 
                 return `
                 <div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:15px; margin-bottom:15px; box-shadow:0 2px 5px rgba(0,0,0,0.02);">
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #ddd; padding-bottom:10px; margin-bottom:10px;">
                         <b style="color:var(--primary);">#OKZ-${o.id.split('-')[0].toUpperCase()}</b>
-                        <span style="background:${statusColor}22; color:${statusColor}; padding:5px 10px; border-radius:20px; font-size:0.8em; font-weight:bold;"><i class="fas ${statusIcon}"></i> ${o.status}</span>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            ${cancelBtn}
+                            <span style="background:${statusColor}22; color:${statusColor}; padding:5px 10px; border-radius:20px; font-size:0.8em; font-weight:bold;"><i class="fas ${statusIcon}"></i> ${o.status}</span>
+                        </div>
                     </div>
                     <div style="font-size:0.85em; color:#555; margin-bottom:10px;">
                         <b>التاريخ:</b> ${date} <br>
@@ -393,12 +367,19 @@
                         ${(o.order_items || o.items || []).map(i => `
                             <div style="display:flex; justify-content:space-between; margin-bottom:3px; border-bottom:1px dashed #e1e1e1; padding-bottom:3px;">
                                 <span>${i.product_name || i.title} (${i.selected_size||'-'}/${i.selected_color||'-'})</span>
-                                <b>x${i.quantity || i.qty}</b>
+                                <b>الكمية: ${i.quantity || i.qty}</b>
                             </div>
                         `).join('')}
                     </div>
                 </div>`;
             }).join('');
+        }
+
+        async function cancelMyOrder(orderId) {
+            if(!confirm('هل أنت متأكد من رغبتك في إلغاء هذا الطلب نهائياً؟')) return;
+            const { error } = await supabaseClient.from('orders').update({status: 'ملغي'}).eq('id', orderId);
+            if(error) alert('حدث خطأ أثناء الإلغاء');
+            else { alert('تم إلغاء الطلب بنجاح.'); fetchMyOrders(); }
         }
 
         async function handleEmailAuth() {
@@ -419,7 +400,7 @@
 
         async function logout() { await supabaseClient.auth.signOut(); await checkUser(); }
 
-        // --- المتجر وعرض المنتجات ---
+        // --- المتجر ---
         async function fetchSettings() {
             const {data} = await supabaseClient.from('store_settings').select('*');
             if(data) data.forEach(s => systemSettings[s.setting_key] = s.setting_value);
