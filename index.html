@@ -53,40 +53,13 @@
         .product-title { font-size: 0.9em; font-weight: 700; height: 2.6em; overflow: hidden; margin-bottom: 5px; }
         .product-price { color: var(--primary); font-weight: 900; font-size: 1.1em; }
 
-        /* =========================================================
-           الحل الجذري للمودال والنوافذ المنبثقة لمنع كسر الشاشة 
-           استخدام !important لفرض السيطرة المطلقة على التصميم
-           ========================================================= */
-        .modal-overlay, .product-modal { 
-            position: fixed !important; 
-            top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
-            background: rgba(0,0,0,0.8) !important; 
-            z-index: 9999 !important; 
-            display: none; 
-            align-items: center !important; 
-            justify-content: center !important; 
-            backdrop-filter: blur(3px) !important; 
-            padding: 20px !important; 
-        }
-        
-        .modal-content, .auth-content { 
-            background: var(--card-bg) !important; 
-            width: 100% !important; 
-            max-width: 500px !important; 
-            max-height: 90vh !important; 
-            overflow-y: auto !important; 
-            border-radius: 20px !important; 
-            padding: 25px !important; 
-            position: relative !important; 
-            animation: scaleIn 0.3s ease !important; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
-        }
+        /* مودال عام */
+        .modal-overlay, .product-modal { position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; background: rgba(0,0,0,0.8) !important; z-index: 9999 !important; display: none; align-items: center !important; justify-content: center !important; backdrop-filter: blur(3px) !important; padding: 20px !important; }
+        .modal-content, .auth-content { background: var(--card-bg) !important; width: 100% !important; max-width: 500px !important; max-height: 90vh !important; overflow-y: auto !important; border-radius: 20px !important; padding: 25px !important; position: relative !important; animation: scaleIn 0.3s ease !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;}
         @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
         .close-modal { position: absolute !important; top: 15px !important; left: 15px !important; background: rgba(0,0,0,0.1) !important; border: none !important; width: 35px !important; height: 35px !important; border-radius: 50% !important; font-size: 1.2em !important; z-index: 10 !important; cursor: pointer !important; transition:0.2s !important; display: flex !important; align-items: center !important; justify-content: center !important;}
         .close-modal:hover { background: var(--danger) !important; color: #fff !important;}
-        /* ========================================================= */
-
+        
         /* لوحة تحكم العميل الاحترافية */
         .profile-header { display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; margin-bottom: 15px;}
         .profile-avatar { width: 65px; height: 65px; border-radius: 50%; background: #eee; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 2em; overflow: hidden; border: 2px solid var(--primary); position: relative;}
@@ -417,11 +390,16 @@
             list.innerHTML = orders.map(o => {
                 let statusColor = '#f39c12'; let statusIcon = 'fa-clock';
                 if(o.status === 'تم التوصيل') { statusColor = '#27ae60'; statusIcon = 'fa-check-circle'; }
-                if(o.status === 'ملغي' || o.status === 'مرتجع') { statusColor = '#e74c3c'; statusIcon = 'fa-times-circle'; }
+                if(o.status === 'مرتجع') { statusColor = '#e74c3c'; statusIcon = 'fa-undo'; }
+                
+                // تعديل شكل الإلغاء إذا كان من العميل أو من الأدمن
+                if(o.status === 'ملغي') { statusColor = '#e74c3c'; statusIcon = 'fa-times-circle'; }
+                if(o.status === 'إلغاء من العميل') { statusColor = '#c0392b'; statusIcon = 'fa-user-times'; o.status = 'تم الإلغاء بواسطتك';}
                 
                 const date = new Date(o.created_at).toLocaleDateString('ar-EG');
                 let cancelBtn = '';
                 if(o.status === 'قيد المراجعة') {
+                    // التعديل: الزرار يبعت "إلغاء من العميل"
                     cancelBtn = `<button style="background:var(--danger); color:#fff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-family:'Cairo'; font-size:0.8em; font-weight:bold;" onclick="cancelMyOrder('${o.id}')"><i class="fas fa-times"></i> إلغاء الطلب</button>`;
                 }
                 
@@ -434,7 +412,7 @@
                         </div>
                     `).join('');
                 } else {
-                     itemsHtml = '<div style="text-align:center; color:#aaa; font-size:0.9em;">(تفاصيل المنتجات غير متوفرة لهذا الطلب)</div>';
+                     itemsHtml = '<div style="text-align:center; color:#aaa; font-size:0.9em;">(تفاصيل المنتجات غير متوفرة لهذا الطلب القديم)</div>';
                 }
 
                 return `
@@ -458,9 +436,10 @@
             }).join('');
         }
 
+        // إرسال حالة مميزة للأدمن
         async function cancelMyOrder(orderId) {
             if(!confirm('هل أنت متأكد من رغبتك في إلغاء هذا الطلب نهائياً؟')) return;
-            const { error } = await supabaseClient.from('orders').update({status: 'ملغي'}).eq('id', orderId);
+            const { error } = await supabaseClient.from('orders').update({status: 'إلغاء من العميل'}).eq('id', orderId);
             if(error) alert('حدث خطأ أثناء الإلغاء: ' + error.message);
             else { alert('تم إلغاء الطلب بنجاح.'); fetchMyOrders(); }
         }
