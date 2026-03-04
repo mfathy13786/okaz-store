@@ -17,7 +17,7 @@
         .box { background: var(--card); padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
         .box-title { margin-top: 0; color: var(--primary); font-weight: 900; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; font-size: 1.2em; display: flex; align-items: center; gap: 10px;}
         .form-group { margin-bottom: 15px; } label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.9em; color: #555; }
-        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95em; outline: none; background: #fafafa; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95em; outline: none; background: #fafafa; transition:0.2s;}
         input:focus, textarea:focus, select:focus { border-color: var(--primary); background: #fff; }
         
         .summary-item { display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #eee; align-items: center;}
@@ -28,7 +28,8 @@
         .grand-total { display: flex; justify-content: space-between; font-weight: 900; font-size: 1.3em; margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee; color: #000; }
         
         .btn-confirm { background: var(--primary); color: #fff; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: 900; font-size: 1.1em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; margin-top: 20px;}
-        .btn-confirm:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3); }
+        .btn-confirm:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none;}
         
         /* Modal Success */
         .success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);}
@@ -41,11 +42,11 @@
         .icon-btn { cursor: pointer; color: #555; font-size: 1.2em; transition: 0.2s; background: none; border: none; } .icon-btn:hover { color: var(--primary); }
         
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;}
-        .btn-action { padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; text-align: center; font-size: 0.9em; cursor: pointer; border:none; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 5px;}
-        .btn-wa { background: #25D366; color: #fff; grid-column: span 2; flex-direction: row; justify-content: center;} 
-        .btn-track { background: var(--primary); color: #fff; } 
-        .btn-pdf { background: #e74c3c; color: #fff; } 
-        .btn-home { background: #eee; color: #333; grid-column: span 2; flex-direction: row; justify-content: center;}
+        .btn-action { padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; text-align: center; font-size: 0.9em; cursor: pointer; border:none; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 5px; transition:0.2s;}
+        .btn-wa { background: #25D366; color: #fff; grid-column: span 2; flex-direction: row; justify-content: center;} .btn-wa:hover {background: #1ebe57;}
+        .btn-track { background: var(--primary); color: #fff; } .btn-track:hover {background: #d67118;}
+        .btn-pdf { background: #e74c3c; color: #fff; } .btn-pdf:hover {background: #c0392b;}
+        .btn-home { background: #eee; color: #333; grid-column: span 2; flex-direction: row; justify-content: center;} .btn-home:hover {background: #ddd;}
     </style>
 </head>
 <body>
@@ -53,11 +54,17 @@
 <div class="checkout-container">
     <div class="box">
         <h2 class="box-title"><i class="fas fa-shipping-fast"></i> بيانات التوصيل</h2>
+        <div id="logged-in-badge" style="display:none; background:#e8f8f5; color:#27ae60; padding:10px; border-radius:8px; margin-bottom:15px; font-size:0.85em; font-weight:bold; border:1px solid #2ecc71;">
+            <i class="fas fa-user-check"></i> تم سحب بياناتك المحفوظة تلقائياً لتسريع الطلب.
+        </div>
+
         <div class="form-group"><label>الاسم بالكامل</label><input type="text" id="cust-name"></div>
         <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="cust-phone"></div>
         <div class="form-group"><label>المحافظة</label><select id="cust-city" onchange="calculateTotal()"><option value="" data-cost="0">-- جاري التحميل --</option></select></div>
-        <div class="form-group"><label>العنوان بالتفصيل</label><textarea id="cust-address" rows="3"></textarea></div>
+        <div class="form-group"><label>العنوان بالتفصيل</label><textarea id="cust-address" rows="2"></textarea></div>
+        <div class="form-group"><label>رابط الموقع (Google Maps) اختياري</label><input type="text" id="cust-location" placeholder="تسهيلاً لوصول المندوب"></div>
     </div>
+
     <div class="box">
         <h2 class="box-title"><i class="fas fa-shopping-bag"></i> ملخص الطلب</h2>
         <div id="summary-items"></div>
@@ -103,15 +110,33 @@
 
     async function initCheckout() {
         if(cart.length === 0) { window.location.href = 'index.html'; return; }
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if(session) { currentUserEmail = session.user.email; }
-
+        
+        // 1. تحميل المحافظات أولاً
         const { data: cities } = await supabaseClient.from('shipping_rules').select('*').order('city_ar');
         const citySelect = document.getElementById('cust-city');
         if(cities && cities.length > 0) {
             citySelect.innerHTML = '<option value="" data-cost="0">-- اختر المحافظة --</option>';
             cities.forEach(c => { citySelect.innerHTML += `<option value="${c.city_ar}" data-cost="${c.cost}">${c.city_ar} (${c.cost} ج.م)</option>`; });
         }
+
+        // 2. سحب بيانات العميل لو مسجل وملء الخانات (Auto-fill)
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if(session) { 
+            currentUserEmail = session.user.email; 
+            const meta = session.user.user_metadata;
+            if(meta) {
+                if(meta.full_name) document.getElementById('cust-name').value = meta.full_name;
+                if(meta.phone) document.getElementById('cust-phone').value = meta.phone;
+                if(meta.address) document.getElementById('cust-address').value = meta.address;
+                if(meta.location_url) document.getElementById('cust-location').value = meta.location_url;
+                if(meta.city) {
+                    citySelect.value = meta.city;
+                    // تأكيد إن المحافظة اختيرت صح عشان يحسب الشحن
+                }
+                document.getElementById('logged-in-badge').style.display = 'block';
+            }
+        }
+        
         renderSummary();
     }
 
@@ -129,7 +154,7 @@
     function calculateTotal() {
         document.getElementById('items-total-price').innerText = itemsTotal + " ج.م";
         const citySelect = document.getElementById('cust-city');
-        const shippingCost = parseFloat(citySelect.options[citySelect.selectedIndex].getAttribute('data-cost')) || 0;
+        const shippingCost = parseFloat(citySelect.options[citySelect.selectedIndex]?.getAttribute('data-cost')) || 0;
         document.getElementById('shipping-cost').innerText = "+ " + shippingCost + " ج.م";
         document.getElementById('grand-total-price').innerText = (itemsTotal + shippingCost) + " ج.م";
     }
@@ -139,11 +164,17 @@
         const phone = document.getElementById('cust-phone').value.trim();
         const citySelect = document.getElementById('cust-city');
         const city = citySelect.value;
-        const shippingCost = parseFloat(citySelect.options[citySelect.selectedIndex].getAttribute('data-cost')) || 0;
-        const address = document.getElementById('cust-address').value.trim();
+        const shippingCost = parseFloat(citySelect.options[citySelect.selectedIndex]?.getAttribute('data-cost')) || 0;
+        let address = document.getElementById('cust-address').value.trim();
+        const locationUrl = document.getElementById('cust-location').value.trim();
         const btn = document.getElementById('confirm-order-btn');
 
-        if(!name || !phone || !city || !address) return alert("برجاء ملء جميع بيانات التوصيل.");
+        if(!name || !phone || !city || !address) return alert("برجاء ملء جميع بيانات التوصيل الأساسية.");
+
+        // دمج اللوكيشن في العنوان لو العميل حطه عشان يظهر للمندوب وللأدمن
+        if(locationUrl) {
+            address += ` | اللوكيشن: ${locationUrl}`;
+        }
 
         btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التسجيل...';
         const grandTotal = itemsTotal + shippingCost;
@@ -179,18 +210,18 @@
         generatedWhatsAppUrl = `https://wa.me/201090921815?text=${encodeURIComponent(message)}`;
 
         document.getElementById('success-modal').style.display = 'flex';
-        localStorage.removeItem('okaz_cart'); // تفريغ السلة هنا بعد بناء الرسالة
+        localStorage.removeItem('okaz_cart'); 
     }
 
     function copyOrderId() {
         const id = document.getElementById('display-order-id').innerText;
-        navigator.clipboard.writeText(id).then(() => { alert("تم نسخ رقم الطلب!"); });
+        navigator.clipboard.writeText(id).then(() => { alert("تم نسخ رقم الطلب بنجاح!"); });
     }
 
     function openWhatsApp() { if(generatedWhatsAppUrl) window.location.href = generatedWhatsAppUrl; }
 
     function downloadPDFInvoice() {
-        let itemsHtml = finalizedOrderData.itemsList ? finalizedOrderData.itemsList : cart.map(i => `<tr><td style="border-bottom:1px dashed #ccc; padding:5px;">${i.title} (${i.size||'-'}/${i.color||'-'})</td><td style="border-bottom:1px dashed #ccc; padding:5px; text-align:center;">${i.qty}</td><td style="border-bottom:1px dashed #ccc; padding:5px; text-align:left;">${i.price} ج.م</td></tr>`).join('');
+        let itemsHtml = cart.map(i => `<tr><td style="border-bottom:1px dashed #ccc; padding:5px;">${i.title} (${i.size||'-'}/${i.color||'-'})</td><td style="border-bottom:1px dashed #ccc; padding:5px; text-align:center;">${i.qty}</td><td style="border-bottom:1px dashed #ccc; padding:5px; text-align:left;">${i.price} ج.م</td></tr>`).join('');
         const printWindow = window.open('', '', 'width=600,height=800');
         printWindow.document.write(`<html dir="rtl"><head><title>فاتورة ${finalizedOrderData.id}</title><style>body{font-family:sans-serif; padding:20px; color:#000; text-align:center;} table{width:100%; border-collapse:collapse; margin-top:20px; font-size:14px; text-align:right;} th{border-bottom:2px solid #000; padding-bottom:5px;}</style></head><body><h2>إيصال طلب ${finalizedOrderData.id}</h2><p>العميل: ${finalizedOrderData.name}<br>الهاتف: ${finalizedOrderData.phone}<br>التاريخ: ${finalizedOrderData.date}</p><table><thead><tr><th>المنتج</th><th style="text-align:center;">الكمية</th><th style="text-align:left;">السعر</th></tr></thead><tbody>${itemsHtml}</tbody></table><h3 style="margin-top:20px; text-align:left;">الشحن: ${finalizedOrderData.shippingCost} ج.م</h3><h2 style="text-align:left; border-top:2px solid #000; padding-top:10px;">الإجمالي المطلوب: ${finalizedOrderData.grandTotal} ج.م</h2><script>window.onload = function() { window.print(); window.close(); }<\/script></body></html>`);
         printWindow.document.close();
