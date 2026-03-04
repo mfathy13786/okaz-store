@@ -16,34 +16,36 @@
         
         .box { background: var(--card); padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
         .box-title { margin-top: 0; color: var(--primary); font-weight: 900; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; font-size: 1.2em; display: flex; align-items: center; gap: 10px;}
-        
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.9em; color: #555; }
-        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95em; outline: none; background: #fafafa; transition: 0.2s; }
+        .form-group { margin-bottom: 15px; } label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.9em; color: #555; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95em; outline: none; background: #fafafa; }
         input:focus, textarea:focus, select:focus { border-color: var(--primary); background: #fff; }
         
         .summary-item { display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #eee; align-items: center;}
         .summary-img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid #eee;}
-        .summary-details { flex: 1; }
-        .summary-details h4 { margin: 0 0 5px; font-size: 0.95em; }
+        .summary-details { flex: 1; } .summary-details h4 { margin: 0 0 5px; font-size: 0.95em; }
         .summary-meta { font-size: 0.8em; color: #777; margin: 0; }
-        
         .totals-row { display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; font-size: 1em; color: #555; }
         .grand-total { display: flex; justify-content: space-between; font-weight: 900; font-size: 1.3em; margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee; color: #000; }
         
         .btn-confirm { background: var(--primary); color: #fff; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: 900; font-size: 1.1em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; margin-top: 20px;}
-        .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3); }
-        .btn-confirm:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none;}
+        .btn-confirm:disabled { background: #ccc; cursor: not-allowed; }
         
+        /* Modal Success */
         .success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);}
         .success-modal { background: #fff; padding: 40px; border-radius: 20px; text-align: center; max-width: 450px; width: 90%; animation: popIn 0.5s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .success-icon { font-size: 4em; color: #27ae60; margin-bottom: 10px; }
         
-        .btn-action { display: block; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; text-align: center; margin-bottom: 10px; font-size: 1em; transition: 0.2s; cursor: pointer; border:none;}
-        .btn-wa { background: #25D366; color: #fff; } .btn-wa:hover { background: #1ebe57; }
-        .btn-track { background: var(--primary); color: #fff; } .btn-track:hover { background: #d67118; }
-        .btn-home { background: #eee; color: #333; } .btn-home:hover { background: #ddd; }
+        .order-id-box { display: flex; align-items: center; justify-content: center; gap: 10px; background: #fff3e0; padding: 10px; border-radius: 8px; border: 1px dashed var(--primary); margin-bottom: 15px; }
+        .order-id-box h3 { margin: 0; color: var(--primary); }
+        .icon-btn { cursor: pointer; color: #555; font-size: 1.2em; transition: 0.2s; background: none; border: none; } .icon-btn:hover { color: var(--primary); }
+        
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;}
+        .btn-action { padding: 12px; border-radius: 8px; font-weight: bold; text-decoration: none; text-align: center; font-size: 0.9em; cursor: pointer; border:none; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 5px;}
+        .btn-wa { background: #25D366; color: #fff; grid-column: span 2; flex-direction: row; justify-content: center;} 
+        .btn-track { background: var(--primary); color: #fff; } 
+        .btn-pdf { background: #e74c3c; color: #fff; } 
+        .btn-home { background: #eee; color: #333; grid-column: span 2; flex-direction: row; justify-content: center;}
     </style>
 </head>
 <body>
@@ -51,12 +53,11 @@
 <div class="checkout-container">
     <div class="box">
         <h2 class="box-title"><i class="fas fa-shipping-fast"></i> بيانات التوصيل</h2>
-        <div class="form-group"><label>الاسم بالكامل</label><input type="text" id="cust-name" placeholder="اكتب اسمك الثلاثي"></div>
-        <div class="form-group"><label>رقم الهاتف (للتواصل السريع)</label><input type="tel" id="cust-phone" placeholder="01xxxxxxxxx"></div>
-        <div class="form-group"><label>المحافظة (لتحديد مصاريف الشحن)</label><select id="cust-city" onchange="calculateTotal()"><option value="" data-cost="0">-- جاري تحميل المحافظات --</option></select></div>
-        <div class="form-group"><label>العنوان بالتفصيل</label><textarea id="cust-address" rows="3" placeholder="المنطقة، اسم الشارع، رقم العمارة، رقم الشقة"></textarea></div>
+        <div class="form-group"><label>الاسم بالكامل</label><input type="text" id="cust-name"></div>
+        <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="cust-phone"></div>
+        <div class="form-group"><label>المحافظة</label><select id="cust-city" onchange="calculateTotal()"><option value="" data-cost="0">-- جاري التحميل --</option></select></div>
+        <div class="form-group"><label>العنوان بالتفصيل</label><textarea id="cust-address" rows="3"></textarea></div>
     </div>
-
     <div class="box">
         <h2 class="box-title"><i class="fas fa-shopping-bag"></i> ملخص الطلب</h2>
         <div id="summary-items"></div>
@@ -64,31 +65,28 @@
         <div class="totals-row" style="color: #e67e22;"><span>مصاريف الشحن:</span><span id="shipping-cost">+ 0 ج.م</span></div>
         <div class="grand-total"><span>الإجمالي المطلوب:</span><span id="grand-total-price" style="color: var(--primary);">0 ج.م</span></div>
         <button class="btn-confirm" id="confirm-order-btn" onclick="confirmOrder()">تأكيد إتمام الطلب <i class="fas fa-check-circle"></i></button>
-        <a href="index.html" style="display: block; text-align: center; margin-top: 15px; color: #888; text-decoration: none; font-weight: bold;"><i class="fas fa-arrow-right"></i> الرجوع للتسوق</a>
+        <a href="index.html" style="display: block; text-align: center; margin-top: 15px; color: #888; font-weight: bold; text-decoration: none;"><i class="fas fa-arrow-right"></i> الرجوع للتسوق</a>
     </div>
 </div>
 
 <div class="success-overlay" id="success-modal">
     <div class="success-modal">
         <i class="fas fa-check-circle success-icon"></i>
-        <h2 style="margin: 0 0 5px; color: #2d3436; font-weight: 900;">تم استلام طلبك بنجاح!</h2>
-        <h3 style="margin: 0 0 15px; color: var(--primary); background: #fff3e0; padding: 10px; border-radius: 8px; border: 1px dashed var(--primary);">رقم الطلب: <span id="display-order-id"></span></h3>
+        <h2 style="margin: 0 0 10px; color: #2d3436; font-weight: 900;">تم استلام طلبك بنجاح!</h2>
         
-        <p style="color: #555; font-size: 0.9em; line-height: 1.6; margin-bottom:20px; font-weight: bold;">
-            لتتبع حالة طلبك في أي وقت ومعرفة موعد الوصول، يرجى الدخول لحسابك.
-        </p>
+        <div class="order-id-box">
+            <h3>رقم الطلب: <span id="display-order-id"></span></h3>
+            <button class="icon-btn" onclick="copyOrderId()" title="نسخ"><i class="fas fa-copy"></i></button>
+        </div>
+        
+        <p style="color: #555; font-size: 0.9em; margin-bottom:20px; font-weight: bold;">يرجى الاحتفاظ برقم الطلب لتتبعه أو تواصل معنا.</p>
 
-        <button class="btn-action btn-track" onclick="window.location.href='index.html?login=true'">
-            <i class="fas fa-user-circle"></i> تتبع الطلب (حسابي)
-        </button>
-        
-        <button class="btn-action btn-wa" onclick="openWhatsApp()">
-            <i class="fab fa-whatsapp" style="font-size:1.2em;"></i> تواصل مع المبيعات واتساب
-        </button>
-        
-        <button class="btn-action btn-home" onclick="window.location.href='index.html'">
-            <i class="fas fa-home"></i> العودة للصفحة الرئيسية
-        </button>
+        <div class="action-grid">
+            <button class="btn-action btn-pdf" onclick="downloadPDFInvoice()"><i class="fas fa-file-pdf" style="font-size:1.5em;"></i> تحميل فاتورة</button>
+            <button class="btn-action btn-track" onclick="window.location.href='index.html?login=true'"><i class="fas fa-user-circle" style="font-size:1.5em;"></i> تتبع (حسابي)</button>
+            <button class="btn-action btn-wa" onclick="openWhatsApp()"><i class="fab fa-whatsapp" style="font-size:1.2em;"></i> تأكيد الطلب عبر واتساب</button>
+            <button class="btn-action btn-home" onclick="window.location.href='index.html'"><i class="fas fa-home"></i> العودة للرئيسية</button>
+        </div>
     </div>
 </div>
 
@@ -101,10 +99,10 @@
     let itemsTotal = 0;
     let generatedWhatsAppUrl = '';
     let currentUserEmail = null;
+    let finalizedOrderData = null; 
 
     async function initCheckout() {
-        if(cart.length === 0) { alert("سلة التسوق فارغة."); window.location.href = 'index.html'; return; }
-        
+        if(cart.length === 0) { window.location.href = 'index.html'; return; }
         const { data: { session } } = await supabaseClient.auth.getSession();
         if(session) { currentUserEmail = session.user.email; }
 
@@ -113,17 +111,16 @@
         if(cities && cities.length > 0) {
             citySelect.innerHTML = '<option value="" data-cost="0">-- اختر المحافظة --</option>';
             cities.forEach(c => { citySelect.innerHTML += `<option value="${c.city_ar}" data-cost="${c.cost}">${c.city_ar} (${c.cost} ج.م)</option>`; });
-        } else {
-            citySelect.innerHTML = '<option value="القاهرة" data-cost="50">القاهرة (50 ج.م)</option>'; 
         }
+        renderSummary();
+    }
 
+    function renderSummary() {
         const cont = document.getElementById('summary-items');
         itemsTotal = 0;
         cont.innerHTML = cart.map(item => {
             itemsTotal += (item.price * item.qty);
-            let meta = [];
-            if(item.size) meta.push(`مقاس: ${item.size}`);
-            if(item.color) meta.push(`لون: ${item.color}`);
+            let meta = []; if(item.size) meta.push(`مقاس: ${item.size}`); if(item.color) meta.push(`لون: ${item.color}`);
             return `<div class="summary-item"><img src="${item.image}" class="summary-img"><div class="summary-details"><h4>${item.title}</h4><p class="summary-meta">${meta.join(' | ')}</p><p class="summary-meta" style="font-weight:bold; color:#000;">${item.qty} × ${item.price} ج.م</p></div></div>`;
         }).join('');
         calculateTotal();
@@ -146,58 +143,58 @@
         const address = document.getElementById('cust-address').value.trim();
         const btn = document.getElementById('confirm-order-btn');
 
-        if(!name || !phone || !city || !address) { alert("برجاء ملء جميع بيانات التوصيل."); return; }
+        if(!name || !phone || !city || !address) return alert("برجاء ملء جميع بيانات التوصيل.");
 
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل الطلب...';
-
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التسجيل...';
         const grandTotal = itemsTotal + shippingCost;
 
-        // التعديل: استخدام customer_email بدل user_email
+        // 1. الحفظ في جدول orders 
         const { data: orderData, error: orderError } = await supabaseClient.from('orders').insert([{
-            customer_email: currentUserEmail, // <--- التعديل السحري هنا
-            customer_name: name, 
-            customer_phone: phone, 
-            customer_city: city, 
-            customer_area: '-', 
-            customer_street: address, 
-            customer_building: '-',
-            customer_apartment: '-',
-            total_items_price: itemsTotal,
-            shipping_cost: shippingCost,
-            grand_total: grandTotal, 
-            status: 'قيد المراجعة'
+            customer_email: currentUserEmail,
+            customer_name: name, customer_phone: phone, customer_city: city, 
+            customer_area: '-', customer_street: address, customer_building: '-', customer_apartment: '-',
+            total_price: grandTotal, status: 'قيد المراجعة'
         }]).select().single();
 
-        if(orderError) {
-            alert("حدث خطأ في تسجيل الطلب: " + orderError.message);
-            btn.disabled = false; btn.innerHTML = 'تأكيد إتمام الطلب <i class="fas fa-check-circle"></i>'; return;
-        }
+        if(orderError) { alert("خطأ: " + orderError.message); btn.disabled = false; btn.innerHTML = 'تأكيد'; return; }
 
+        // 2. الحفظ في جدول order_items 
         const orderItems = cart.map(item => ({
-            order_id: orderData.id,
-            product_name: item.title,
-            selected_size: item.size || '',
-            selected_color: item.color || '',
-            quantity: item.qty,
-            price: item.price
+            order_id: orderData.id, product_name: item.title, selected_size: item.size || '', selected_color: item.color || '',
+            quantity: item.qty, price: item.price, image: item.image, code: item.code
         }));
-
         await supabaseClient.from('order_items').insert(orderItems);
 
         const shortOrderId = "OKZ-" + orderData.id.split('-')[0].toUpperCase();
         document.getElementById('display-order-id').innerText = shortOrderId;
         
-        let message = `*استفسار بخصوص الطلب #${shortOrderId}* 🛍️\n\n`;
-        message += `👤 *الاسم:* ${name}\n📞 *الموبايل:* ${phone}\n💰 *الإجمالي:* ${grandTotal} ج.م\n\nأرجو تأكيد موعد الشحن.`;
-        const merchantPhone = "201090921815"; 
-        generatedWhatsAppUrl = `https://wa.me/${merchantPhone}?text=${encodeURIComponent(message)}`;
+        finalizedOrderData = { id: shortOrderId, name, phone, city, address, grandTotal, shippingCost, date: new Date().toLocaleDateString('ar-EG') };
+
+        // بناء رسالة الواتساب 
+        let message = `*طلب جديد #${shortOrderId}* 🛍️\n\n`;
+        message += `👤 *العميل:* ${name}\n📞 *الموبايل:* ${phone}\n📍 *العنوان:* ${city} - ${address}\n\n*المنتجات:*\n`;
+        cart.forEach(i => { message += `▪️ ${i.qty}x ${i.title} (${i.size||'-'} | ${i.color||'-'}) - ${i.price}ج\n`; });
+        message += `\n🚚 الشحن: ${shippingCost} ج.م\n💰 *الإجمالي: ${grandTotal} ج.م*`;
+        
+        generatedWhatsAppUrl = `https://wa.me/201090921815?text=${encodeURIComponent(message)}`;
 
         document.getElementById('success-modal').style.display = 'flex';
-        localStorage.removeItem('okaz_cart'); 
+        localStorage.removeItem('okaz_cart'); // تفريغ السلة هنا بعد بناء الرسالة
+    }
+
+    function copyOrderId() {
+        const id = document.getElementById('display-order-id').innerText;
+        navigator.clipboard.writeText(id).then(() => { alert("تم نسخ رقم الطلب!"); });
     }
 
     function openWhatsApp() { if(generatedWhatsAppUrl) window.location.href = generatedWhatsAppUrl; }
+
+    function downloadPDFInvoice() {
+        let itemsHtml = finalizedOrderData.itemsList ? finalizedOrderData.itemsList : cart.map(i => `<tr><td style="border-bottom:1px dashed #ccc; padding:5px;">${i.title} (${i.size||'-'}/${i.color||'-'})</td><td style="border-bottom:1px dashed #ccc; padding:5px; text-align:center;">${i.qty}</td><td style="border-bottom:1px dashed #ccc; padding:5px; text-align:left;">${i.price} ج.م</td></tr>`).join('');
+        const printWindow = window.open('', '', 'width=600,height=800');
+        printWindow.document.write(`<html dir="rtl"><head><title>فاتورة ${finalizedOrderData.id}</title><style>body{font-family:sans-serif; padding:20px; color:#000; text-align:center;} table{width:100%; border-collapse:collapse; margin-top:20px; font-size:14px; text-align:right;} th{border-bottom:2px solid #000; padding-bottom:5px;}</style></head><body><h2>إيصال طلب ${finalizedOrderData.id}</h2><p>العميل: ${finalizedOrderData.name}<br>الهاتف: ${finalizedOrderData.phone}<br>التاريخ: ${finalizedOrderData.date}</p><table><thead><tr><th>المنتج</th><th style="text-align:center;">الكمية</th><th style="text-align:left;">السعر</th></tr></thead><tbody>${itemsHtml}</tbody></table><h3 style="margin-top:20px; text-align:left;">الشحن: ${finalizedOrderData.shippingCost} ج.م</h3><h2 style="text-align:left; border-top:2px solid #000; padding-top:10px;">الإجمالي المطلوب: ${finalizedOrderData.grandTotal} ج.م</h2><script>window.onload = function() { window.print(); window.close(); }<\/script></body></html>`);
+        printWindow.document.close();
+    }
 
     initCheckout();
 </script>
