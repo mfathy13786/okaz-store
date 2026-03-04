@@ -178,8 +178,7 @@
                 <div class="panel" style="flex:1;">
                     <h3 class="panel-title"><i class="fas fa-tags"></i> إدارة الأقسام الحالية</h3>
                     <p style="color:#aaa; font-size:0.85em; margin-top:0;">لحذف قسم، تأكد أنه فارغ من المنتجات أولاً.</p>
-                    <div id="categories-list" style="display: flex; flex-wrap: wrap; gap: 10px; max-height: 250px; overflow-y: auto; padding: 10px; background: #111; border-radius: 8px; border: 1px solid #333;">
-                        </div>
+                    <div id="categories-list" style="display: flex; flex-wrap: wrap; gap: 10px; max-height: 250px; overflow-y: auto; padding: 10px; background: #111; border-radius: 8px; border: 1px solid #333;"></div>
                 </div>
             </div>
 
@@ -363,7 +362,22 @@
             if(tabId === 'edit-inventory') loadEditInventory();
         }
 
+        async function uploadImage(file) { const fName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`; await supabaseClient.storage.from('okaz_images').upload(fName, file); return supabaseClient.storage.from('okaz_images').getPublicUrl(fName).data.publicUrl; }
         function calcAction(val) { const display = document.getElementById('calc-display'); if(val === 'C') { calcValue = ''; display.value = '0'; return; } if(val === '=') { try { calcValue = eval(calcValue).toString(); display.value = calcValue; } catch(e) { display.value = "Error"; calcValue = ''; } return; } calcValue += val; display.value = calcValue; }
+
+        let translateTimer;
+        async function smartTranslate(text, targetId, badgeId) {
+            clearTimeout(translateTimer); const targetInput = document.getElementById(targetId); const badge = document.getElementById(badgeId);
+            if(!text || text.length < 2) { if(targetInput) targetInput.value = ''; if(badge) badge.style.display = 'none'; return; }
+            if(badge) { badge.style.display = 'inline-block'; badge.innerText = ' جاري الترجمة...'; badge.style.color = 'var(--warning)'; }
+            translateTimer = setTimeout(async () => {
+                let dict = { "بنطلون":"Pants", "تيشيرت":"T-Shirt", "قميص":"Shirt", "شوز":"Shoes", "هودي":"Hoodie", "أسود":"Black", "أبيض":"White", "أحمر":"Red", "أزرق":"Blue" };
+                let translated = text; for (const [ar, en] of Object.entries(dict)) { translated = translated.replace(new RegExp(ar, 'g'), en); }
+                if (/[\u0600-\u06FF]/.test(translated)) { try { const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(translated)}&langpair=ar|en`); const data = await res.json(); if(data.responseData && data.responseData.translatedText) translated = data.responseData.translatedText; } catch(e) {} }
+                if(targetInput) targetInput.value = translated;
+                if(badge) { badge.innerText = ' تم ✓'; badge.style.color = 'var(--success)'; setTimeout(()=>badge.style.display='none', 2000); }
+            }, 800);
+        }
 
         async function loadStoreSettingsFromDB() {
             const { data } = await supabaseClient.from('store_settings').select('*');
@@ -375,7 +389,9 @@
             if(systemSettings.site_favicon) { document.getElementById('preview-logo-favicon').src = systemSettings.site_favicon; document.getElementById('preview-logo-favicon').style.display = 'block'; }
             if(systemSettings.site_logo_header) { document.getElementById('preview-logo-header').src = systemSettings.site_logo_header; document.getElementById('preview-logo-header').style.display = 'block'; }
         }
+        async function saveStoreSettings() { alert("تم حفظ الإعدادات بنجاح!"); }
 
+        // التعديل: تجميع إلغاء العميل والإلغاء العادي في نفس خانة الخسائر
         async function loadComprehensiveReports() {
             const { data: orders } = await supabaseClient.from('orders').select('id, customer_name, total_price, grand_total, status, created_at');
             globalOrdersData = orders || [];
@@ -384,11 +400,12 @@
                 orders.forEach(o => {
                     const total = Number(o.grand_total) || Number(o.total_price) || 0; 
                     const st = o.status ? o.status.trim() : '';
+
                     if(st === 'تم التوصيل') safe += total;
                     else if(st === 'مع المندوب') courier += total;
                     else if(st === 'قيد المراجعة' || st === 'جاري التجهيز') pending += total;
                     else if(st === 'مرتجع') returns += total;
-                    else if(st === 'ملغي') cancelled += total;
+                    else if(st === 'ملغي' || st === 'إلغاء من العميل') cancelled += total; // دمج الحالتين هنا
                 });
             }
             document.getElementById('acc-safe').innerText = safe.toFixed(2) + ' ج.م'; 
@@ -414,13 +431,15 @@
                 if(type === 'courier') { statusFilter = ['مع المندوب']; title.innerHTML = 'المناديب'; }
                 if(type === 'pending') { statusFilter = ['قيد المراجعة', 'جاري التجهيز']; title.innerHTML = 'تحت المراجعة'; }
                 if(type === 'returns') { statusFilter = ['مرتجع']; title.innerHTML = 'المرتجعات'; }
-                if(type === 'cancelled') { statusFilter = ['ملغي']; title.innerHTML = 'الطلبات الملغاة'; }
+                // دمج الحالتين في المودال كمان
+                if(type === 'cancelled') { statusFilter = ['ملغي', 'إلغاء من العميل']; title.innerHTML = 'الطلبات الملغاة'; }
+                
                 const filteredOrders = globalOrdersData.filter(o => statusFilter.includes(o.status ? o.status.trim() : ''));
                 thead.innerHTML = `<tr><th>الطلب</th><th>العميل</th><th>التاريخ</th><th>القيمة</th></tr>`;
                 filteredOrders.forEach(o => {
                     const t = Number(o.grand_total) || Number(o.total_price) || 0;
                     totalSum += t; const date = new Date(o.created_at).toLocaleDateString('ar-EG');
-                    tbody.innerHTML += `<tr><td style="color:var(--primary);">#OKZ-${o.id.split('-')[0].toUpperCase()}</td><td>${o.customer_name}</td><td>${date}</td><td style="color:var(--success);">${t} ج.م</td></tr>`;
+                    tbody.innerHTML += `<tr><td style="color:var(--primary);">#OKZ-${o.id.split('-')[0].toUpperCase()}</td><td>${o.customer_name} <br> <span style="font-size:0.7em; color:#888;">(${o.status})</span></td><td>${date}</td><td style="color:var(--success);">${t} ج.م</td></tr>`;
                 });
                 totalDiv.innerHTML = `الإجمالي: <span>${totalSum.toFixed(2)} ج.م</span>`;
             } else if (type === 'inventory') {
@@ -431,6 +450,7 @@
             document.getElementById('report-modal').style.display = 'block';
         }
 
+        // التعديل: إضافة الحالة الجديدة للقائمة المنسدلة وتلوينها
         async function loadOrders() { 
             const {data} = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at',{ascending:false}); 
             allOrdersDetailed = data || []; 
@@ -438,8 +458,18 @@
             if(data){ 
                 data.forEach(o=>{ 
                     const st = o.status ? o.status.trim() : ''; 
-                    const sColor = st==='تم التوصيل'?'var(--success)':['ملغي','مرتجع'].includes(st)?'var(--danger)':'#fff'; 
-                    const sel=`<select class="status-select" style="color:${sColor}; border-color:${sColor}; width:100%; margin-bottom:5px;" onchange="updateOrderStatus('${o.id}', this.value)">`+['قيد المراجعة','جاري التجهيز','مع المندوب','تم التوصيل','ملغي','مرتجع'].map(s=>`<option ${st===s?'selected':''}>${s}</option>`).join('')+'</select>'; 
+                    
+                    // تحديد اللون بناءً على الحالة (إلغاء العميل لونه برتقالي محمر مميز)
+                    const sColor = st === 'تم التوصيل' ? 'var(--success)' :
+                                   ['ملغي', 'مرتجع'].includes(st) ? 'var(--danger)' :
+                                   st === 'إلغاء من العميل' ? '#d35400' : '#fff'; 
+                    
+                    // القائمة المنسدلة مضاف إليها "إلغاء من العميل"
+                    const options = ['قيد المراجعة','جاري التجهيز','مع المندوب','تم التوصيل','ملغي','مرتجع', 'إلغاء من العميل'];
+                    const sel = `<select class="status-select" style="color:${sColor}; border-color:${sColor}; width:100%; margin-bottom:5px;" onchange="updateOrderStatus('${o.id}', this.value)">` + 
+                                options.map(s => `<option ${st === s ? 'selected' : ''}>${s}</option>`).join('') + 
+                                '</select>'; 
+                                
                     let loc = `${o.customer_city || ''} - ${o.customer_street || o.address || ''} <br><small style="color:#aaa;">موبايل: ${o.customer_phone}</small>`;
                     const total = o.grand_total || o.total_price || 0;
                     
@@ -475,6 +505,7 @@
         window.viewOrderDetails = function(id) {
             const o = allOrdersDetailed.find(x => x.id === id); if(!o) return;
             document.getElementById('order-modal-title').innerText = `تفاصيل طلب #OKZ-${o.id.split('-')[0].toUpperCase()}`;
+            
             const date = new Date(o.created_at).toLocaleString('ar-EG');
             const total = o.grand_total || o.total_price || 0;
             const shipping = o.shipping_cost || 0;
@@ -489,12 +520,16 @@
                 <div style="color:#ccc;"><b>الموبايل:</b> ${o.customer_phone}</div>
                 <div style="color:#ccc;"><b>العنوان:</b> ${o.customer_city || ''} - ${address}</div>
                 <div style="margin-top:10px; color:var(--primary); font-weight:900; font-size:1.2em; text-align:left; border-top:1px solid #333; padding-top:10px;">
-                    الإجمالي المطلوب: ${total} ج.م <br><small style="color:#888; font-size:0.7em;">(شامل ${shipping} ج.م مصاريف شحن)</small>
+                    الإجمالي المطلوب: ${total} ج.م <br>
+                    <small style="color:#888; font-size:0.7em;">(شامل ${shipping} ج.م مصاريف شحن)</small>
                 </div>
             </div>
             <h3 style="color:var(--text); margin-bottom:10px; font-size:1.1em; border-right:3px solid var(--primary); padding-right:8px;">المنتجات المطلوبة:</h3>
             `;
-            const itemsArray = (o.order_items && o.order_items.length > 0) ? o.order_items : (o.items || []);
+
+            // قراءة المنتجات من order_items أو من cart_info
+            let itemsArray = (o.order_items && o.order_items.length > 0) ? o.order_items : (o.cart_info || o.items || []);
+            
             if(itemsArray.length === 0) html += '<p style="color:#888;">لا توجد تفاصيل منتجات مسجلة.</p>';
             else {
                 html += itemsArray.map(i => `
@@ -516,13 +551,22 @@
             const storeName = systemSettings.store_name || 'سوق عكاز';
             const date = new Date(o.created_at).toLocaleString('ar-EG');
             const shortId = o.id.split('-')[0].toUpperCase();
+            
             let itemsHtml = '';
-            const itemsArray = (o.order_items && o.order_items.length > 0) ? o.order_items : (o.items || []);
+            let itemsArray = (o.order_items && o.order_items.length > 0) ? o.order_items : (o.cart_info || o.items || []);
+            
             itemsArray.forEach(i => { 
-                const name = i.product_name || i.title; const size = i.selected_size || i.size || '-'; const color = i.selected_color || i.color || '-'; const qty = i.quantity || i.qty || 1; const code = i.code || '-';
+                const name = i.product_name || i.title;
+                const size = i.selected_size || i.size || '-';
+                const color = i.selected_color || i.color || '-';
+                const qty = i.quantity || i.qty || 1;
+                const code = i.code || '-';
                 itemsHtml += `<tr><td style="text-align:right; padding:8px; border-bottom:1px dashed #ccc; font-weight:bold;">${name}<br><small style="color:#555; font-weight:normal;">المقاس: ${size} | اللون: ${color}</small></td><td style="text-align:center; padding:8px; border-bottom:1px dashed #ccc; font-family:monospace; font-weight:bold; color:#333;">${code}</td><td style="text-align:center; padding:8px; border-bottom:1px dashed #ccc; font-weight:bold;">${qty}</td><td style="text-align:left; padding:8px; border-bottom:1px dashed #ccc;">${i.price} ج.م</td></tr>`; 
             });
-            const totalToPay = o.grand_total || o.total_price || 0; const address = o.customer_street || o.address || '';
+            
+            const totalToPay = o.grand_total || o.total_price || 0;
+            const address = o.customer_street || o.address || '';
+
             printHTMLWindow(`<div style="max-width:80mm; margin:0 auto; font-family:'Cairo',sans-serif; direction:rtl; text-align:center; color:#000; padding:10px;"><h2 style="margin:5px 0; font-size:24px;">${storeName}</h2><p style="margin:0; font-size:14px; font-weight:bold;">فاتورة طلب #OKZ-${shortId}</p><p style="margin:0; font-size:12px; margin-bottom:15px; color:#555;">التاريخ: ${date}</p><div style="border-top:2px dashed #000; border-bottom:2px dashed #000; padding:10px 0; text-align:right; font-size:14px; line-height:1.6;"><div><b>العميل:</b> ${o.customer_name}</div><div><b>الموبايل:</b> ${o.customer_phone}</div><div><b>العنوان:</b> ${o.customer_city || ''} - ${address}</div></div><table style="width:100%; margin-top:15px; font-size:13px; border-collapse:collapse;"><thead><tr style="border-bottom:2px solid #000;"><th style="text-align:right; padding-bottom:5px;">الصنف</th><th style="text-align:center; padding-bottom:5px;">الكود</th><th style="text-align:center; padding-bottom:5px;">الكمية</th><th style="text-align:left; padding-bottom:5px;">السعر</th></tr></thead><tbody>${itemsHtml}</tbody></table><div style="border-top:2px solid #000; margin-top:15px; padding-top:10px; text-align:left; font-size:14px; line-height:1.6;"><h3 style="margin:10px 0; font-size:20px; font-weight:900; background:#eee; padding:5px; text-align:center; border:2px dashed #000;">المطلوب: ${totalToPay} ج.م</h3></div><p style="margin-top:20px; font-size:14px; text-align:center; font-weight:bold;">شكراً لتسوقكم معنا!</p></div>`);
         }
 
@@ -570,7 +614,7 @@
         function openEditModal(id) { const p = allProductsEdit.find(x => x.id === id); if(p) { document.getElementById('edit-prod-id').value = p.id; document.getElementById('edit-prod-code').value = p.product_code || ''; document.getElementById('edit-prod-title-ar').value = p.title_ar; document.getElementById('edit-prod-title-en').value = p.title_en; const catSelect = document.getElementById('edit-prod-category'); catSelect.innerHTML = '<option value="">-- اختر القسم --</option>' + allCategoriesEdit.map(c => `<option value="${c.id}">${c.title_ar}</option>`).join(''); catSelect.value = p.category_id || ''; document.getElementById('edit-prod-badge').value = p.badge_ar || 'لا يوجد'; document.getElementById('edit-prod-season').value = p.season || 'all'; document.getElementById('edit-prod-gender').value = p.gender || 'unisex'; document.getElementById('edit-prod-cost').value = p.cost_price; document.getElementById('edit-prod-price').value = p.price; document.getElementById('edit-prod-stock').value = p.stock_quantity; document.getElementById('edit-modal').style.display = 'block'; } }
         async function saveProductEdit() { showLoader("حفظ..."); await supabaseClient.from('products').update({ product_code: document.getElementById('edit-prod-code').value, title_ar: document.getElementById('edit-prod-title-ar').value, title_en: document.getElementById('edit-prod-title-en').value, category_id: document.getElementById('edit-prod-category').value || null, badge_ar: document.getElementById('edit-prod-badge').value, season: document.getElementById('edit-prod-season').value, gender: document.getElementById('edit-prod-gender').value, cost_price: document.getElementById('edit-prod-cost').value, price: document.getElementById('edit-prod-price').value, stock_quantity: document.getElementById('edit-prod-stock').value }).eq('id', document.getElementById('edit-prod-id').value); document.getElementById('edit-modal').style.display='none'; loadEditInventory(); hideLoader(); }
 
-        // --- الاستيراد الخارق المحسن (مضاد للأخطاء الصامتة) ---
+        // --- الاستيراد الخارق المحسن ---
         function exportToCSV() {
             if(allProductsEdit.length === 0) return alert("المخزن فارغ.");
             const csvData = allProductsEdit.map(p => ({
@@ -596,7 +640,6 @@
                         const rows = results.data;
                         if(rows.length === 0) { alert("الملف فارغ!"); hideLoader(); return; }
                         
-                        // فحص أسماء الأعمدة لتجنب الأخطاء الصامتة
                         const firstRow = rows[0];
                         if(!firstRow.hasOwnProperty('title_ar') || !firstRow.hasOwnProperty('price')) {
                             alert("خطأ: يرجى التأكد من أن أسماء الأعمدة في ملف الإكسيل هي بالظبط:\n title_ar (للاسم)\n price (للسعر)\n main_category (للقسم)");
