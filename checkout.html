@@ -35,7 +35,6 @@
         .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3); }
         .btn-confirm:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none;}
         
-        /* Modal Success */
         .success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);}
         .success-modal { background: #fff; padding: 40px; border-radius: 20px; text-align: center; max-width: 480px; width: 95%; animation: popIn 0.5s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -52,10 +51,8 @@
         .btn-pdf { background: #e74c3c; color: #fff; } .btn-pdf:hover {background: #c0392b;}
         .btn-home { background: #eee; color: #333; grid-column: span 2; flex-direction: row; justify-content: center;} .btn-home:hover {background: #ddd;}
         
-        /* خريطة */
         #map-container { height: 250px; border-radius: 8px; border: 1px solid #ddd; margin-top: 10px; z-index: 1; }
         
-        /* أزرار التحكم في الكمية داخل الشيك أوت */
         .qty-btn { background: #eee; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; font-family: monospace; font-size: 1.1em;}
         .qty-btn:hover { background: #ddd; }
         .del-btn { background: #ffeaa7; color: var(--danger); border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; transition: 0.2s; margin-right: auto;}
@@ -161,7 +158,6 @@
         initMap(); 
     }
 
-    // 1. الخريطة التفاعلية مع سحب اسم المنطقة (Reverse Geocoding)
     function initMap() {
         map = L.map('map-container').setView([30.0444, 31.2357], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
@@ -172,13 +168,11 @@
             const lng = marker.getLatLng().lng;
             document.getElementById('cust-location').value = `https://maps.google.com/?q=${lat},${lng}`;
             
-            // سحب اسم المنطقة أوتوماتيك
             try {
                 const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`);
                 const data = await response.json();
                 if(data && data.display_name) {
                     const addressField = document.getElementById('cust-address');
-                    // يملأ العنوان فقط لو كان فاضي عشان ميمسحش بيانات العميل
                     if(addressField.value.trim() === '') {
                         addressField.value = data.display_name + "\n(برجاء إضافة رقم العمارة والشقة)";
                     }
@@ -197,7 +191,6 @@
         }
     }
 
-    // 2. رسم السلة مع أزرار التعديل
     function renderSummary() {
         const cont = document.getElementById('summary-items');
         itemsTotal = 0;
@@ -211,7 +204,6 @@
                     <h4>${item.title}</h4>
                     <p class="summary-meta">${meta.join(' | ')}</p>
                     <p class="summary-meta" style="font-weight:bold; color:var(--primary);">${item.price} ج.م</p>
-                    
                     <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
                         <button class="qty-btn" onclick="updateCheckoutQty(${index}, 1)">+</button>
                         <b style="color:#000; font-size:1.1em;">${item.qty}</b>
@@ -224,7 +216,6 @@
         calculateTotal();
     }
 
-    // دوال تعديل الكمية داخل الشيك أوت
     function updateCheckoutQty(index, change) {
         cart[index].qty += change;
         if(cart[index].qty <= 0) cart.splice(index, 1);
@@ -269,23 +260,19 @@
 
         if(!name || !phone || !city || !address) return alert("برجاء ملء جميع بيانات التوصيل الأساسية (*).");
 
-        if(locationUrl) { address += ` | رابط اللوكيشن: ${locationUrl}`; }
+        if(locationUrl) { address += ` | اللوكيشن: ${locationUrl}`; }
 
-        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل الطلب...';
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التسجيل...';
         const grandTotal = itemsTotal + shippingCost;
 
+        // التعديل: إرسال total_price كقيمة أساسية لضمان نجاح الحفظ في قاعدة البيانات
         const { data: orderData, error: orderError } = await supabaseClient.from('orders').insert([{
             customer_email: email, 
             customer_name: name, 
             customer_phone: phone, 
             customer_city: city, 
-            customer_area: '-', 
             customer_street: address, 
-            customer_building: '-', 
-            customer_apartment: '-',
-            total_items_price: itemsTotal,
-            shipping_cost: shippingCost,
-            grand_total: grandTotal, 
+            total_price: grandTotal, 
             status: 'قيد المراجعة'
         }]).select().single();
 
