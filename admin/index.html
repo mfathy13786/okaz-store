@@ -310,6 +310,11 @@
                 <div class="flex-row"><div class="input-group"><label style="color:var(--info);">اسم الموقع (البراند)</label><input type="text" id="set-store-name" placeholder="مثال: IZO Store"></div><div class="input-group"><label style="color:var(--danger);">لون الموقع الأساسي</label><input type="color" id="set-theme-color" value="#e67e22" style="height:45px; cursor:pointer;"></div></div>
                 <div class="input-group" style="margin-bottom:25px;"><label style="color:var(--warning);">شريط الإعلانات العرضي أعلى الموقع</label><input type="text" id="set-announcement" placeholder="مثال: 🔥 شحن مجاني لأي أوردر فوق 1000 جنيه 🔥"></div>
                 
+                <div class="switch-container"><span>تفعيل الأبعاد الصلبة (طول، عرض)</span><label class="switch"><input type="checkbox" id="set-hard-dim"><span class="slider"></span></label></div>
+                <div class="switch-container"><span>تفعيل دليل مقاسات الملابس</span><label class="switch"><input type="checkbox" id="set-cloth-guide"><span class="slider"></span></label></div>
+                <div class="switch-container"><span>تفعيل نظام الألوان للمنتجات</span><label class="switch"><input type="checkbox" id="set-colors"><span class="slider"></span></label></div>
+                <div class="switch-container"><span>تفعيل نظام المقاسات</span><label class="switch"><input type="checkbox" id="set-sizes"><span class="slider"></span></label></div>
+                
                 <div class="flex-row" style="margin-top:30px;">
                     <div class="input-group" style="background:#222; padding:15px; border-radius:8px; border:1px dashed #555;">
                         <label>أيقونة المتصفح (Favicon)</label>
@@ -420,6 +425,12 @@
             if(document.getElementById('set-theme-color')) document.getElementById('set-theme-color').value = systemSettings.theme_color || '#e67e22';
             if(document.getElementById('set-announcement')) document.getElementById('set-announcement').value = systemSettings.announcement_text || '';
 
+            // استرجاع حالة مفاتيح التشغيل من الداتا بيز
+            if(document.getElementById('set-hard-dim')) document.getElementById('set-hard-dim').checked = systemSettings.hard_dim === 'true';
+            if(document.getElementById('set-cloth-guide')) document.getElementById('set-cloth-guide').checked = systemSettings.cloth_guide === 'true';
+            if(document.getElementById('set-colors')) document.getElementById('set-colors').checked = systemSettings.colors_active === 'true';
+            if(document.getElementById('set-sizes')) document.getElementById('set-sizes').checked = systemSettings.sizes_active === 'true';
+
             if(systemSettings.site_favicon) {
                 document.getElementById('preview-logo-favicon').src = systemSettings.site_favicon;
                 document.getElementById('preview-logo-favicon').style.display = 'block';
@@ -436,10 +447,19 @@
             const tColor = document.getElementById('set-theme-color').value;
             const ann = document.getElementById('set-announcement').value.trim();
 
+            const hardDim = document.getElementById('set-hard-dim').checked ? 'true' : 'false';
+            const clothGuide = document.getElementById('set-cloth-guide').checked ? 'true' : 'false';
+            const colorsAct = document.getElementById('set-colors').checked ? 'true' : 'false';
+            const sizesAct = document.getElementById('set-sizes').checked ? 'true' : 'false';
+
             const updates = [
                 { setting_key: 'store_name', setting_value: sName },
                 { setting_key: 'theme_color', setting_value: tColor },
-                { setting_key: 'announcement_text', setting_value: ann }
+                { setting_key: 'announcement_text', setting_value: ann },
+                { setting_key: 'hard_dim', setting_value: hardDim },
+                { setting_key: 'cloth_guide', setting_value: clothGuide },
+                { setting_key: 'colors_active', setting_value: colorsAct },
+                { setting_key: 'sizes_active', setting_value: sizesAct }
             ];
 
             const favFile = document.getElementById('logo-favicon-file').files[0];
