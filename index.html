@@ -53,34 +53,38 @@
         .product-title { font-size: 0.9em; font-weight: 700; height: 2.6em; overflow: hidden; margin-bottom: 5px; }
         .product-price { color: var(--primary); font-weight: 900; font-size: 1.1em; }
 
-        /* طبقات المودال والسلة المخفية */
+        /* مودال عام */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); padding: 20px; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; border-radius: 20px; padding: 25px; position: relative; animation: scaleIn 0.3s ease; }
+        .auth-content { background: var(--card-bg); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border-radius: 20px; padding: 30px; position: relative; animation: scaleIn 0.3s ease; }
         @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .close-modal { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.1); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2em; z-index: 10; cursor: pointer; transition: 0.2s;}
+        .close-modal { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.1); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2em; z-index: 10; cursor: pointer; transition:0.2s;}
         .close-modal:hover { background: var(--danger); color: #fff;}
         
-        /* لوحة العميل */
+        /* لوحة تحكم العميل الاحترافية */
         .profile-header { display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; margin-bottom: 15px;}
-        .profile-avatar { width: 65px; height: 65px; border-radius: 50%; background: #eee; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 2em; overflow: hidden; border: 2px solid var(--primary); }
+        .profile-avatar { width: 65px; height: 65px; border-radius: 50%; background: #eee; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 2em; overflow: hidden; border: 2px solid var(--primary); position: relative;}
         .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        
         .profile-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
         .profile-tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-weight: bold; color: #888; border-bottom: 3px solid transparent; transition: 0.3s;}
         .profile-tab.active { color: var(--primary); border-color: var(--primary); }
         .profile-section { display: none; animation: fadeIn 0.3s ease;} .profile-section.active { display: block; }
         @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+        
         .input-group { margin-bottom: 15px; text-align: right; }
         .input-group label { display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: bold; color: #555; }
         .input-style { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Cairo'; outline: none; background: #fafafa; transition:0.2s;}
         .input-style:focus { border-color: var(--primary); background: #fff;}
         .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media(max-width: 500px) { .settings-grid { grid-template-columns: 1fr; gap: 0;} }
+
         .btn-main { background: var(--primary); color: #fff; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; font-size: 1em; transition: 0.2s;}
         .btn-main:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230,126,34,0.3); }
         .btn-gps { background: #3498db; color: #fff; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; font-weight: bold; width: 100%; margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 8px;}
         .btn-upload { background: #eee; color: #333; border: 1px dashed #aaa; padding: 10px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; width: 100%; margin-top: 5px; font-weight: bold;}
 
-        /* مودال المنتج الداخلي */
+        /* Product Modal */
         .img-zoom-container { width: 100%; height: 350px; background: #f9f9f9; text-align: center; margin: -25px -25px 20px -25px; border-radius: 20px 20px 0 0; overflow:hidden;}
         .img-zoom-container img { height: 100%; max-width: 100%; object-fit: contain; }
         .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;}
@@ -89,7 +93,6 @@
         .color-chip { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; padding: 2px; }
         .color-chip.selected { border-color: var(--primary); } .color-chip span { display: block; width: 100%; height: 100%; border-radius: 50%; }
 
-        /* السلة المخفية */
         .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2400; display: none; }
         .cart-overlay.open { display: block; }
         .cart-drawer { position: fixed; top: 0; bottom: 0; right: 0; width: 100%; max-width: 400px; background: #fff; z-index: 2500; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
@@ -151,7 +154,7 @@
     </nav>
 
     <div class="modal-overlay" id="auth-modal">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="auth-content">
             <button class="close-modal" onclick="document.getElementById('auth-modal').style.display='none'"><i class="fas fa-times"></i></button>
             
             <div id="login-state">
@@ -213,7 +216,7 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="prod-modal">
+    <div class="product-modal" id="prod-modal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
             <div class="img-zoom-container"><img id="modal-img" src=""></div>
@@ -299,6 +302,7 @@
         }
 
         function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; }
+        
         function switchProfileTab(tabId, element) {
             document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.profile-section').forEach(c => c.classList.remove('active'));
@@ -368,13 +372,12 @@
             btn.disabled = false;
         }
 
-        // التعديل الجذري لضمان ظهور المنتجات للعميل
+        // التعديل السحري: قراءة المنتجات مباشرة من cart_info من الداتا بيز
         async function fetchMyOrders() {
             if(!currentUser) return;
             const list = document.getElementById('my-orders-list');
             list.innerHTML = '<div style="text-align:center; padding: 20px;"><i class="fas fa-spinner fa-spin" style="font-size:2em; color:var(--primary);"></i><br>جاري جلب طلباتك...</div>';
             
-            // سحب الطلبات الخاصة بالعميل
             const { data: orders, error: ordersError } = await supabaseClient.from('orders').select('*').eq('customer_email', currentUser.email).order('created_at', { ascending: false });
             
             if (ordersError || !orders || orders.length === 0) {
@@ -382,10 +385,6 @@
                 return;
             }
 
-            // سحب المنتجات المرتبطة بهذه الطلبات
-            const orderIds = orders.map(o => o.id);
-            const { data: allItems } = await supabaseClient.from('order_items').select('*').in('order_id', orderIds);
-            
             list.innerHTML = orders.map(o => {
                 let statusColor = '#f39c12'; let statusIcon = 'fa-clock';
                 if(o.status === 'تم التوصيل') { statusColor = '#27ae60'; statusIcon = 'fa-check-circle'; }
@@ -393,23 +392,21 @@
                 
                 const date = new Date(o.created_at).toLocaleDateString('ar-EG');
                 let cancelBtn = '';
-                // زرار إلغاء الطلب
                 if(o.status === 'قيد المراجعة') {
                     cancelBtn = `<button style="background:var(--danger); color:#fff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-family:'Cairo'; font-size:0.8em; font-weight:bold;" onclick="cancelMyOrder('${o.id}')"><i class="fas fa-times"></i> إلغاء الطلب</button>`;
                 }
                 
-                // مطابقة المنتجات للطلب
-                const myItems = (allItems || []).filter(i => i.order_id === o.id);
+                // قراءة المنتجات من العمود الجديد اللي إنت عملته باحترافية
                 let itemsHtml = '';
-                if (myItems.length > 0) {
-                     itemsHtml = myItems.map(i => `
+                if (o.cart_info && Array.isArray(o.cart_info) && o.cart_info.length > 0) {
+                     itemsHtml = o.cart_info.map(i => `
                         <div style="display:flex; justify-content:space-between; margin-bottom:3px; border-bottom:1px dashed #e1e1e1; padding-bottom:3px;">
-                            <span>${i.product_name || i.title} <small>(${i.selected_size||'-'}/${i.selected_color||'-'})</small></span>
-                            <b style="color:#000;">الكمية: ${i.quantity || i.qty}</b>
+                            <span>${i.title} <small>(${i.size||'-'}/${i.color||'-'})</small></span>
+                            <b style="color:#000;">الكمية: ${i.qty}</b>
                         </div>
                     `).join('');
                 } else {
-                     itemsHtml = '<div style="text-align:center; color:#aaa; font-size:0.9em;">لا توجد تفاصيل متاحة للمنتجات</div>';
+                     itemsHtml = '<div style="text-align:center; color:#aaa; font-size:0.9em;">(تفاصيل المنتجات غير متوفرة لهذا الطلب القديم)</div>';
                 }
 
                 return `
@@ -433,7 +430,6 @@
             }).join('');
         }
 
-        // دالة إلغاء الطلب
         async function cancelMyOrder(orderId) {
             if(!confirm('هل أنت متأكد من رغبتك في إلغاء هذا الطلب نهائياً؟')) return;
             const { error } = await supabaseClient.from('orders').update({status: 'ملغي'}).eq('id', orderId);
@@ -462,7 +458,6 @@
 
         async function logout() { await supabaseClient.auth.signOut(); await checkUser(); }
 
-        // --- المتجر ---
         async function fetchSettings() {
             const {data} = await supabaseClient.from('store_settings').select('*');
             if(data) data.forEach(s => systemSettings[s.setting_key] = s.setting_value);
@@ -496,7 +491,8 @@
 
         async function fetchProducts() {
             const {data} = await supabaseClient.from('products').select('*').eq('is_visible', true).order('created_at', {ascending:false});
-            allProducts = data || []; renderProducts(allProducts);
+            allProducts = data || []; 
+            renderProducts(allProducts);
         }
 
         function renderProducts(arr) {
