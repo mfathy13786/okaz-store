@@ -30,16 +30,46 @@
         .search-input-wrapper { background: #fff; border: 1px solid #ddd; border-radius: 20px; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
         .search-input-wrapper input { border: none; outline: none; width: 100%; font-family: 'Cairo'; font-size: 0.95em; }
 
-        .categories-stories { display: flex; overflow-x: auto; padding: 15px 20px; gap: 15px; border-bottom: 1px solid #eee; scroll-behavior: smooth; }
+        /* التعديل: سكرول ناعم للأقسام يمين وشمال */
+        .categories-stories { display: flex; overflow-x: auto; padding: 15px 20px; gap: 15px; border-bottom: 1px solid #eee; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
         .categories-stories::-webkit-scrollbar { display: none; }
-        .story-item { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 75px; max-width: 85px; cursor: pointer; }
+        .story-item { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 75px; max-width: 85px; cursor: pointer; }
         .story-img-wrap { width: 65px; height: 65px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, var(--primary), #ff9f43); overflow: hidden; }
         .story-img { width: 100%; height: 100%; border-radius: 50%; border: 2px solid #fff; background: #eee; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8em; color: #777; overflow:hidden;}
         .story-item span { font-size: 0.75em; font-weight: bold; text-align: center; line-height: 1.2; }
 
+        /* القائمة الجانبية (Sidebar Drawer) الشيك جداً */
+        .side-menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; backdrop-filter: blur(2px); }
+        .side-menu-overlay.open { display: block; }
+        .side-menu-drawer { position: fixed; top: 0; bottom: 0; right: 0; width: 85%; max-width: 320px; background: var(--card-bg); z-index: 3100; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; box-shadow: -5px 0 20px rgba(0,0,0,0.15); }
+        .side-menu-drawer.open { transform: translateX(0); }
+        .menu-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .menu-logo { font-size: 1.4em; font-weight: 900; color: var(--primary); font-family: 'Reem Kufi', sans-serif;}
+        .menu-tabs { display: flex; border-bottom: 1px solid #eee; }
+        .menu-tab { flex: 1; text-align: center; padding: 15px 0; font-weight: bold; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; font-size:0.9em;}
+        .menu-tab.active { color: var(--primary); border-color: var(--primary); }
+        .menu-content { flex: 1; overflow-y: auto; padding: 0; }
+        .menu-section { display: none; animation: fadeIn 0.3s; }
+        .menu-section.active { display: block; }
+        .menu-social { padding: 20px; border-top: 1px solid #eee; background: #fafafa; display: flex; justify-content: center; gap: 20px; }
+        .menu-social a { color: #555; font-size: 1.6em; transition: 0.3s; display: none; /* مخفي أوتوماتيك لحد ما يجي اللينك */}
+        .menu-social a:hover { color: var(--primary); transform: translateY(-3px); }
+        
+        /* الأكورديون (Accordion) في القائمة */
+        .accordion-item { border-bottom: 1px solid #f5f5f5; }
+        .accordion-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; cursor: pointer; color: #333; transition: 0.2s;}
+        .accordion-header:hover { background: #fafafa; color: var(--primary); padding-right: 25px;}
+        .accordion-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: #fafafa; }
+        .accordion-body.open { max-height: 500px; padding: 10px 20px; }
+        .sub-cat-link { display: block; padding: 10px 0; color: #666; text-decoration: none; border-bottom: 1px dashed #eee; font-size: 0.9em; transition: 0.2s; cursor:pointer;}
+        .sub-cat-link:last-child { border-bottom: none; }
+        .sub-cat-link:hover { color: var(--primary); padding-right: 5px; }
+        .static-link { display: flex; align-items: center; gap: 15px; padding: 15px 20px; color: #333; font-weight: bold; border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: 0.2s;}
+        .static-link:hover { background: #fafafa; color: var(--primary); padding-right: 25px; }
+        .static-link i { width: 20px; text-align: center; color: var(--primary); }
+
         .banner-slider { width: 100%; display: none; background: #eee; }
         .swiper-slide img { width: 100%; height: auto; max-height: 400px; object-fit: cover; display: block; }
-        
         .section-title { padding: 20px 20px 10px; font-size: 1.2em; font-weight: 900; display: flex; align-items: center; gap: 8px; }
         
         .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 10px 20px 30px; }
@@ -109,7 +139,11 @@
         <div id="announcement-bar"></div>
 
         <header>
-            <div class="logo" id="site-logo"><h1>المتجر</h1></div>
+            <div style="display:flex; align-items:center; gap:15px;">
+                <i class="fas fa-bars" style="font-size:1.4em; cursor:pointer; color:var(--text);" onclick="toggleSideMenu()"></i>
+                <div class="logo" id="site-logo"><h1>المتجر</h1></div>
+            </div>
+            
             <div class="header-actions">
                 <i class="fas fa-user header-icon" onclick="openAuthModal()"></i>
                 <div class="cart-icon" onclick="toggleCart()"><i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cart-count">0</span></div>
@@ -150,10 +184,40 @@
         <div class="nav-item" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i><span>السلة</span></div>
     </nav>
 
+    <div class="side-menu-overlay" id="side-menu-overlay" onclick="toggleSideMenu()"></div>
+    <div class="side-menu-drawer" id="side-menu-drawer">
+        <div class="menu-header">
+            <div class="menu-logo" id="menu-logo-text">سوق عكاز</div>
+            <i class="fas fa-times" style="font-size:1.4em; cursor:pointer; color:#888;" onclick="toggleSideMenu()"></i>
+        </div>
+        <div class="menu-tabs">
+            <div class="menu-tab active" onclick="switchMenuTab('menu-cats', this)">الأقسام <i class="fas fa-layer-group"></i></div>
+            <div class="menu-tab" onclick="switchMenuTab('menu-pages', this)">اكتشف <i class="fas fa-compass"></i></div>
+        </div>
+        <div class="menu-content">
+            <div id="menu-cats" class="menu-section active">
+                <div id="accordion-container">
+                    </div>
+            </div>
+            <div id="menu-pages" class="menu-section">
+                <div class="static-link" onclick="showAllProducts(); toggleSideMenu();"><i class="fas fa-home"></i> الصفحة الرئيسية</div>
+                <div class="static-link" onclick="showAllProducts(); toggleSideMenu();"><i class="fas fa-shopping-bag"></i> كل المنتجات</div>
+                <div class="static-link" onclick="alert('صفحة صمم بنفسك قيد التطوير');"><i class="fas fa-paint-brush"></i> صمم بنفسك</div>
+                <div class="static-link" onclick="alert('صفحة من نحن قيد التطوير');"><i class="fas fa-info-circle"></i> من نحن</div>
+                <div class="static-link" onclick="alert('صفحة اتصل بنا قيد التطوير');"><i class="fas fa-headset"></i> اتصل بنا</div>
+            </div>
+        </div>
+        <div class="menu-social">
+            <a href="#" id="link-fb" target="_blank"><i class="fab fa-facebook" style="color:#1877F2;"></i></a>
+            <a href="#" id="link-ig" target="_blank"><i class="fab fa-instagram" style="color:#E1306C;"></i></a>
+            <a href="#" id="link-tt" target="_blank"><i class="fab fa-tiktok" style="color:#000;"></i></a>
+            <a href="#" id="link-wa" target="_blank"><i class="fab fa-whatsapp" style="color:#25D366;"></i></a>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="auth-modal">
         <div class="auth-content">
             <button class="close-modal" onclick="document.getElementById('auth-modal').style.display='none'"><i class="fas fa-times"></i></button>
-            
             <div id="login-state">
                 <h2 style="color: var(--primary); font-weight: 900; text-align:center; margin-bottom:5px;">تسجيل الدخول</h2>
                 <p style="text-align:center; color:#777; margin-bottom:20px; font-size:0.9em;">لتتبع طلباتك وحفظ بيانات الشحن</p>
@@ -163,7 +227,6 @@
                 <div style="text-align:center; margin:15px 0; color:#aaa; font-size:0.9em; position:relative;"><span style="background:#fff; padding:0 10px; position:relative; z-index:2;">أو</span><hr style="position:absolute; top:50%; left:0; right:0; margin:0; border:none; border-top:1px solid #eee; z-index:1;"></div>
                 <button class="btn-main" style="background: #fff; color: #333; border: 1px solid #ddd; display:flex; align-items:center; justify-content:center; gap:10px;" onclick="signInWithGoogle()"><img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" style="width: 22px;"> المتابعة باستخدام جوجل</button>
             </div>
-            
             <div id="dashboard-state" style="display: none;">
                 <div class="profile-header"><div class="profile-avatar" id="user-avatar-display"><i class="fas fa-user"></i></div><div><h3 style="margin:0; color:#333; font-weight:900;" id="user-name-display">عميلنا العزيز</h3><span style="color:#777; font-size:0.85em;" id="user-email-display"></span></div></div>
                 <div class="profile-tabs"><div class="profile-tab active" onclick="switchProfileTab('orders-tab', this)"><i class="fas fa-box"></i> طلباتي</div><div class="profile-tab" onclick="switchProfileTab('settings-tab', this)"><i class="fas fa-cog"></i> إعدادات الحساب</div></div>
@@ -225,7 +288,6 @@
             updateCartBadge();
             fetchCitiesForProfile();
             await fetchSettings(); 
-            // جلب الأقسام والمنتجات
             const [catReq, prodReq] = await Promise.all([
                 supabaseClient.from('categories').select('*'),
                 supabaseClient.from('products').select('*').eq('is_visible', true).order('created_at', {ascending:false})
@@ -236,19 +298,89 @@
             await fetchBanners(); 
             await checkUser(); 
 
-            // العرض الافتراضي للرئيسية
             showAllProducts();
+            buildMenuAccordion(); // بناء القائمة الجانبية للأقسام
 
             if(window.location.search.includes('login=true') && !currentUser) openAuthModal();
         }
 
+        // --- دوال القائمة الجانبية المضافة حديثاً ---
+        function toggleSideMenu() {
+            const drawer = document.getElementById('side-menu-drawer');
+            const overlay = document.getElementById('side-menu-overlay');
+            drawer.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+
+        function switchMenuTab(tabId, element) {
+            document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.menu-section').forEach(s => s.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function toggleAccordion(element) {
+            const body = element.nextElementSibling;
+            const icon = element.querySelector('i');
+            if (body.classList.contains('open')) {
+                body.classList.remove('open');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('open'));
+                document.querySelectorAll('.accordion-header i').forEach(i => i.style.transform = 'rotate(0deg)');
+                body.classList.add('open');
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        function buildMenuAccordion() {
+            const cont = document.getElementById('accordion-container');
+            const mainCats = allCategories.filter(c => !c.parent_id); // الأقسام الرئيسية فقط
+            
+            cont.innerHTML = mainCats.map(main => {
+                const subCats = allCategories.filter(c => c.parent_id === main.id);
+                if(subCats.length > 0) {
+                    return `
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span><i class="fas fa-folder" style="color:#aaa; margin-left:8px;"></i> ${main.title_ar}</span>
+                            <i class="fas fa-chevron-down" style="font-size:0.8em; transition:0.3s;"></i>
+                        </div>
+                        <div class="accordion-body">
+                            <div class="sub-cat-link" onclick="openCategory('${main.id}', '${main.title_ar}'); toggleSideMenu();" style="font-weight:bold; color:var(--primary);">عرض كل منتجات (${main.title_ar})</div>
+                            ${subCats.map(sub => `<div class="sub-cat-link" onclick="openCategory('${sub.id}', '${sub.title_ar}'); toggleSideMenu();"><i class="fas fa-angle-left" style="color:#ccc; margin-left:5px;"></i> ${sub.title_ar}</div>`).join('')}
+                        </div>
+                    </div>`;
+                } else {
+                    return `<div class="static-link" onclick="openCategory('${main.id}', '${main.title_ar}'); toggleSideMenu();" style="font-weight:normal; color:#555;"><i class="fas fa-folder" style="color:#ccc;"></i> ${main.title_ar}</div>`;
+                }
+            }).join('');
+        }
+
+        // --- إعدادات المتجر والسوشيال ميديا ---
         async function fetchSettings() {
             const {data} = await supabaseClient.from('store_settings').select('*');
             if(data) data.forEach(s => systemSettings[s.setting_key] = s.setting_value);
-            if(systemSettings.store_name) document.getElementById('main-site-title').innerText = systemSettings.store_name;
+            
+            if(systemSettings.store_name) {
+                document.getElementById('main-site-title').innerText = systemSettings.store_name;
+                document.getElementById('menu-logo-text').innerText = systemSettings.store_name;
+            }
             if(systemSettings.theme_color) document.documentElement.style.setProperty('--primary', systemSettings.theme_color);
             if(systemSettings.site_logo_header) document.getElementById('site-logo').innerHTML = `<img src="${systemSettings.site_logo_header}" style="max-height:40px;">`;
             if(systemSettings.announcement_text) { document.getElementById('announcement-bar').innerText = systemSettings.announcement_text; document.getElementById('announcement-bar').style.display = 'block'; }
+
+            // عرض روابط السوشيال ميديا لو الأدمن كتبها
+            const socials = ['facebook', 'instagram', 'tiktok', 'whatsapp'];
+            socials.forEach(platform => {
+                const linkVal = systemSettings[`social_${platform}`];
+                const key = platform === 'facebook' ? 'fb' : platform === 'instagram' ? 'ig' : platform === 'tiktok' ? 'tt' : 'wa';
+                const el = document.getElementById(`link-${key}`);
+                if(linkVal && linkVal.trim() !== '') {
+                    el.href = platform === 'whatsapp' ? `https://wa.me/${linkVal}` : linkVal;
+                    el.style.display = 'inline-block';
+                }
+            });
         }
 
         async function fetchBanners() {
@@ -257,30 +389,15 @@
             data.forEach(b => {
                 if(b.images && b.images.length > 0) {
                     activeBanners[b.position_name] = true;
-                    if(b.position_name === 'top') {
-                        document.getElementById('top-slider').style.display = 'block';
-                        document.getElementById('top-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join('');
-                        new Swiper('#top-slider', { loop: true, autoplay: { delay: 3500 }, pagination: { el: '#top-slider .swiper-pagination' } });
-                    }
-                    if(b.position_name === 'middle') {
-                        document.getElementById('middle-slider').style.display = 'block';
-                        document.getElementById('middle-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join('');
-                        new Swiper('#middle-slider', { loop: true, autoplay: { delay: 4000 }, pagination: { el: '#middle-slider .swiper-pagination' } });
-                    }
-                    if(b.position_name === 'bottom') {
-                        document.getElementById('bottom-slider').style.display = 'block';
-                        document.getElementById('bottom-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join('');
-                        new Swiper('#bottom-slider', { loop: true, autoplay: { delay: 4500 }, pagination: { el: '#bottom-slider .swiper-pagination' } });
-                    }
+                    if(b.position_name === 'top') { document.getElementById('top-slider').style.display = 'block'; document.getElementById('top-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join(''); new Swiper('#top-slider', { loop: true, autoplay: { delay: 3500 }, pagination: { el: '#top-slider .swiper-pagination' } }); }
+                    if(b.position_name === 'middle') { document.getElementById('middle-slider').style.display = 'block'; document.getElementById('middle-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join(''); new Swiper('#middle-slider', { loop: true, autoplay: { delay: 4000 }, pagination: { el: '#middle-slider .swiper-pagination' } }); }
+                    if(b.position_name === 'bottom') { document.getElementById('bottom-slider').style.display = 'block'; document.getElementById('bottom-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join(''); new Swiper('#bottom-slider', { loop: true, autoplay: { delay: 4500 }, pagination: { el: '#bottom-slider .swiper-pagination' } }); }
                 }
             });
         }
 
-        // التعديل الجذري 1: عرض الأقسام ديناميكياً (رئيسي أو فرعي)
         function renderCategories(parentId) {
             const cont = document.getElementById('stories-container');
-            
-            // في الصفحة الرئيسية (نعرض الأقسام المحددة للرئيسية)
             if(parentId === null) {
                 const homeCats = allCategories.filter(c => c.show_on_home);
                 if(homeCats.length > 0) {
@@ -290,18 +407,11 @@
                                      let imgHtml = c.image ? `<img src="${c.image}" style="width:100%;height:100%;object-fit:cover;">` : `<div class="story-img">${c.title_ar.substring(0,4)}</div>`;
                                      return `<div class="story-item" onclick="openCategory('${c.id}', '${c.title_ar}')"><div class="story-img-wrap">${imgHtml}</div><span>${c.title_ar}</span></div>`;
                                  }).join('');
-                } else {
-                    cont.style.display = 'none';
-                }
-            } 
-            // جوة قسم معين (نعرض الأقسام الفرعية بتاعته لو في)
-            else {
+                } else { cont.style.display = 'none'; }
+            } else {
                 const subCats = allCategories.filter(c => c.parent_id === parentId);
                 cont.style.display = 'flex';
-                // زرار الرجوع للرئيسية
                 cont.innerHTML = `<div class="story-item" onclick="showAllProducts()"><div class="story-img-wrap"><div class="story-img" style="background:#555;color:#fff;"><i class="fas fa-arrow-right" style="font-size:1.5em;"></i></div></div><span>رجوع</span></div>`;
-                
-                // الأقسام الفرعية
                 if(subCats.length > 0) {
                     cont.innerHTML += subCats.map(c => {
                          let imgHtml = c.image ? `<img src="${c.image}" style="width:100%;height:100%;object-fit:cover;">` : `<div class="story-img">${c.title_ar.substring(0,4)}</div>`;
@@ -311,56 +421,27 @@
             }
         }
 
-        // التعديل الجذري 2: فتح القسم (إظهار الفرعي + البانرات المخصصة)
         function openCategory(id, title) { 
             document.getElementById('grid-title').innerHTML = `<i class="fas fa-list"></i> ${title}`; 
-            
-            // نجيب كل الأقسام الفرعية التابعة للقسم ده عشان نعرض منتجاتها بردو
             const subCatIds = allCategories.filter(c => c.parent_id === id).map(c => c.id);
             const productsToShow = allProducts.filter(p => p.category_id === id || subCatIds.includes(p.category_id));
             renderProducts(productsToShow); 
-
-            // إخفاء بانرات الصفحة الرئيسية
-            document.getElementById('top-slider').style.display = 'none';
-            document.getElementById('middle-slider').style.display = 'none';
-            document.getElementById('bottom-slider').style.display = 'none';
-
-            // عرض بانرات القسم (لو موجودة)
+            document.getElementById('top-slider').style.display = 'none'; document.getElementById('middle-slider').style.display = 'none'; document.getElementById('bottom-slider').style.display = 'none';
             const cat = allCategories.find(c => c.id === id);
-            const topCont = document.getElementById('cat-top-slider');
-            const bottomCont = document.getElementById('cat-bottom-slider');
-
-            if(cat && cat.banner_top && cat.banner_top.length > 0) {
-                topCont.style.display = 'block';
-                document.getElementById('cat-top-wrapper').innerHTML = cat.banner_top.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join('');
-                if(catTopSwiper) catTopSwiper.destroy(true, true);
-                catTopSwiper = new Swiper('#cat-top-slider', { loop: true, autoplay: { delay: 3000 }, pagination: { el: '#cat-top-slider .swiper-pagination' } });
-            } else { topCont.style.display = 'none'; }
-
-            if(cat && cat.banner_bottom && cat.banner_bottom.length > 0) {
-                bottomCont.style.display = 'block';
-                document.getElementById('cat-bottom-wrapper').innerHTML = cat.banner_bottom.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join('');
-                if(catBottomSwiper) catBottomSwiper.destroy(true, true);
-                catBottomSwiper = new Swiper('#cat-bottom-slider', { loop: true, autoplay: { delay: 3500 }, pagination: { el: '#cat-bottom-slider .swiper-pagination' } });
-            } else { bottomCont.style.display = 'none'; }
-
-            // إظهار الدوائر الفرعية الخاصة بالقسم ده
+            const topCont = document.getElementById('cat-top-slider'); const bottomCont = document.getElementById('cat-bottom-slider');
+            if(cat && cat.banner_top && cat.banner_top.length > 0) { topCont.style.display = 'block'; document.getElementById('cat-top-wrapper').innerHTML = cat.banner_top.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join(''); if(catTopSwiper) catTopSwiper.destroy(true, true); catTopSwiper = new Swiper('#cat-top-slider', { loop: true, autoplay: { delay: 3000 }, pagination: { el: '#cat-top-slider .swiper-pagination' } }); } else { topCont.style.display = 'none'; }
+            if(cat && cat.banner_bottom && cat.banner_bottom.length > 0) { bottomCont.style.display = 'block'; document.getElementById('cat-bottom-wrapper').innerHTML = cat.banner_bottom.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join(''); if(catBottomSwiper) catBottomSwiper.destroy(true, true); catBottomSwiper = new Swiper('#cat-bottom-slider', { loop: true, autoplay: { delay: 3500 }, pagination: { el: '#cat-bottom-slider .swiper-pagination' } }); } else { bottomCont.style.display = 'none'; }
             renderCategories(id);
         }
 
-        // دالة العودة للرئيسية وإرجاع البانرات والدوائر الأصلية
         function showAllProducts() {
             document.getElementById('grid-title').innerHTML = `<i class="fas fa-fire"></i> وصل حديثاً`;
             renderProducts(allProducts);
-
             if(activeBanners.top) document.getElementById('top-slider').style.display = 'block';
             if(activeBanners.middle) document.getElementById('middle-slider').style.display = 'block';
             if(activeBanners.bottom) document.getElementById('bottom-slider').style.display = 'block';
-
             document.getElementById('cat-top-slider').style.display = 'none';
             document.getElementById('cat-bottom-slider').style.display = 'none';
-            
-            // إرجاع دوائر الرئيسية
             renderCategories(null);
         }
 
@@ -376,67 +457,28 @@
 
         function filterProducts() { 
             const q = document.getElementById('search-input').value.toLowerCase().trim(); 
-            if(q) {
-                document.getElementById('grid-title').innerHTML = '<i class="fas fa-search"></i> نتائج البحث'; 
-                renderProducts(allProducts.filter(p => p.title_ar.toLowerCase().includes(q))); 
-                
-                document.getElementById('top-slider').style.display = 'none';
-                document.getElementById('middle-slider').style.display = 'none';
-                document.getElementById('bottom-slider').style.display = 'none';
-                document.getElementById('cat-top-slider').style.display = 'none';
-                document.getElementById('cat-bottom-slider').style.display = 'none';
-            } else {
-                showAllProducts();
-            }
+            if(q) { document.getElementById('grid-title').innerHTML = '<i class="fas fa-search"></i> نتائج البحث'; renderProducts(allProducts.filter(p => p.title_ar.toLowerCase().includes(q))); document.getElementById('top-slider').style.display = 'none'; document.getElementById('middle-slider').style.display = 'none'; document.getElementById('bottom-slider').style.display = 'none'; document.getElementById('cat-top-slider').style.display = 'none'; document.getElementById('cat-bottom-slider').style.display = 'none'; } else { showAllProducts(); }
         }
         
         async function openProduct(id) {
             currentProd = allProducts.find(x => x.id === id); selectedSize = ''; selectedColor = '';
-            document.getElementById('modal-img').src = currentProd.image || 'https://via.placeholder.com/400';
-            document.getElementById('modal-title').innerText = currentProd.title_ar;
-            document.getElementById('modal-price').innerText = `${currentProd.price} ج.م`;
-            document.getElementById('modal-old-price').innerText = currentProd.old_price > currentProd.price ? currentProd.old_price : '';
-            document.getElementById('modal-promo').innerText = currentProd.promo_message || '';
-            
+            document.getElementById('modal-img').src = currentProd.image || 'https://via.placeholder.com/400'; document.getElementById('modal-title').innerText = currentProd.title_ar; document.getElementById('modal-price').innerText = `${currentProd.price} ج.م`; document.getElementById('modal-old-price').innerText = currentProd.old_price > currentProd.price ? currentProd.old_price : ''; document.getElementById('modal-promo').innerText = currentProd.promo_message || '';
             const [sz, cl] = await Promise.all([supabaseClient.from('product_sizes').select('*').eq('product_id', id), supabaseClient.from('product_colors').select('*').eq('product_id', id)]);
-            
-            const cSec = document.getElementById('modal-colors-section');
-            if(cl.data && cl.data.length > 0) { cSec.style.display = 'block'; document.getElementById('modal-colors-list').innerHTML = cl.data.map(c => `<div class="color-chip" style="background:${c.color_hex};" onclick="selectColor(this, '${c.color_name_ar}', '${c.image_url}')"><span></span></div>`).join(''); } else { cSec.style.display = 'none'; }
-            
-            const sSec = document.getElementById('modal-sizes-section');
-            if(sz.data && sz.data.length > 0) { sSec.style.display = 'block'; document.getElementById('modal-sizes-list').innerHTML = sz.data.map(s => `<div class="chip" onclick="selectSize(this, '${s.size_name}')">${s.size_name}</div>`).join(''); } else { sSec.style.display = 'none'; }
-
+            const cSec = document.getElementById('modal-colors-section'); if(cl.data && cl.data.length > 0) { cSec.style.display = 'block'; document.getElementById('modal-colors-list').innerHTML = cl.data.map(c => `<div class="color-chip" style="background:${c.color_hex};" onclick="selectColor(this, '${c.color_name_ar}', '${c.image_url}')"><span></span></div>`).join(''); } else { cSec.style.display = 'none'; }
+            const sSec = document.getElementById('modal-sizes-section'); if(sz.data && sz.data.length > 0) { sSec.style.display = 'block'; document.getElementById('modal-sizes-list').innerHTML = sz.data.map(s => `<div class="chip" onclick="selectSize(this, '${s.size_name}')">${s.size_name}</div>`).join(''); } else { sSec.style.display = 'none'; }
             document.getElementById('prod-modal').style.display = 'flex';
         }
         
         function selectSize(el, val) { document.querySelectorAll('#modal-sizes-list .chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); selectedSize = val; }
         function selectColor(el, val, img) { document.querySelectorAll('#modal-colors-list .color-chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); selectedColor = val; if(img) document.getElementById('modal-img').src = img; }
         function closeModal() { document.getElementById('prod-modal').style.display = 'none'; }
-
-        function addToCart() {
-            if(document.getElementById('modal-sizes-section').style.display === 'block' && !selectedSize) return alert("اختر المقاس أولاً.");
-            if(document.getElementById('modal-colors-section').style.display === 'block' && !selectedColor) return alert("اختر اللون أولاً.");
-            const cartId = currentProd.id + selectedSize + selectedColor; const exist = cart.find(x => x.id === cartId);
-            if(exist) exist.qty++; else cart.push({ id: cartId, code: currentProd.product_code||'-', title: currentProd.title_ar, price: currentProd.price, image: document.getElementById('modal-img').src, size: selectedSize, color: selectedColor, qty: 1 });
-            localStorage.setItem('okaz_cart', JSON.stringify(cart)); updateCartBadge(); closeModal(); toggleCart();
-        }
-        
+        function addToCart() { if(document.getElementById('modal-sizes-section').style.display === 'block' && !selectedSize) return alert("اختر المقاس أولاً."); if(document.getElementById('modal-colors-section').style.display === 'block' && !selectedColor) return alert("اختر اللون أولاً."); const cartId = currentProd.id + selectedSize + selectedColor; const exist = cart.find(x => x.id === cartId); if(exist) exist.qty++; else cart.push({ id: cartId, code: currentProd.product_code||'-', title: currentProd.title_ar, price: currentProd.price, image: document.getElementById('modal-img').src, size: selectedSize, color: selectedColor, qty: 1 }); localStorage.setItem('okaz_cart', JSON.stringify(cart)); updateCartBadge(); closeModal(); toggleCart(); }
         function updateCartBadge() { document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0); }
         function toggleCart() { const d = document.getElementById('cart-drawer'); const o = document.getElementById('cart-overlay'); if(d.classList.contains('open')) { d.classList.remove('open'); o.classList.remove('open'); } else { renderCart(); d.classList.add('open'); o.classList.add('open'); } }
-        
-        function renderCart() {
-            const cont = document.getElementById('cart-items-list');
-            if(cart.length === 0) { cont.innerHTML = `<div style="text-align:center; color:#aaa; margin-top:50px;">السلة فارغة</div>`; document.getElementById('cart-total-price').innerText = `0 ج.م`; return; }
-            let total = 0; 
-            cont.innerHTML = cart.map((item, idx) => { 
-                total += (item.price * item.qty); 
-                return `<div class="cart-item"><img src="${item.image}"><div style="flex:1;"><b style="color:#2d3436; font-size:0.9em;">${item.title}</b><br><small style="color:#777;">${item.size||''} ${item.color||''}</small><br><b style="color:var(--primary);">${item.price} ج.م</b></div><div style="display:flex;flex-direction:column;align-items:center;gap:8px;"><button style="background:#eee; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;" onclick="updateQty(${idx}, 1)">+</button> <b style="color:#000;">${item.qty}</b> <button style="background:#eee; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;" onclick="updateQty(${idx}, -1)">-</button></div></div>`; 
-            }).join(''); 
-            document.getElementById('cart-total-price').innerText = `${total} ج.م`;
-        }
+        function renderCart() { const cont = document.getElementById('cart-items-list'); if(cart.length === 0) { cont.innerHTML = `<div style="text-align:center; color:#aaa; margin-top:50px;">السلة فارغة</div>`; document.getElementById('cart-total-price').innerText = `0 ج.م`; return; } let total = 0; cont.innerHTML = cart.map((item, idx) => { total += (item.price * item.qty); return `<div class="cart-item"><img src="${item.image}"><div style="flex:1;"><b style="color:#2d3436; font-size:0.9em;">${item.title}</b><br><small style="color:#777;">${item.size||''} ${item.color||''}</small><br><b style="color:var(--primary);">${item.price} ج.م</b></div><div style="display:flex;flex-direction:column;align-items:center;gap:8px;"><button style="background:#eee; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;" onclick="updateQty(${idx}, 1)">+</button> <b style="color:#000;">${item.qty}</b> <button style="background:#eee; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;" onclick="updateQty(${idx}, -1)">-</button></div></div>`; }).join(''); document.getElementById('cart-total-price').innerText = `${total} ج.م`; }
         function updateQty(idx, val) { cart[idx].qty += val; if(cart[idx].qty <= 0) cart.splice(idx, 1); localStorage.setItem('okaz_cart', JSON.stringify(cart)); updateCartBadge(); renderCart(); }
 
-        // أكواد الحسابات 
+        // أكواد الحسابات والعميل (مختصرة كالسابق)
         async function fetchCitiesForProfile() { const { data } = await supabaseClient.from('shipping_rules').select('city_ar').order('city_ar'); const citySelect = document.getElementById('prof-city'); if(data && citySelect) { data.forEach(c => { citySelect.innerHTML += `<option value="${c.city_ar}">${c.city_ar}</option>`; }); } }
         async function checkUser() { const { data: { session } } = await supabaseClient.auth.getSession(); if(session) { currentUser = session.user; document.getElementById('login-state').style.display = 'none'; document.getElementById('dashboard-state').style.display = 'block'; document.getElementById('user-email-display').innerText = currentUser.email; const meta = currentUser.user_metadata || {}; const name = meta.full_name || meta.name || 'عميلنا العزيز'; const avatar = meta.avatar_url || meta.picture || ''; document.getElementById('user-name-display').innerText = name; document.getElementById('prof-name').value = name; if(avatar) { document.getElementById('user-avatar-display').innerHTML = `<img src="${avatar}">`; } if(meta.phone) document.getElementById('prof-phone').value = meta.phone; if(meta.city) document.getElementById('prof-city').value = meta.city; if(meta.address) document.getElementById('prof-address').value = meta.address; if(meta.location_url) document.getElementById('prof-location').value = meta.location_url; fetchMyOrders(); } else { currentUser = null; document.getElementById('login-state').style.display = 'block'; document.getElementById('dashboard-state').style.display = 'none'; } }
         function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; }
