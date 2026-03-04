@@ -257,7 +257,7 @@
                         <h3 style="color:var(--primary); margin:0;">2. البانر الأوسط (بين الأقسام)</h3>
                         <label class="switch"><input type="checkbox" id="banner-middle-active"><span class="slider"></span></label>
                     </div>
-                    <div class="input-group"><input type="file" id="banner-middle-files" accept="image/*"></div>
+                    <div class="input-group"><input type="file" id="banner-middle-files" multiple accept="image/*"></div>
                     <button class="btn-main" onclick="saveBanners('middle')" style="background:var(--info); color:#fff;"><i class="fas fa-upload"></i> حفظ وتحديث البانر</button>
                 </div>
                 
@@ -266,7 +266,7 @@
                         <h3 style="color:var(--primary); margin:0;">3. البانر السفلي (فوق الفوتر)</h3>
                         <label class="switch"><input type="checkbox" id="banner-bottom-active"><span class="slider"></span></label>
                     </div>
-                    <div class="input-group"><input type="file" id="banner-bottom-files" accept="image/*"></div>
+                    <div class="input-group"><input type="file" id="banner-bottom-files" multiple accept="image/*"></div>
                     <button class="btn-main" onclick="saveBanners('bottom')" style="background:var(--info); color:#fff;"><i class="fas fa-upload"></i> حفظ وتحديث البانر</button>
                 </div>
             </div>
@@ -383,7 +383,7 @@
             try { 
                 showLoader("تحميل النظام..."); 
                 await loadStoreSettingsFromDB(); 
-                await loadBannersStatus(); // سحب حالة البانرات عند الفتح
+                await loadBannersStatus(); 
                 switchTab('accounting', document.querySelector('.nav-btn.active')); 
             } 
             catch (e) {} finally { hideLoader(); }
@@ -405,7 +405,6 @@
 
         function calcAction(val) { const display = document.getElementById('calc-display'); if(val === 'C') { calcValue = ''; display.value = '0'; return; } if(val === '=') { try { calcValue = eval(calcValue).toString(); display.value = calcValue; } catch(e) { display.value = "Error"; calcValue = ''; } return; } calcValue += val; display.value = calcValue; }
 
-        // --- إعدادات المتجر واللوجو ---
         async function loadStoreSettingsFromDB() {
             const { data } = await supabaseClient.from('store_settings').select('*');
             if(data) data.forEach(x => systemSettings[x.setting_key] = x.setting_value);
@@ -421,7 +420,6 @@
             if(document.getElementById('set-theme-color')) document.getElementById('set-theme-color').value = systemSettings.theme_color || '#e67e22';
             if(document.getElementById('set-announcement')) document.getElementById('set-announcement').value = systemSettings.announcement_text || '';
 
-            // عرض الصور الحالية للوجو والـ Favicon
             if(systemSettings.site_favicon) {
                 document.getElementById('preview-logo-favicon').src = systemSettings.site_favicon;
                 document.getElementById('preview-logo-favicon').style.display = 'block';
@@ -444,7 +442,6 @@
                 { setting_key: 'announcement_text', setting_value: ann }
             ];
 
-            // رفع أيقونة المتصفح Favicon
             const favFile = document.getElementById('logo-favicon-file').files[0];
             if (favFile) {
                 const ext = favFile.name.split('.').pop();
@@ -456,7 +453,6 @@
                 }
             }
 
-            // رفع لوجو الموقع
             const logoFile = document.getElementById('logo-header-file').files[0];
             if (logoFile) {
                 const ext = logoFile.name.split('.').pop();
@@ -477,7 +473,6 @@
             loadStoreSettingsFromDB(); 
         }
 
-        // --- ربط البانرات بالداتا بيز ---
         async function loadBannersStatus() {
             const { data } = await supabaseClient.from('store_banners').select('*');
             if (data) {
@@ -494,7 +489,6 @@
             const isActive = document.getElementById(`banner-${position}-active`).checked;
             let uploadedUrls = [];
 
-            // لو الأدمن اختار صور جديدة، نرفعها
             if (fileInput.files.length > 0) {
                 for (let file of fileInput.files) {
                     const ext = file.name.split('.').pop();
@@ -507,7 +501,6 @@
                 }
             }
 
-            // لو مرفعش صور جديدة، نجيب القديمة عشان متمسحش، ونحدث حالة الإظهار/الإخفاء بس
             if (uploadedUrls.length === 0) {
                  const {data: existing} = await supabaseClient.from('store_banners').select('images').eq('position_name', position).single();
                  if(existing && existing.images) uploadedUrls = existing.images;
@@ -523,7 +516,6 @@
             else alert("تم حفظ البانر وتحديثه بنجاح! سيظهر للعملاء فوراً.");
         }
 
-        // --- التقارير والماليات ---
         async function loadComprehensiveReports() {
             const { data: orders, error } = await supabaseClient.from('orders').select('id, customer_name, grand_total, status, created_at');
             globalOrdersData = orders || [];
