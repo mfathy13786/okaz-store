@@ -178,6 +178,7 @@
                     <div class="input-group" style="background:#222; padding:10px; border-radius:8px; border:1px dashed #555;">
                         <label>صورة القسم (التي تظهر في الدوائر على الرئيسية)</label>
                         <input type="file" id="cat-image" accept="image/*">
+                        <input type="text" id="cat-image-url" placeholder="أو ضع رابط صورة خارجية هنا..." style="margin-top:5px; border-color:var(--info);">
                     </div>
 
                     <div class="flex-row">
@@ -189,11 +190,11 @@
                     <div style="background:#111; padding:15px; border-radius:8px; margin-bottom:15px;"><label class="checkbox-label"><input type="checkbox" id="cat-show-home" checked> عرض في الصفحة الرئيسية؟</label></div>
                     
                     <div class="input-group" style="background:#1a1a1a; padding:10px; border-radius:8px; border-right:3px solid var(--info);">
-                        <label style="color:var(--info);">بانر القسم العلوي (يمكنك تحديد أكثر من صورة للسلايدر)</label>
+                        <label style="color:var(--info);">بانر القسم العلوي (سلايدر)</label>
                         <input type="file" id="cat-banner-top" multiple accept="image/*">
                     </div>
                     <div class="input-group" style="background:#1a1a1a; padding:10px; border-radius:8px; border-right:3px solid var(--warning); margin-bottom: 20px;">
-                        <label style="color:var(--warning);">بانر القسم السفلي (يمكنك تحديد أكثر من صورة للسلايدر)</label>
+                        <label style="color:var(--warning);">بانر القسم السفلي (سلايدر)</label>
                         <input type="file" id="cat-banner-bottom" multiple accept="image/*">
                     </div>
 
@@ -229,8 +230,14 @@
                     <div class="input-group"><label>المخزون المتاح</label><input type="number" id="prod-stock" value="100"></div>
                 </div>
                 <div class="input-group"><label style="color:var(--warning);">وصف أو رسالة العرض</label><input type="text" id="prod-promo-msg" placeholder="مثال: خامة قطن 100% مناسبة للصيف..."></div>
-                <div class="input-group"><label>الصورة الرئيسية (أو رابط خارجي) *</label><input type="file" id="prod-image" accept="image/*"><input type="text" id="prod-image-url" placeholder="أو ضع رابط صورة خارجية هنا..." style="margin-top:5px; border-color:var(--info);"></div>
-                <button class="btn-main" onclick="addProduct()" style="margin-top:20px;">حفظ المنتج</button>
+                
+                <div class="input-group" style="background:#222; padding:10px; border-radius:8px; border:1px dashed #555;">
+                    <label>الصورة الرئيسية للمنتج * (ارفع ملف أو ضع رابط)</label>
+                    <input type="file" id="prod-image" accept="image/*">
+                    <input type="text" id="prod-image-url" placeholder="أو ضع رابط صورة خارجية هنا (مثال: http://...)" style="margin-top:5px; border-color:var(--info);">
+                </div>
+                
+                <button class="btn-main" onclick="addProduct()" style="margin-top:20px;">حفظ المنتج في المتجر</button>
             </div>
 
             <div class="flex-row" style="margin-top:20px;">
@@ -238,12 +245,18 @@
                     <h3 class="panel-title"><i class="fas fa-palette"></i> ربط لون بصورة للمنتج</h3>
                     <div class="input-group"><label>المنتج</label><select id="color-prod-id"></select></div>
                     <div class="flex-row">
-                        <div class="input-group" style="position:relative;"><label>اسم اللون (عربي)</label><input type="text" id="color-name-ar" placeholder="مثال: كحلي" onkeyup="smartTranslate(this.value, 'color-name-en', 'color-magic')"><i class="fas fa-magic auto-translate-badge" id="color-magic"></i></div>
+                        <div class="input-group" style="position:relative;"><label>اسم اللون (عربي) *</label><input type="text" id="color-name-ar" placeholder="مثال: كحلي" onkeyup="smartTranslate(this.value, 'color-name-en', 'color-magic')"><i class="fas fa-magic auto-translate-badge" id="color-magic"></i></div>
                         <div class="input-group"><label>اللون (إنجليزي)</label><input type="text" id="color-name-en" placeholder="مثال: Navy"></div>
                     </div>
                     <div class="input-group"><label>الدرجة الدقيقة (Hex)</label><input type="color" id="color-hex" value="#ff0000" style="height:40px;"></div>
-                    <div class="input-group"><label>صورة المنتج بهذا اللون *</label><input type="file" id="color-image" accept="image/*"></div>
-                    <button class="btn-main" onclick="addColor()" style="background:#3742fa; color:#fff;">حفظ اللون</button>
+                    
+                    <div class="input-group" style="background:#222; padding:10px; border-radius:8px; border:1px dashed #555;">
+                        <label>صورة المنتج بهذا اللون *</label>
+                        <input type="file" id="color-image" accept="image/*">
+                        <input type="text" id="color-image-url" placeholder="أو رابط خارجي للصورة..." style="margin-top:5px; border-color:var(--info);">
+                    </div>
+                    
+                    <button class="btn-main" onclick="addColor()" style="background:#3742fa; color:#fff;">حفظ وربط اللون</button>
                 </div>
 
                 <div class="panel" id="panel-sizes">
@@ -484,14 +497,16 @@
             hideLoader(); alert("تم حفظ الإعدادات بنجاح!"); loadStoreSettingsFromDB(); 
         }
 
+        // --- الدالة السحرية للرفع (بتجيب اللينك العام للصورة فوراً) ---
         async function uploadImage(file) {
             const ext = file.name.split('.').pop();
-            const fName = `cat_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
-            await supabaseClient.storage.from('okaz_images').upload(fName, file);
+            const fName = `img_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`;
+            const { error } = await supabaseClient.storage.from('okaz_images').upload(fName, file);
+            if(error) throw error;
             return supabaseClient.storage.from('okaz_images').getPublicUrl(fName).data.publicUrl;
         }
 
-        // --- التعديل: برمجة زرار حفظ القسم ليرفع الصورة والبانرات للـ Database ---
+        // --- 1. حفظ القسم (بالمنطق الذكي للصور) ---
         async function addCategory() {
             const titleAr = document.getElementById('cat-title-ar').value.trim();
             const titleEn = document.getElementById('cat-title-en').value.trim();
@@ -500,15 +515,18 @@
 
             if(!titleAr) return alert("يرجى إدخال اسم القسم باللغة العربية على الأقل.");
 
-            showLoader("جاري رفع الصور وحفظ القسم...");
+            const fileInput = document.getElementById('cat-image').files[0];
+            const urlInput = document.getElementById('cat-image-url') ? document.getElementById('cat-image-url').value.trim() : '';
+            
+            let catImage = null;
+
+            showLoader("جاري حفظ القسم...");
             try {
-                let catImage = null;
-                let bannerTop = [];
-                let bannerBottom = [];
+                // المنطق الذكي للصورة الثابتة
+                if(fileInput) { catImage = await uploadImage(fileInput); } 
+                else if(urlInput) { catImage = urlInput; }
 
-                const imgFile = document.getElementById('cat-image').files[0];
-                if(imgFile) catImage = await uploadImage(imgFile);
-
+                let bannerTop = []; let bannerBottom = [];
                 const btFiles = document.getElementById('cat-banner-top').files;
                 for(let f of btFiles) { bannerTop.push(await uploadImage(f)); }
 
@@ -516,29 +534,99 @@
                 for(let f of bbFiles) { bannerBottom.push(await uploadImage(f)); }
 
                 const { error } = await supabaseClient.from('categories').insert([{
-                    title_ar: titleAr,
-                    title_en: titleEn,
-                    parent_id: parentId || null,
-                    show_on_home: showHome,
-                    image: catImage,
-                    banner_top: bannerTop,
-                    banner_bottom: bannerBottom
+                    title_ar: titleAr, title_en: titleEn, parent_id: parentId || null,
+                    show_on_home: showHome, image: catImage, banner_top: bannerTop, banner_bottom: bannerBottom
                 }]);
 
                 if(error) throw error;
 
                 alert("تم حفظ القسم بنجاح!");
-                document.getElementById('cat-title-ar').value = '';
-                document.getElementById('cat-title-en').value = '';
-                document.getElementById('cat-image').value = '';
-                document.getElementById('cat-banner-top').value = '';
-                document.getElementById('cat-banner-bottom').value = '';
+                document.getElementById('cat-title-ar').value = ''; document.getElementById('cat-title-en').value = '';
+                document.getElementById('cat-image').value = ''; if(document.getElementById('cat-image-url')) document.getElementById('cat-image-url').value = '';
+                document.getElementById('cat-banner-top').value = ''; document.getElementById('cat-banner-bottom').value = '';
                 loadCategoriesForSelects();
-            } catch (err) {
-                alert("حدث خطأ أثناء الحفظ: " + err.message);
-            } finally {
-                hideLoader();
+            } catch (err) { alert("خطأ: " + err.message); } finally { hideLoader(); }
+        }
+
+        // --- 2. حفظ المنتج المانيوال (بالمنطق الذكي للصور) ---
+        async function addProduct() {
+            const catId = document.getElementById('prod-cat').value;
+            const code = document.getElementById('prod-code').value.trim();
+            const titleAr = document.getElementById('prod-title-ar').value.trim();
+            const titleEn = document.getElementById('prod-title-en').value.trim();
+            const season = document.getElementById('prod-season').value;
+            const gender = document.getElementById('prod-gender').value;
+            const badge = document.getElementById('prod-badge').value;
+            const costPrice = document.getElementById('prod-cost-price').value || 0;
+            const price = document.getElementById('prod-price').value;
+            const oldPrice = document.getElementById('prod-old-price').value || 0;
+            const stock = document.getElementById('prod-stock').value || 100;
+            const promoMsg = document.getElementById('prod-promo-msg').value.trim();
+            
+            const fileInput = document.getElementById('prod-image').files[0];
+            const urlInput = document.getElementById('prod-image-url').value.trim();
+
+            if(!catId || !titleAr || !price) return alert("يرجى إدخال البيانات الأساسية: القسم، اسم المنتج، والسعر.");
+
+            let finalImageUrl = '';
+
+            // المنطق الذكي لصورة المنتج
+            if (fileInput) {
+                showLoader("جاري رفع الصورة الرئيسية للمنتج...");
+                try { finalImageUrl = await uploadImage(fileInput); } catch(e) { hideLoader(); return alert("فشل رفع الصورة: " + e.message); }
+            } else if (urlInput) {
+                finalImageUrl = urlInput;
+            } else {
+                return alert("يرجى اختيار صورة للمنتج من جهازك (اختيار ملف) أو وضع رابط خارجي للصورة.");
             }
+
+            showLoader("جاري حفظ المنتج...");
+            const { error } = await supabaseClient.from('products').insert([{
+                category_id: catId, product_code: code, title_ar: titleAr, title_en: titleEn, season: season, gender: gender, badge_ar: badge,
+                cost_price: parseFloat(costPrice), price: parseFloat(price), old_price: parseFloat(oldPrice), stock_quantity: parseInt(stock),
+                promo_message: promoMsg, image: finalImageUrl, is_visible: true
+            }]);
+
+            hideLoader();
+            if(error) alert("حدث خطأ: " + error.message);
+            else {
+                alert("تم إضافة المنتج للمتجر بنجاح!");
+                document.getElementById('prod-code').value = ''; document.getElementById('prod-title-ar').value = ''; document.getElementById('prod-title-en').value = '';
+                document.getElementById('prod-cost-price').value = ''; document.getElementById('prod-price').value = ''; document.getElementById('prod-old-price').value = '';
+                document.getElementById('prod-promo-msg').value = ''; document.getElementById('prod-image').value = ''; document.getElementById('prod-image-url').value = '';
+                loadEditInventory(); 
+            }
+        }
+
+        // --- 3. حفظ اللون (بالمنطق الذكي للصور) ---
+        async function addColor() {
+            const prodId = document.getElementById('color-prod-id').value;
+            const nameAr = document.getElementById('color-name-ar').value.trim();
+            const nameEn = document.getElementById('color-name-en').value.trim();
+            const hex = document.getElementById('color-hex').value;
+            
+            const fileInput = document.getElementById('color-image').files[0];
+            const urlInput = document.getElementById('color-image-url') ? document.getElementById('color-image-url').value.trim() : '';
+
+            if(!prodId || !nameAr) return alert("يرجى اختيار المنتج وكتابة اسم اللون (عربي).");
+
+            let finalImage = '';
+
+            showLoader("جاري حفظ بيانات اللون...");
+            try {
+                if(fileInput) { finalImage = await uploadImage(fileInput); } 
+                else if (urlInput) { finalImage = urlInput; } 
+                else { hideLoader(); return alert("يرجى اختيار صورة للمنتج بهذا اللون من الجهاز أو وضع رابط."); }
+
+                const { error } = await supabaseClient.from('product_colors').insert([{
+                    product_id: prodId, color_name_ar: nameAr, color_name_en: nameEn, color_hex: hex, image_url: finalImage
+                }]);
+
+                if(error) throw error;
+                alert("تم ربط اللون بالمنتج بنجاح!");
+                document.getElementById('color-name-ar').value = ''; document.getElementById('color-name-en').value = '';
+                document.getElementById('color-image').value = ''; if(document.getElementById('color-image-url')) document.getElementById('color-image-url').value = '';
+            } catch(e) { alert("خطأ: " + e.message); } finally { hideLoader(); }
         }
 
         async function loadCategoriesForSelects() { 
