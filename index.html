@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>المتجر الرئيسي</title>
+    <title id="main-site-title">المتجر الرئيسي</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -39,9 +39,7 @@
 
         .banner-slider { width: 100%; display: none; background: #eee; }
         .swiper-slide img { width: 100%; height: auto; max-height: 400px; object-fit: cover; display: block; }
-        .static-banner { margin: 20px; border-radius: 15px; overflow: hidden; display: none; }
-        .static-banner img { width: 100%; display: block; object-fit: cover; max-height: 300px; }
-
+        
         .section-title { padding: 20px 20px 10px; font-size: 1.2em; font-weight: 900; display: flex; align-items: center; gap: 8px; }
         
         .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 10px 20px 30px; }
@@ -135,6 +133,7 @@
         </div>
         
         <div class="categories-stories" id="stories-container"></div>
+        
         <div class="swiper banner-slider" id="top-slider"><div class="swiper-wrapper" id="top-slider-wrapper"></div><div class="swiper-pagination"></div></div>
         
         <h2 class="section-title" id="grid-title"><i class="fas fa-fire" style="color:var(--danger);"></i> وصل حديثاً</h2>
@@ -143,8 +142,9 @@
             <div style="grid-column: 1/-1; text-align:center; padding:50px; color:#888;"><i class="fas fa-spinner fa-spin" style="font-size:2em;"></i><br>جاري تحميل المنتجات...</div>
         </div>
 
-        <div class="static-banner" id="middle-banner"></div>
-        <div class="static-banner" id="bottom-banner"></div>
+        <div class="swiper banner-slider" id="middle-slider" style="margin:20px 0;"><div class="swiper-wrapper" id="middle-slider-wrapper"></div><div class="swiper-pagination"></div></div>
+        <div class="swiper banner-slider" id="bottom-slider" style="margin:20px 0;"><div class="swiper-wrapper" id="bottom-slider-wrapper"></div><div class="swiper-pagination"></div></div>
+        
         <div style="height: 60px;"></div>
     </div>
 
@@ -261,10 +261,45 @@
             await fetchSettings(); 
             await fetchCategories(); 
             await fetchProducts(); 
-            await fetchBanners();
+            await fetchBanners(); // البانرات الجديدة هتتحمل من هنا
             await checkUser(); 
             
             if(window.location.search.includes('login=true') && !currentUser) openAuthModal();
+        }
+
+        async function fetchSettings() {
+            const {data} = await supabaseClient.from('store_settings').select('*');
+            if(data) data.forEach(s => systemSettings[s.setting_key] = s.setting_value);
+            
+            if(systemSettings.store_name) document.getElementById('main-site-title').innerText = systemSettings.store_name;
+            if(systemSettings.theme_color) document.documentElement.style.setProperty('--primary', systemSettings.theme_color);
+            if(systemSettings.site_logo_header) document.getElementById('site-logo').innerHTML = `<img src="${systemSettings.site_logo_header}" style="max-height:40px;">`;
+            if(systemSettings.announcement_text) { document.getElementById('announcement-bar').innerText = systemSettings.announcement_text; document.getElementById('announcement-bar').style.display = 'block'; }
+        }
+
+        // التعديل هنا: دالة البانرات بقت بتشغل السلايدر لكل مكان لو فيه صور
+        async function fetchBanners() {
+            const {data} = await supabaseClient.from('store_banners').select('*').eq('is_active', true);
+            if(!data) return;
+            data.forEach(b => {
+                if(b.images && b.images.length > 0) {
+                    if(b.position_name === 'top') {
+                        document.getElementById('top-slider').style.display = 'block';
+                        document.getElementById('top-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join('');
+                        new Swiper('#top-slider', { loop: true, autoplay: { delay: 3500 }, pagination: { el: '#top-slider .swiper-pagination' } });
+                    }
+                    if(b.position_name === 'middle') {
+                        document.getElementById('middle-slider').style.display = 'block';
+                        document.getElementById('middle-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join('');
+                        new Swiper('#middle-slider', { loop: true, autoplay: { delay: 4000 }, pagination: { el: '#middle-slider .swiper-pagination' } });
+                    }
+                    if(b.position_name === 'bottom') {
+                        document.getElementById('bottom-slider').style.display = 'block';
+                        document.getElementById('bottom-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join('');
+                        new Swiper('#bottom-slider', { loop: true, autoplay: { delay: 4500 }, pagination: { el: '#bottom-slider .swiper-pagination' } });
+                    }
+                }
+            });
         }
 
         async function fetchCitiesForProfile() {
@@ -390,16 +425,12 @@
             list.innerHTML = orders.map(o => {
                 let statusColor = '#f39c12'; let statusIcon = 'fa-clock';
                 if(o.status === 'تم التوصيل') { statusColor = '#27ae60'; statusIcon = 'fa-check-circle'; }
-                if(o.status === 'مرتجع') { statusColor = '#e74c3c'; statusIcon = 'fa-undo'; }
-                
-                // تعديل شكل الإلغاء إذا كان من العميل أو من الأدمن
-                if(o.status === 'ملغي') { statusColor = '#e74c3c'; statusIcon = 'fa-times-circle'; }
+                if(o.status === 'ملغي' || o.status === 'مرتجع') { statusColor = '#e74c3c'; statusIcon = 'fa-times-circle'; }
                 if(o.status === 'إلغاء من العميل') { statusColor = '#c0392b'; statusIcon = 'fa-user-times'; o.status = 'تم الإلغاء بواسطتك';}
                 
                 const date = new Date(o.created_at).toLocaleDateString('ar-EG');
                 let cancelBtn = '';
                 if(o.status === 'قيد المراجعة') {
-                    // التعديل: الزرار يبعت "إلغاء من العميل"
                     cancelBtn = `<button style="background:var(--danger); color:#fff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-family:'Cairo'; font-size:0.8em; font-weight:bold;" onclick="cancelMyOrder('${o.id}')"><i class="fas fa-times"></i> إلغاء الطلب</button>`;
                 }
                 
@@ -436,7 +467,6 @@
             }).join('');
         }
 
-        // إرسال حالة مميزة للأدمن
         async function cancelMyOrder(orderId) {
             if(!confirm('هل أنت متأكد من رغبتك في إلغاء هذا الطلب نهائياً؟')) return;
             const { error } = await supabaseClient.from('orders').update({status: 'إلغاء من العميل'}).eq('id', orderId);
@@ -465,14 +495,6 @@
 
         async function logout() { await supabaseClient.auth.signOut(); await checkUser(); }
 
-        async function fetchSettings() {
-            const {data} = await supabaseClient.from('store_settings').select('*');
-            if(data) data.forEach(s => systemSettings[s.setting_key] = s.setting_value);
-            if(systemSettings.theme_color) document.documentElement.style.setProperty('--primary', systemSettings.theme_color);
-            if(systemSettings.site_logo_header) document.getElementById('site-logo').innerHTML = `<img src="${systemSettings.site_logo_header}">`;
-            if(systemSettings.announcement_text) { document.getElementById('announcement-bar').innerText = systemSettings.announcement_text; document.getElementById('announcement-bar').style.display = 'block'; }
-        }
-
         async function fetchCategories() {
             const {data} = await supabaseClient.from('categories').select('*').eq('show_on_home', true);
             const cont = document.getElementById('stories-container');
@@ -480,20 +502,6 @@
                 cont.innerHTML = `<div class="story-item" onclick="renderProducts(allProducts)"><div class="story-img-wrap"><div class="story-img" style="background:var(--primary);color:#fff;">الكل</div></div><span>كل المنتجات</span></div>` + 
                              data.map(c => `<div class="story-item" onclick="filterByCategory('${c.id}', '${c.title_ar}')"><div class="story-img-wrap"><div class="story-img">${c.title_ar.substring(0,4)}</div></div><span>${c.title_ar}</span></div>`).join('');
             }
-        }
-
-        async function fetchBanners() {
-            const {data} = await supabaseClient.from('store_banners').select('*').eq('is_active', true);
-            if(!data) return;
-            data.forEach(b => {
-                if(b.images && b.images.length > 0) {
-                    if(b.position_name === 'top') {
-                        document.getElementById('top-slider').style.display = 'block';
-                        document.getElementById('top-slider-wrapper').innerHTML = b.images.map(img => `<div class="swiper-slide"><img src="${img}"></div>`).join('');
-                        new Swiper('#top-slider', { loop: true, autoplay: { delay: 3500 }, pagination: { el: '.swiper-pagination' } });
-                    }
-                }
-            });
         }
 
         async function fetchProducts() {
