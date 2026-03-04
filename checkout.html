@@ -35,7 +35,6 @@
         .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3); }
         .btn-confirm:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none;}
         
-        /* Modal Success */
         .success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);}
         .success-modal { background: #fff; padding: 40px; border-radius: 20px; text-align: center; max-width: 480px; width: 95%; animation: popIn 0.5s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -65,12 +64,7 @@
 <div class="checkout-container">
     <div class="box">
         <h2 class="box-title"><i class="fas fa-shipping-fast"></i> بيانات التوصيل</h2>
-        
-        <div class="form-group">
-            <label>البريد الإلكتروني (اختياري)</label>
-            <input type="email" id="cust-email" placeholder="example@mail.com">
-        </div>
-
+        <div class="form-group"><label>البريد الإلكتروني (اختياري)</label><input type="email" id="cust-email" placeholder="example@mail.com"></div>
         <div class="form-group"><label>الاسم بالكامل *</label><input type="text" id="cust-name"></div>
         <div class="form-group"><label>رقم الهاتف *</label><input type="tel" id="cust-phone"></div>
         <div class="form-group"><label>المحافظة *</label><select id="cust-city" onchange="calculateTotal()"><option value="" data-cost="0">-- جاري التحميل --</option></select></div>
@@ -178,7 +172,7 @@
                         addressField.value = data.display_name + "\n(برجاء إضافة رقم العمارة والشقة)";
                     }
                 }
-            } catch(err) { console.error("Geocoding Error:", err); }
+            } catch(err) {}
         });
 
         if(navigator.geolocation) {
@@ -232,11 +226,7 @@
 
     function saveAndReRender() {
         localStorage.setItem('okaz_cart', JSON.stringify(cart));
-        if(cart.length === 0) {
-            alert("السلة أصبحت فارغة، سيتم إرجاعك للرئيسية.");
-            window.location.href = 'index.html';
-            return;
-        }
+        if(cart.length === 0) { window.location.href = 'index.html'; return; }
         renderSummary();
     }
 
@@ -260,13 +250,12 @@
         const btn = document.getElementById('confirm-order-btn');
 
         if(!name || !phone || !city || !address) return alert("برجاء ملء جميع بيانات التوصيل الأساسية (*).");
-
         if(locationUrl) { address += ` | اللوكيشن: ${locationUrl}`; }
 
         btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التسجيل...';
         const grandTotal = itemsTotal + shippingCost;
 
-        // الحل الجذري: استخدام العواميد المعتمدة فعلياً في قاعدة بياناتك (Supabase)
+        // الحل الجذري: الحفظ في عمود cart_info ككتلة JSON واحدة 
         const { data: orderData, error: orderError } = await supabaseClient.from('orders').insert([{
             customer_email: email, 
             customer_name: name, 
@@ -278,17 +267,12 @@
             customer_apartment: '-',
             total_items_price: itemsTotal,
             shipping_cost: shippingCost,
-            grand_total: grandTotal, // تم استبدال total_price بـ grand_total بشكل نهائي
+            grand_total: grandTotal, 
+            cart_info: cart, // <--- السحر كله هنا
             status: 'قيد المراجعة'
         }]).select().single();
 
-        if(orderError) { alert("حدث خطأ تقني: " + orderError.message); btn.disabled = false; btn.innerHTML = 'تأكيد إتمام الطلب <i class="fas fa-check-circle"></i>'; return; }
-
-        const orderItems = cart.map(item => ({
-            order_id: orderData.id, product_name: item.title, selected_size: item.size || '', selected_color: item.color || '',
-            quantity: item.qty, price: item.price, image: item.image, code: item.code
-        }));
-        await supabaseClient.from('order_items').insert(orderItems);
+        if(orderError) { alert("تأكد من إنشاء عمود cart_info من نوع JSON في قاعدة البيانات\n" + orderError.message); btn.disabled = false; btn.innerHTML = 'تأكيد إتمام الطلب <i class="fas fa-check-circle"></i>'; return; }
 
         const shortOrderId = "OKZ-" + orderData.id.split('-')[0].toUpperCase();
         document.getElementById('display-order-id').innerText = shortOrderId;
