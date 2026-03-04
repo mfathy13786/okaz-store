@@ -56,9 +56,11 @@
         /* مودال عام */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); padding: 20px; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; border-radius: 20px; padding: 25px; position: relative; animation: scaleIn 0.3s ease; }
+        .auth-content { background: var(--card-bg); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border-radius: 20px; padding: 30px; position: relative; animation: scaleIn 0.3s ease; }
         @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .close-modal { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.1); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2em; z-index: 10; cursor: pointer; }
-        
+        .close-modal { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.1); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2em; z-index: 10; cursor: pointer; transition:0.2s;}
+        .close-modal:hover { background: var(--danger); color:#fff; }
+
         /* لوحة تحكم العميل الاحترافية */
         .profile-header { display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; margin-bottom: 15px;}
         .profile-avatar { width: 65px; height: 65px; border-radius: 50%; background: #eee; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 2em; overflow: hidden; border: 2px solid var(--primary); position: relative;}
@@ -72,18 +74,21 @@
         
         .input-group { margin-bottom: 15px; text-align: right; }
         .input-group label { display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: bold; color: #555; }
-        .input-style { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Cairo'; outline: none; background: #fafafa;}
+        .input-style { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Cairo'; outline: none; background: #fafafa; transition:0.2s;}
         .input-style:focus { border-color: var(--primary); background: #fff;}
         .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        @media(max-width: 500px) { .settings-grid { grid-template-columns: 1fr; } }
+        @media(max-width: 500px) { .settings-grid { grid-template-columns: 1fr; gap:0;} }
 
         .btn-main { background: var(--primary); color: #fff; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; font-size: 1em; transition: 0.2s;}
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230,126,34,0.3); }
         .btn-gps { background: #3498db; color: #fff; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; font-weight: bold; width: 100%; margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 8px;}
         .btn-upload { background: #eee; color: #333; border: 1px dashed #aaa; padding: 10px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; width: 100%; margin-top: 5px; font-weight: bold;}
 
         /* Product Modal */
         .img-zoom-container { width: 100%; height: 350px; background: #f9f9f9; text-align: center; margin: -25px -25px 20px -25px; border-radius: 20px 20px 0 0; overflow:hidden;}
         .img-zoom-container img { height: 100%; max-width: 100%; object-fit: contain; }
+        .modal-details { padding: 20px; }
+        .options-title { font-weight: bold; font-size: 0.9em; margin: 15px 0 10px; display: block; color: #555; }
         .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;}
         .chip { border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; font-size: 0.9em; cursor: pointer; font-weight: bold;}
         .chip.selected { border-color: var(--primary); background: var(--primary); color: #fff; }
@@ -122,7 +127,12 @@
             </div>
         </header>
 
-        <div class="search-bar"><div class="search-input-wrapper"><i class="fas fa-search" style="color:#aaa;"></i><input type="text" id="search-input" placeholder="بتبحث عن إيه؟" oninput="filterProducts()"></div></div>
+        <div class="search-bar">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search" style="color:#aaa;"></i>
+                <input type="search" id="search-input" placeholder="بتبحث عن إيه؟ (كوتشي، بنطلون...)" oninput="filterProducts()" autocomplete="off" spellcheck="false" name="q">
+            </div>
+        </div>
         
         <div class="categories-stories" id="stories-container"></div>
         <div class="swiper banner-slider" id="top-slider"><div class="swiper-wrapper" id="top-slider-wrapper"></div><div class="swiper-pagination"></div></div>
@@ -146,7 +156,7 @@
     </nav>
 
     <div class="modal-overlay" id="auth-modal">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="auth-content">
             <button class="close-modal" onclick="document.getElementById('auth-modal').style.display='none'"><i class="fas fa-times"></i></button>
             
             <div id="login-state">
@@ -184,7 +194,7 @@
 
                 <div id="settings-tab" class="profile-section">
                     <div style="background:#fff3e0; color:#d35400; padding:10px; border-radius:8px; font-size:0.85em; font-weight:bold; margin-bottom:15px; text-align:center;">
-                        هذه البيانات سيتم ملؤها تلقائياً عند الشراء.
+                        <i class="fas fa-info-circle"></i> سيتم استخدام هذه البيانات أوتوماتيكياً عند الطلب.
                     </div>
                     
                     <div style="text-align:center; margin-bottom:15px;">
@@ -207,7 +217,7 @@
                     </div>
 
                     <button class="btn-main" onclick="updateProfile()" style="margin-bottom:10px;"><i class="fas fa-save"></i> حفظ التعديلات</button>
-                    <button class="btn-main" style="background: #fff; color: var(--danger); border: 1px solid var(--danger); margin-top:10px;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+                    <button class="btn-main" style="background: #fff; color: var(--danger); border: 1px solid var(--danger); margin-top:10px;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج بأمان</button>
                 </div>
             </div>
         </div>
@@ -376,23 +386,22 @@
             btn.disabled = false;
         }
 
-        // التعديل الجذري لحل مشكلة عدم ظهور المنتجات في طلبات العميل
+        // التعديل 2: حل مشكلة عدم ظهور المنتجات بتبسيط الاستعلام
         async function fetchMyOrders() {
             if(!currentUser) return;
             const list = document.getElementById('my-orders-list');
             list.innerHTML = '<div style="text-align:center; padding: 20px;"><i class="fas fa-spinner fa-spin" style="font-size:2em; color:var(--primary);"></i><br>جاري جلب طلباتك...</div>';
             
-            // 1. جلب الطلبات الأساسية
-            const { data: orders, error: ordersError } = await supabaseClient.from('orders').select('*').eq('customer_email', currentUser.email).order('created_at', { ascending: false });
+            // سحب الطلب مع المنتجات في خبطة واحدة (وفرنا الاستعلام المعقد اللي كان بيهنج)
+            const { data: orders, error: ordersError } = await supabaseClient.from('orders')
+                .select('*, order_items(*)')
+                .eq('customer_email', currentUser.email)
+                .order('created_at', { ascending: false });
             
             if (ordersError || !orders || orders.length === 0) {
                 list.innerHTML = '<div style="text-align:center; padding: 30px; color:#888;"><i class="fas fa-box-open" style="font-size:3em; margin-bottom:10px; opacity:0.5;"></i><br>لم تقم بأي طلبات باستخدام هذا الحساب حتى الآن.</div>';
                 return;
             }
-
-            // 2. جلب كل المنتجات المرتبطة بالطلبات دي يدوياً عشان نضمن ظهورها
-            const orderIds = orders.map(o => o.id);
-            const { data: allItems } = await supabaseClient.from('order_items').select('*').in('order_id', orderIds);
             
             list.innerHTML = orders.map(o => {
                 let statusColor = '#f39c12'; let statusIcon = 'fa-clock';
@@ -405,27 +414,18 @@
                     cancelBtn = `<button style="background:var(--danger); color:#fff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-family:'Cairo'; font-size:0.8em; font-weight:bold;" onclick="cancelMyOrder('${o.id}')"><i class="fas fa-times"></i> إلغاء الطلب</button>`;
                 }
                 
-                // فلترة المنتجات للطلب الحالي
-                const myItems = (allItems || []).filter(i => i.order_id === o.id);
-                
+                // رسم المنتجات مباشرة من الداتا المسحوبة
                 let itemsHtml = '';
+                const myItems = o.order_items || [];
                 if (myItems.length > 0) {
                      itemsHtml = myItems.map(i => `
                         <div style="display:flex; justify-content:space-between; margin-bottom:3px; border-bottom:1px dashed #e1e1e1; padding-bottom:3px;">
-                            <span>${i.product_name || i.title} (${i.selected_size||'-'}/${i.selected_color||'-'})</span>
-                            <b>الكمية: ${i.quantity || i.qty}</b>
-                        </div>
-                    `).join('');
-                } else if (o.items && o.items.length > 0) {
-                     // احتياطي للطلبات القديمة
-                     itemsHtml = o.items.map(i => `
-                        <div style="display:flex; justify-content:space-between; margin-bottom:3px; border-bottom:1px dashed #e1e1e1; padding-bottom:3px;">
-                            <span>${i.title} (${i.size||'-'}/${i.color||'-'})</span>
-                            <b>الكمية: ${i.qty}</b>
+                            <span>${i.product_name || i.title} <small>(${i.selected_size||'-'}/${i.selected_color||'-'})</small></span>
+                            <b style="color:#000;">الكمية: ${i.quantity || i.qty}</b>
                         </div>
                     `).join('');
                 } else {
-                     itemsHtml = '<div style="text-align:center; color:#aaa; font-size:0.9em;">جاري معالجة تفاصيل المنتجات...</div>';
+                     itemsHtml = '<div style="text-align:center; color:#aaa; font-size:0.9em;">(لا توجد تفاصيل للمنتجات في هذا الطلب)</div>';
                 }
 
                 return `
@@ -439,10 +439,10 @@
                     </div>
                     <div style="font-size:0.85em; color:#555; margin-bottom:10px;">
                         <b>التاريخ:</b> ${date} <br>
-                        <b>الإجمالي:</b> <span style="color:#000; font-weight:bold;">${o.grand_total || o.total_price || 0} ج.م</span>
+                        <b>الإجمالي:</b> <span style="color:#000; font-weight:bold; font-size:1.1em;">${o.grand_total || o.total_price || 0} ج.م</span>
                     </div>
-                    <div style="background:#f9f9f9; padding:10px; border-radius:8px; font-size:0.8em; border: 1px solid #eee;">
-                        <b style="display:block; margin-bottom:5px; color:var(--primary);">المنتجات المشتراة:</b>
+                    <div style="background:#f9f9f9; padding:10px; border-radius:8px; font-size:0.85em; border: 1px solid #eee;">
+                        <b style="display:block; margin-bottom:5px; color:var(--primary);">المنتجات المطلوبة:</b>
                         ${itemsHtml}
                     </div>
                 </div>`;
