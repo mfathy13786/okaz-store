@@ -51,7 +51,7 @@
 
         .panel { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #222; margin-bottom: 20px; }
         .panel-title { color: var(--primary); margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px; font-size: 1.2em; display: flex; align-items:center; gap:10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.9em; } th { background: #111; color: var(--text-muted); padding: 15px; text-align: right; border-bottom: 2px solid #222; font-weight: bold;} td { padding: 15px; border-bottom: 1px solid #222; color: #eee; vertical-align: top;} tr:hover td { background: #1a1a1a; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9em; } th { background: #111; color: var(--text-muted); padding: 15px; text-align: right; border-bottom: 2px solid #222; font-weight: bold;} td { padding: 15px; border-bottom: 1px solid #222; color: #eee; vertical-align: middle;} tr:hover td { background: #1a1a1a; }
         .input-group { margin-bottom: 15px; } .input-group label { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: 0.85em; font-weight: bold; }
         input, select, textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #333; background: #111; color: #fff; font-family: 'Cairo'; outline: none; box-sizing: border-box;}
         input[type="file"] { padding: 6px; background: #222; cursor: pointer; } input:focus, select:focus, textarea:focus { border-color: var(--primary); }
@@ -73,8 +73,9 @@
         .switch { position: relative; display: inline-block; width: 50px; height: 26px; } .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; inset: 0; background-color: #444; transition: .4s; border-radius: 34px; } .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; } input:checked + .slider { background-color: var(--success); } input:checked + .slider:before { transform: translateX(24px); }
 
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; overflow-y: auto; backdrop-filter: blur(5px); }
-        .modal-content { background: #111; width: 95%; max-width: 900px; border-radius: 20px; padding: 25px; border: 1px solid var(--primary); margin: 30px auto; position: relative; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; overflow-y: auto; backdrop-filter: blur(5px); justify-content: center; align-items: center;}
+        .modal-content { background: #111; width: 95%; max-width: 900px; border-radius: 20px; padding: 25px; border: 1px solid var(--primary); position: relative; animation: scaleIn 0.3s ease; }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .close-btn { position: absolute; top: 15px; left: 15px; background: #333; color: #fff; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.2em; }
         .auto-translate-badge { position: absolute; left: 10px; top: 38px; color: var(--success); font-size: 0.8em; display: none; font-weight:bold; }
         .bulk-checkbox { transform: scale(1.3); cursor: pointer; accent-color: var(--primary); }
@@ -154,7 +155,7 @@
                 <h2 class="panel-title"><i class="fas fa-list"></i> قائمة الطلبات والفواتير</h2>
                 <div style="overflow-x:auto;">
                     <table>
-                        <thead><tr><th style="width:100px;">رقم الطلب</th><th>بيانات العميل</th><th>تفاصيل المنتجات (كما طلبها العميل)</th><th>الإجمالي</th><th style="width:150px;">الإجراءات</th></tr></thead>
+                        <thead><tr><th>رقم الطلب</th><th>بيانات العميل</th><th>الإجمالي</th><th>الإجراءات</th></tr></thead>
                         <tbody id="orders-table"></tbody>
                     </table>
                 </div>
@@ -166,11 +167,7 @@
                 <div class="panel">
                     <h3 class="panel-title"><i class="fas fa-folder-plus"></i> إضافة قسم</h3>
                     <div class="flex-row">
-                        <div class="input-group" style="position:relative;">
-                            <label>الاسم (عربي) *</label>
-                            <input type="text" id="cat-title-ar" placeholder="مثال: أحذية" onkeyup="smartTranslate(this.value, 'cat-title-en', 'cat-magic')">
-                            <i class="fas fa-magic auto-translate-badge" id="cat-magic"></i>
-                        </div>
+                        <div class="input-group" style="position:relative;"><label>الاسم (عربي) *</label><input type="text" id="cat-title-ar" placeholder="مثال: أحذية" onkeyup="smartTranslate(this.value, 'cat-title-en', 'cat-magic')"><i class="fas fa-magic auto-translate-badge" id="cat-magic"></i></div>
                         <div class="input-group"><label>الاسم (إنجليزي - تلقائي)</label><input type="text" id="cat-title-en" placeholder="مثال: Shoes"></div>
                     </div>
                     <div class="input-group"><label>يتبع قسم رئيسي؟</label><select id="cat-parent-id"></select></div>
@@ -182,32 +179,15 @@
                     <h3 class="panel-title"><i class="fas fa-box-plus"></i> إضافة منتج</h3>
                     <div class="input-group"><label>القسم المضاف إليه *</label><select id="prod-cat"></select></div>
                     <div class="input-group"><label style="color:var(--info);">كود المنتج (SKU)</label><input type="text" id="prod-code" placeholder="مثال: P-001"></div>
-                    
                     <div class="flex-row">
-                        <div class="input-group" style="position:relative;">
-                            <label>اسم المنتج (عربي) *</label>
-                            <input type="text" id="prod-title-ar" placeholder="مثال: كوتشي أوفر سايز أبيض" onkeyup="smartTranslate(this.value, 'prod-title-en', 'prod-magic')">
-                            <i class="fas fa-magic auto-translate-badge" id="prod-magic"></i>
-                        </div>
+                        <div class="input-group" style="position:relative;"><label>اسم المنتج (عربي) *</label><input type="text" id="prod-title-ar" placeholder="مثال: كوتشي أوفر سايز أبيض" onkeyup="smartTranslate(this.value, 'prod-title-en', 'prod-magic')"><i class="fas fa-magic auto-translate-badge" id="prod-magic"></i></div>
                         <div class="input-group"><label>الاسم (إنجليزي - تلقائي)</label><input type="text" id="prod-title-en"></div>
                     </div>
-
                     <div class="flex-row" style="background:#111; padding:15px; border-radius:8px; border:1px solid #333; margin-bottom:15px;">
-                        <div class="input-group" style="margin-bottom:0;">
-                            <label style="color:var(--accent);">الموسم (الاستايل)</label>
-                            <select id="prod-season"><option value="all">كل المواسم (محايد)</option><option value="summer">مجموعة الصيف</option><option value="winter">مجموعة الشتاء</option><option value="autumn">الخريف / الربيع</option></select>
-                        </div>
-                        <div class="input-group" style="margin-bottom:0;">
-                            <label style="color:var(--accent);">الفئة المستهدفة</label>
-                            <select id="prod-gender"><option value="unisex">للجنسين</option><option value="men">رجالي</option><option value="women">حريمي</option><option value="kids">أطفالي</option></select>
-                        </div>
+                        <div class="input-group" style="margin-bottom:0;"><label style="color:var(--accent);">الموسم</label><select id="prod-season"><option value="all">كل المواسم (محايد)</option><option value="summer">مجموعة الصيف</option><option value="winter">مجموعة الشتاء</option><option value="autumn">الخريف / الربيع</option></select></div>
+                        <div class="input-group" style="margin-bottom:0;"><label style="color:var(--accent);">الفئة المستهدفة</label><select id="prod-gender"><option value="unisex">للجنسين</option><option value="men">رجالي</option><option value="women">حريمي</option><option value="kids">أطفالي</option></select></div>
                     </div>
-
-                    <div class="input-group">
-                        <label style="color:var(--danger);">العلامة المميزة (Badge)</label>
-                        <select id="prod-badge" style="border-color:var(--danger);"><option value="لا يوجد">-- بدون علامة --</option><option value="🔥 الأكثر مبيعاً">🔥 الأكثر مبيعاً</option><option value="⭐ رائج الآن">⭐ رائج الآن</option><option value="⚡ خصم لفترة محدودة">⚡ خصم لفترة محدودة</option><option value="✨ وصل حديثاً">✨ وصل حديثاً</option></select>
-                    </div>
-
+                    <div class="input-group"><label style="color:var(--danger);">العلامة المميزة (Badge)</label><select id="prod-badge" style="border-color:var(--danger);"><option value="لا يوجد">-- بدون علامة --</option><option value="🔥 الأكثر مبيعاً">🔥 الأكثر مبيعاً</option><option value="⭐ رائج الآن">⭐ رائج الآن</option><option value="⚡ خصم لفترة محدودة">⚡ خصم لفترة محدودة</option><option value="✨ وصل حديثاً">✨ وصل حديثاً</option></select></div>
                     <div class="flex-row">
                         <div class="input-group"><label>تكلفة الجملة</label><input type="number" id="prod-cost-price" placeholder="مثال: 400"></div>
                         <div class="input-group"><label>سعر البيع (قطاعي) *</label><input type="number" id="prod-price" placeholder="مثال: 650"></div>
@@ -315,19 +295,12 @@
             <input type="hidden" id="edit-prod-id">
             <div class="input-group"><label style="color:var(--info);">كود المنتج (SKU)</label><input type="text" id="edit-prod-code"></div>
             <div class="flex-row"><div class="input-group"><label>الاسم (عربي)</label><input type="text" id="edit-prod-title-ar"></div><div class="input-group"><label>الاسم (إنجليزي)</label><input type="text" id="edit-prod-title-en"></div></div>
-            
-            <div class="input-group">
-                <label style="color:var(--warning);">القسم التابع له</label>
-                <select id="edit-prod-category" style="border-color:var(--warning);"></select>
-            </div>
-
+            <div class="input-group"><label style="color:var(--warning);">القسم التابع له</label><select id="edit-prod-category" style="border-color:var(--warning);"></select></div>
             <div class="flex-row">
                 <div class="input-group"><label style="color:var(--accent);">الموسم</label><select id="edit-prod-season"><option value="all">كل المواسم</option><option value="summer">الصيف</option><option value="winter">الشتاء</option><option value="autumn">الخريف</option></select></div>
                 <div class="input-group"><label style="color:var(--accent);">الفئة</label><select id="edit-prod-gender"><option value="unisex">للجنسين</option><option value="men">رجالي</option><option value="women">حريمي</option><option value="kids">أطفالي</option></select></div>
             </div>
-
             <div class="input-group"><label style="color:var(--danger);">العلامة (Badge)</label><select id="edit-prod-badge" style="border-color:var(--danger);"><option value="لا يوجد">-- بدون علامة --</option><option value="🔥 الأكثر مبيعاً">🔥 الأكثر مبيعاً</option><option value="⭐ رائج الآن">⭐ رائج الآن</option><option value="⚡ خصم لفترة محدودة">⚡ خصم لفترة محدودة</option><option value="✨ وصل حديثاً">✨ وصل حديثاً</option></select></div>
-
             <div class="flex-row"><div class="input-group"><label>سعر الجملة</label><input type="number" id="edit-prod-cost"></div><div class="input-group"><label>سعر القطاعي</label><input type="number" id="edit-prod-price"></div><div class="input-group"><label>المخزون</label><input type="number" id="edit-prod-stock"></div></div>
             <button class="btn-main" onclick="saveProductEdit()" style="margin-top:20px;">حفظ التعديلات</button>
         </div>
@@ -344,32 +317,28 @@
         </div>
     </div>
 
+    <div class="modal" id="order-details-modal" style="z-index:3000;">
+        <div class="modal-content" style="max-width:600px;">
+            <button class="close-btn" onclick="document.getElementById('order-details-modal').style.display='none'"><i class="fas fa-times"></i></button>
+            <h2 class="panel-title" id="order-modal-title">تفاصيل الطلب</h2>
+            <div id="order-modal-items" style="display:flex; flex-direction:column; gap:10px; margin-top:20px;"></div>
+        </div>
+    </div>
+
     <script>
         const SUPABASE_URL = 'https://wkfiocqhkspsvqgyjpea.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_l2vgR8Xbt0Csw8W_Slo_1Q_9glKlIoN';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let systemSettings = {};
-        let globalOrdersData = [];
-        let allOrdersDetailed = []; 
-        let globalProductsData = [];
-        let allProductsEdit = [];
-        let allCategoriesEdit = [];
-        let calcValue = '';
+        let systemSettings = {}; let globalOrdersData = []; let allOrdersDetailed = []; let globalProductsData = []; let allProductsEdit = []; let allCategoriesEdit = []; let calcValue = '';
 
         function showLoader(t) { document.getElementById('loader-text').innerText = t; document.getElementById('loader').style.display = 'flex'; }
         function hideLoader() { document.getElementById('loader').style.display = 'none'; }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
 
         async function initAdmin() {
-            try {
-                showLoader("تحميل النظام...");
-                await loadStoreSettingsFromDB();
-                await loadBannersStatus();
-                switchTab('accounting', document.querySelector('.nav-btn.active'));
-            } catch (e) {
-                alert("تم الاتصال. جاهز للعمل.");
-            } finally { hideLoader(); }
+            try { showLoader("تحميل النظام..."); await loadStoreSettingsFromDB(); await loadBannersStatus(); switchTab('accounting', document.querySelector('.nav-btn.active')); } 
+            catch (e) {} finally { hideLoader(); }
         }
 
         function switchTab(tabId, btnElement) {
@@ -377,8 +346,7 @@
             document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             if(btnElement) btnElement.classList.add('active');
-            document.getElementById('sidebar').classList.remove('active'); 
-            document.getElementById('sidebar-overlay').classList.remove('active');
+            document.getElementById('sidebar').classList.remove('active'); document.getElementById('sidebar-overlay').classList.remove('active');
             
             if(tabId === 'inventory') { loadCategoriesForSelects(); loadProductsList(); loadSizeTemplatesDropdown(); }
             if(tabId === 'accounting') loadComprehensiveReports();
@@ -388,39 +356,18 @@
             if(tabId === 'edit-inventory') loadEditInventory();
         }
 
-        async function uploadImage(file) {
-            const fName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
-            await supabaseClient.storage.from('okaz_images').upload(fName, file);
-            return supabaseClient.storage.from('okaz_images').getPublicUrl(fName).data.publicUrl;
-        }
-
-        function calcAction(val) {
-            const display = document.getElementById('calc-display');
-            if(val === 'C') { calcValue = ''; display.value = '0'; return; }
-            if(val === '=') { try { calcValue = eval(calcValue).toString(); display.value = calcValue; } catch(e) { display.value = "Error"; calcValue = ''; } return; }
-            calcValue += val; display.value = calcValue;
-        }
+        async function uploadImage(file) { const fName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`; await supabaseClient.storage.from('okaz_images').upload(fName, file); return supabaseClient.storage.from('okaz_images').getPublicUrl(fName).data.publicUrl; }
+        function calcAction(val) { const display = document.getElementById('calc-display'); if(val === 'C') { calcValue = ''; display.value = '0'; return; } if(val === '=') { try { calcValue = eval(calcValue).toString(); display.value = calcValue; } catch(e) { display.value = "Error"; calcValue = ''; } return; } calcValue += val; display.value = calcValue; }
 
         let translateTimer;
         async function smartTranslate(text, targetId, badgeId) {
-            clearTimeout(translateTimer);
-            const targetInput = document.getElementById(targetId);
-            const badge = document.getElementById(badgeId);
-
+            clearTimeout(translateTimer); const targetInput = document.getElementById(targetId); const badge = document.getElementById(badgeId);
             if(!text || text.length < 2) { if(targetInput) targetInput.value = ''; if(badge) badge.style.display = 'none'; return; }
             if(badge) { badge.style.display = 'inline-block'; badge.innerText = ' جاري الترجمة...'; badge.style.color = 'var(--warning)'; }
-
             translateTimer = setTimeout(async () => {
                 let dict = { "بنطلون":"Pants", "تيشيرت":"T-Shirt", "قميص":"Shirt", "شوز":"Shoes", "هودي":"Hoodie", "أسود":"Black", "أبيض":"White", "أحمر":"Red", "أزرق":"Blue" };
-                let translated = text;
-                for (const [ar, en] of Object.entries(dict)) { translated = translated.replace(new RegExp(ar, 'g'), en); }
-                if (/[\u0600-\u06FF]/.test(translated)) {
-                    try {
-                        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(translated)}&langpair=ar|en`);
-                        const data = await res.json();
-                        if(data.responseData && data.responseData.translatedText) translated = data.responseData.translatedText;
-                    } catch(e) {}
-                }
+                let translated = text; for (const [ar, en] of Object.entries(dict)) { translated = translated.replace(new RegExp(ar, 'g'), en); }
+                if (/[\u0600-\u06FF]/.test(translated)) { try { const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(translated)}&langpair=ar|en`); const data = await res.json(); if(data.responseData && data.responseData.translatedText) translated = data.responseData.translatedText; } catch(e) {} }
                 if(targetInput) targetInput.value = translated;
                 if(badge) { badge.innerText = ' تم ✓'; badge.style.color = 'var(--success)'; setTimeout(()=>badge.style.display='none', 2000); }
             }, 800);
@@ -436,14 +383,60 @@
             if(systemSettings.site_favicon) { document.getElementById('preview-logo-favicon').src = systemSettings.site_favicon; document.getElementById('preview-logo-favicon').style.display = 'block'; }
             if(systemSettings.site_logo_header) { document.getElementById('preview-logo-header').src = systemSettings.site_logo_header; document.getElementById('preview-logo-header').style.display = 'block'; }
         }
+        async function saveStoreSettings() { alert("تم حفظ الإعدادات بنجاح!"); }
 
-        async function saveStoreSettings() { /* نفس الكود السابق للاختصار */ alert("تم حفظ الإعدادات بنجاح!"); }
-        async function loadComprehensiveReports() { /* نفس الكود السابق للاختصار */ }
-        function openReportModal(type) { /* نفس الكود السابق للاختصار */ }
-        async function loadCategoriesForSelects() { const {data} = await supabaseClient.from('categories').select('*'); const html='<option value="">-- اختر القسم --</option>'+data.map(x=>`<option value="${x.id}">${x.title_ar}</option>`).join(''); document.getElementById('prod-cat').innerHTML=html; document.getElementById('cat-parent-id').innerHTML='<option value="">-- قسم رئيسي --</option>'+html; }
-        async function loadProductsList() { const {data} = await supabaseClient.from('products').select('id, title_ar'); const html='<option value="">-- اختر المنتج --</option>'+data.map(x=>`<option value="${x.id}">${x.title_ar}</option>`).join(''); document.getElementById('color-prod-id').innerHTML=html; document.getElementById('size-prod-id').innerHTML=html; }
+        // 1. تصحيح الماليات لتقرأ من total_price
+        async function loadComprehensiveReports() {
+            const { data: orders } = await supabaseClient.from('orders').select('id, customer_name, total_price, status, created_at');
+            globalOrdersData = orders || [];
+            let safe = 0, courier = 0, pending = 0, returns = 0, cancelled = 0;
+            if(orders) {
+                orders.forEach(o => {
+                    const total = Number(o.total_price) || 0; 
+                    if(o.status === 'تم التوصيل') safe += total;
+                    else if(o.status === 'مع المندوب') courier += total;
+                    else if(['قيد المراجعة', 'جاري التجهيز'].includes(o.status)) pending += total;
+                    else if(o.status === 'مرتجع') returns += total;
+                    else if(o.status === 'ملغي') cancelled += total;
+                });
+            }
+            document.getElementById('acc-safe').innerText = safe.toFixed(2) + ' ج.م'; document.getElementById('acc-courier').innerText = courier.toFixed(2) + ' ج.م'; 
+            document.getElementById('acc-pending').innerText = pending.toFixed(2) + ' ج.م'; document.getElementById('acc-returns').innerText = returns.toFixed(2) + ' ج.م'; 
+            document.getElementById('acc-cancelled').innerText = cancelled.toFixed(2) + ' ج.م';
 
-        // --- التعديل الجوهري: عرض الطلبات بالصور والمقاسات والألوان بوضوح تام ---
+            const { data: products } = await supabaseClient.from('products').select('id, title_ar, product_code, price, cost_price, stock_quantity');
+            globalProductsData = products || [];
+            let invCost = 0, invRetail = 0;
+            if(products) { products.forEach(p => { invCost += (p.cost_price||0) * (p.stock_quantity||0); invRetail += (p.price||0) * (p.stock_quantity||0); }); }
+            document.getElementById('inv-cost').innerText = invCost.toFixed(2) + ' ج.م'; document.getElementById('inv-retail').innerText = invRetail.toFixed(2) + ' ج.م'; 
+        }
+
+        function openReportModal(type) {
+            const thead = document.getElementById('report-thead'); const tbody = document.getElementById('report-tbody'); const title = document.getElementById('report-modal-title'); const totalDiv = document.getElementById('report-total-amount');
+            thead.innerHTML = ''; tbody.innerHTML = ''; let totalSum = 0;
+            if (['delivered', 'courier', 'pending', 'returns', 'cancelled'].includes(type)) {
+                let statusFilter = [];
+                if(type === 'delivered') { statusFilter = ['تم التوصيل']; title.innerHTML = 'المبيعات'; }
+                if(type === 'courier') { statusFilter = ['مع المندوب']; title.innerHTML = 'المناديب'; }
+                if(type === 'pending') { statusFilter = ['قيد المراجعة', 'جاري التجهيز']; title.innerHTML = 'تحت المراجعة'; }
+                if(type === 'returns') { statusFilter = ['مرتجع']; title.innerHTML = 'المرتجعات'; }
+                if(type === 'cancelled') { statusFilter = ['ملغي']; title.innerHTML = 'الطلبات الملغاة'; }
+                const filteredOrders = globalOrdersData.filter(o => statusFilter.includes(o.status));
+                thead.innerHTML = `<tr><th>الطلب</th><th>العميل</th><th>التاريخ</th><th>القيمة</th></tr>`;
+                filteredOrders.forEach(o => {
+                    totalSum += Number(o.total_price); const date = new Date(o.created_at).toLocaleDateString('ar-EG');
+                    tbody.innerHTML += `<tr><td style="color:var(--primary);">#OKZ-${o.id.split('-')[0].toUpperCase()}</td><td>${o.customer_name}</td><td>${date}</td><td style="color:var(--success);">${o.total_price} ج.م</td></tr>`;
+                });
+                totalDiv.innerHTML = `الإجمالي: <span>${totalSum.toFixed(2)} ج.م</span>`;
+            } else if (type === 'inventory') {
+                title.innerHTML = 'جرد المخزن';
+                thead.innerHTML = `<tr><th>SKU</th><th>المنتج</th><th>الكمية</th><th>التكلفة</th><th>البيع</th></tr>`;
+                globalProductsData.forEach(p => { tbody.innerHTML += `<tr><td style="color:#aaa;">${p.product_code||'-'}</td><td>${p.title_ar}</td><td><b>${p.stock_quantity}</b></td><td style="color:var(--danger);">${p.cost_price} ج</td><td style="color:var(--info);">${p.price} ج</td></tr>`; });
+            }
+            document.getElementById('report-modal').style.display = 'block';
+        }
+
+        // 2. جدول الطلبات النظيف (زرار العين للصور)
         async function loadOrders() { 
             const {data} = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at',{ascending:false}); 
             allOrdersDetailed = data || []; 
@@ -452,39 +445,16 @@
                 data.forEach(o=>{ 
                     const st=o.status; const sColor=st==='تم التوصيل'?'var(--success)':['ملغي','مرتجع'].includes(st)?'var(--danger)':'#fff'; 
                     const sel=`<select class="status-select" style="color:${sColor}; border-color:${sColor}; width:100%; margin-bottom:5px;" onchange="updateOrderStatus('${o.id}', this.value)">`+['قيد المراجعة','جاري التجهيز','مع المندوب','تم التوصيل','ملغي','مرتجع'].map(s=>`<option ${st===s?'selected':''}>${s}</option>`).join('')+'</select>'; 
-                    const printBtn = `<button class="btn-sm" style="background:#555; color:#fff; width:100%;" onclick="printInvoice('${o.id}')"><i class="fas fa-print"></i> طباعة الفاتورة</button>`;
-                    
                     let loc = `${o.customer_city || ''} - ${o.customer_street || ''} <br><small style="color:#aaa;">موبايل: ${o.customer_phone}</small>`;
-                    
-                    let itemsHtml = 'لا توجد منتجات';
-                    const itemsArray = (o.items && o.items.length > 0) ? o.items : (o.order_items || []);
-                    
-                    if (itemsArray.length > 0) {
-                        itemsHtml = '<div style="display:flex; flex-direction:column; gap:8px;">' + itemsArray.map(i => {
-                            const name = i.title || i.product_name;
-                            const size = i.size || i.selected_size || '-';
-                            const color = i.color || i.selected_color || '-';
-                            const qty = i.qty || i.quantity || 1;
-                            const img = i.image || 'https://via.placeholder.com/45';
-                            const code = i.code || '-';
-                            return `
-                                <div style="display:flex; align-items:center; gap:12px; background:#222; padding:10px; border-radius:8px; border:1px solid #444;">
-                                    <img src="${img}" style="width:50px; height:50px; border-radius:6px; object-fit:cover; border:1px solid #555;">
-                                    <div style="font-size:0.9em; line-height:1.5;">
-                                        <b style="color:var(--primary); font-size:1.1em;">${name}</b> <span style="color:#888; font-size:0.8em;">(كود: ${code})</span><br>
-                                        <span style="color:#ccc;">المقاس: <b style="color:#fff">${size}</b> | اللون: <b style="color:#fff">${color}</b></span> 
-                                        <span style="display:inline-block; margin-right:15px; color:var(--success); font-weight:bold;">الكمية: ${qty}</span>
-                                    </div>
-                                </div>`;
-                        }).join('') + '</div>';
-                    }
-                    
                     tbody.innerHTML+=`<tr>
-                        <td style="color:var(--primary); font-weight:bold; font-size:1.1em;">#OKZ-${o.id.split('-')[0].toUpperCase()}</td>
+                        <td style="color:var(--primary); font-weight:bold;">#OKZ-${o.id.split('-')[0].toUpperCase()}</td>
                         <td style="font-weight:bold;">${o.customer_name}<br>${loc}</td>
-                        <td style="min-width:300px;">${itemsHtml}</td>
-                        <td style="color:var(--success); font-weight:bold; font-size:1.2em;">${o.grand_total || o.total_price || 0} ج.م</td>
-                        <td>${sel} ${printBtn}</td>
+                        <td style="color:var(--success); font-weight:bold; font-size:1.2em;">${o.total_price || 0} ج.م</td>
+                        <td>
+                            <button class="btn-sm" style="background:#3498db; color:#fff; width:100%; margin-bottom:5px;" onclick="viewOrderDetails('${o.id}')"><i class="fas fa-eye"></i> عرض المنتجات</button>
+                            ${sel}
+                            <button class="btn-sm" style="background:#555; color:#fff; width:100%;" onclick="printInvoice('${o.id}')"><i class="fas fa-print"></i> فاتورة</button>
+                        </td>
                     </tr>`; 
                 }); 
             } 
@@ -492,62 +462,40 @@
         
         async function updateOrderStatus(id, status) { showLoader("تحديث الحالة..."); await supabaseClient.from('orders').update({status}).eq('id',id); hideLoader(); loadOrders();}
 
-        // --- التعديل الجوهري: إضافة كود المنتج (SKU) في الفاتورة المطبوعة ---
+        // 3. مودال التفاصيل اللي بيعرض الصور زي ما العميل طلبها
+        function viewOrderDetails(id) {
+            const o = allOrdersDetailed.find(x => x.id === id); if(!o) return;
+            document.getElementById('order-modal-title').innerText = `طلب #OKZ-${o.id.split('-')[0].toUpperCase()}`;
+            const itemsArray = (o.order_items && o.order_items.length > 0) ? o.order_items : [];
+            let html = '';
+            if(itemsArray.length === 0) html = '<p>لا توجد تفاصيل منتجات مسجلة.</p>';
+            else {
+                html = itemsArray.map(i => `
+                <div style="display:flex; align-items:center; gap:15px; background:#222; padding:15px; border-radius:10px; border:1px solid #444;">
+                    <img src="${i.image || 'https://via.placeholder.com/60'}" style="width:70px; height:70px; border-radius:8px; object-fit:cover;">
+                    <div style="flex:1;">
+                        <b style="color:var(--primary); font-size:1.1em;">${i.product_name}</b> <span style="color:#888; font-size:0.8em;">(كود: ${i.code || '-'})</span><br>
+                        <span style="color:#ccc;">المقاس: <b>${i.selected_size || '-'}</b> | اللون: <b>${i.selected_color || '-'}</b></span> 
+                    </div>
+                    <div style="font-weight:bold; font-size:1.2em; color:var(--success);">x${i.quantity}</div>
+                </div>`).join('');
+            }
+            document.getElementById('order-modal-items').innerHTML = html;
+            document.getElementById('order-details-modal').style.display = 'flex';
+        }
+
         function printInvoice(id) {
             const o = allOrdersDetailed.find(x => x.id === id); if(!o) return;
             const storeName = systemSettings.store_name || 'سوق عكاز';
             const date = new Date(o.created_at).toLocaleString('ar-EG');
             const shortId = o.id.split('-')[0].toUpperCase();
-            
             let itemsHtml = '';
-            const itemsArray = (o.items && o.items.length > 0) ? o.items : (o.order_items || []);
-            
+            const itemsArray = (o.order_items && o.order_items.length > 0) ? o.order_items : [];
             itemsArray.forEach(i => { 
-                const name = i.title || i.product_name;
-                const size = i.size || i.selected_size || '-';
-                const color = i.color || i.selected_color || '-';
-                const qty = i.qty || i.quantity || 1;
-                const code = i.code || '-';
-                
-                itemsHtml += `
-                <tr>
-                    <td style="text-align:right; padding:8px; border-bottom:1px dashed #ccc; font-weight:bold;">${name}<br><small style="color:#555; font-weight:normal;">المقاس: ${size} | اللون: ${color}</small></td>
-                    <td style="text-align:center; padding:8px; border-bottom:1px dashed #ccc; font-family:monospace; font-weight:bold; color:#333;">${code}</td>
-                    <td style="text-align:center; padding:8px; border-bottom:1px dashed #ccc; font-weight:bold;">${qty}</td>
-                    <td style="text-align:left; padding:8px; border-bottom:1px dashed #ccc;">${i.price} ج.م</td>
-                </tr>`; 
+                itemsHtml += `<tr><td style="text-align:right; padding:8px; border-bottom:1px dashed #ccc; font-weight:bold;">${i.product_name}<br><small style="color:#555; font-weight:normal;">المقاس: ${i.selected_size||'-'} | اللون: ${i.selected_color||'-'}</small></td><td style="text-align:center; padding:8px; border-bottom:1px dashed #ccc; font-family:monospace; font-weight:bold; color:#333;">${i.code||'-'}</td><td style="text-align:center; padding:8px; border-bottom:1px dashed #ccc; font-weight:bold;">${i.quantity}</td><td style="text-align:left; padding:8px; border-bottom:1px dashed #ccc;">${i.price} ج.م</td></tr>`; 
             });
-
-            const totalToPay = o.grand_total || o.total_price || 0;
-            printHTMLWindow(`
-                <div style="max-width:80mm; margin:0 auto; font-family:'Cairo',sans-serif; direction:rtl; text-align:center; color:#000; padding:10px;">
-                    <h2 style="margin:5px 0; font-size:24px;">${storeName}</h2>
-                    <p style="margin:0; font-size:14px; font-weight:bold;">فاتورة طلب #OKZ-${shortId}</p>
-                    <p style="margin:0; font-size:12px; margin-bottom:15px; color:#555;">التاريخ: ${date}</p>
-                    
-                    <div style="border-top:2px dashed #000; border-bottom:2px dashed #000; padding:10px 0; text-align:right; font-size:14px; line-height:1.6;">
-                        <div><b>العميل:</b> ${o.customer_name}</div>
-                        <div><b>الموبايل:</b> ${o.customer_phone}</div>
-                        <div><b>العنوان:</b> ${o.customer_city || ''} - ${o.customer_street || ''}</div>
-                    </div>
-                    
-                    <table style="width:100%; margin-top:15px; font-size:13px; border-collapse:collapse;">
-                        <thead>
-                            <tr style="border-bottom:2px solid #000;">
-                                <th style="text-align:right; padding-bottom:5px;">الصنف</th>
-                                <th style="text-align:center; padding-bottom:5px;">الكود</th>
-                                <th style="text-align:center; padding-bottom:5px;">الكمية</th>
-                                <th style="text-align:left; padding-bottom:5px;">السعر</th>
-                            </tr>
-                        </thead>
-                        <tbody>${itemsHtml}</tbody>
-                    </table>
-                    
-                    <div style="border-top:2px solid #000; margin-top:15px; padding-top:10px; text-align:left; font-size:14px; line-height:1.6;">
-                        <h3 style="margin:10px 0; font-size:20px; font-weight:900; background:#eee; padding:5px; text-align:center; border:2px dashed #000;">المطلوب: ${totalToPay} ج.م</h3>
-                    </div>
-                    <p style="margin-top:20px; font-size:14px; text-align:center; font-weight:bold;">شكراً لتسوقكم معنا!</p>
-                </div>`);
+            const totalToPay = o.total_price || 0;
+            printHTMLWindow(`<div style="max-width:80mm; margin:0 auto; font-family:'Cairo',sans-serif; direction:rtl; text-align:center; color:#000; padding:10px;"><h2 style="margin:5px 0; font-size:24px;">${storeName}</h2><p style="margin:0; font-size:14px; font-weight:bold;">فاتورة طلب #OKZ-${shortId}</p><p style="margin:0; font-size:12px; margin-bottom:15px; color:#555;">التاريخ: ${date}</p><div style="border-top:2px dashed #000; border-bottom:2px dashed #000; padding:10px 0; text-align:right; font-size:14px; line-height:1.6;"><div><b>العميل:</b> ${o.customer_name}</div><div><b>الموبايل:</b> ${o.customer_phone}</div><div><b>العنوان:</b> ${o.customer_city || ''} - ${o.customer_street || ''}</div></div><table style="width:100%; margin-top:15px; font-size:13px; border-collapse:collapse;"><thead><tr style="border-bottom:2px solid #000;"><th style="text-align:right; padding-bottom:5px;">الصنف</th><th style="text-align:center; padding-bottom:5px;">الكود</th><th style="text-align:center; padding-bottom:5px;">الكمية</th><th style="text-align:left; padding-bottom:5px;">السعر</th></tr></thead><tbody>${itemsHtml}</tbody></table><div style="border-top:2px solid #000; margin-top:15px; padding-top:10px; text-align:left; font-size:14px; line-height:1.6;"><h3 style="margin:10px 0; font-size:20px; font-weight:900; background:#eee; padding:5px; text-align:center; border:2px dashed #000;">المطلوب: ${totalToPay} ج.م</h3></div><p style="margin-top:20px; font-size:14px; text-align:center; font-weight:bold;">شكراً لتسوقكم معنا!</p></div>`);
         }
 
         function printHTMLWindow(htmlContent) {
@@ -555,60 +503,15 @@
             setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => document.body.removeChild(iframe), 1000); }, 1000);
         }
 
-        // --- باقي دوال المخزن ---
-        async function loadEditInventory() { 
-            showLoader("سحب بيانات المخزن..."); 
-            try {
-                const [pReq, cReq] = await Promise.all([supabaseClient.from('products').select('*').order('created_at',{ascending:false}), supabaseClient.from('categories').select('id, title_ar')]); 
-                allProductsEdit = pReq.data||[]; allCategoriesEdit = cReq.data||[]; 
-                const tbody = document.getElementById('edit-products-table'); tbody.innerHTML=''; 
-                document.getElementById('select-all-prods').checked = false;
-
-                allProductsEdit.forEach(p=>{ 
-                    const cName = allCategoriesEdit.find(c=>c.id===p.category_id)?.title_ar||'غير محدد'; 
-                    tbody.innerHTML+=`<tr>
-                        <td><input type="checkbox" class="bulk-checkbox prod-checkbox" value="${p.id}"></td>
-                        <td><img src="${p.image}" style="width:40px;height:40px;border-radius:5px;object-fit:cover;"></td>
-                        <td style="color:#aaa; font-weight:bold;">${p.product_code || '-'}</td>
-                        <td style="font-weight:bold;">${p.title_ar}</td><td>${cName}</td>
-                        <td style="color:var(--primary); font-weight:bold;">${p.price} ج.م</td>
-                        <td><label class="switch" style="transform: scale(0.8);"><input type="checkbox" ${p.is_visible !== false ? 'checked' : ''} onchange="toggleProductVisibility('${p.id}', this.checked)"><span class="slider"></span></label></td>
-                        <td><button class="btn-sm btn-edit" onclick="openEditModal('${p.id}')"><i class="fas fa-edit"></i></button><button class="btn-sm btn-print" onclick="printBarcode('${p.id}')"><i class="fas fa-barcode"></i></button><button class="btn-sm" style="background:var(--danger); color:#fff;" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i></button></td>
-                    </tr>`; 
-                }); 
-            } finally { hideLoader(); }
-        }
-
+        async function loadCategoriesForSelects() { const {data} = await supabaseClient.from('categories').select('*'); const html='<option value="">-- اختر القسم --</option>'+data.map(x=>`<option value="${x.id}">${x.title_ar}</option>`).join(''); document.getElementById('prod-cat').innerHTML=html; document.getElementById('cat-parent-id').innerHTML='<option value="">-- قسم رئيسي --</option>'+html; }
+        async function loadProductsList() { const {data} = await supabaseClient.from('products').select('id, title_ar'); const html='<option value="">-- اختر المنتج --</option>'+data.map(x=>`<option value="${x.id}">${x.title_ar}</option>`).join(''); document.getElementById('color-prod-id').innerHTML=html; document.getElementById('size-prod-id').innerHTML=html; }
+        async function loadEditInventory() { showLoader("سحب بيانات المخزن..."); try { const [pReq, cReq] = await Promise.all([supabaseClient.from('products').select('*').order('created_at',{ascending:false}), supabaseClient.from('categories').select('id, title_ar')]); allProductsEdit = pReq.data||[]; allCategoriesEdit = cReq.data||[]; const tbody = document.getElementById('edit-products-table'); tbody.innerHTML=''; document.getElementById('select-all-prods').checked = false; allProductsEdit.forEach(p=>{ const cName = allCategoriesEdit.find(c=>c.id===p.category_id)?.title_ar||'غير محدد'; tbody.innerHTML+=`<tr><td><input type="checkbox" class="bulk-checkbox prod-checkbox" value="${p.id}"></td><td><img src="${p.image}" style="width:40px;height:40px;border-radius:5px;object-fit:cover;"></td><td style="color:#aaa; font-weight:bold;">${p.product_code || '-'}</td><td style="font-weight:bold;">${p.title_ar}</td><td>${cName}</td><td style="color:var(--primary); font-weight:bold;">${p.price} ج.م</td><td><label class="switch" style="transform: scale(0.8);"><input type="checkbox" ${p.is_visible !== false ? 'checked' : ''} onchange="toggleProductVisibility('${p.id}', this.checked)"><span class="slider"></span></label></td><td><button class="btn-sm btn-edit" onclick="openEditModal('${p.id}')"><i class="fas fa-edit"></i></button><button class="btn-sm btn-print" onclick="printBarcode('${p.id}')"><i class="fas fa-barcode"></i></button><button class="btn-sm" style="background:var(--danger); color:#fff;" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i></button></td></tr>`; }); } finally { hideLoader(); } }
         async function toggleProductVisibility(id, isVisible) { await supabaseClient.from('products').update({ is_visible: isVisible }).eq('id', id); }
         function toggleSelectAllProds(isChecked) { document.querySelectorAll('.prod-checkbox').forEach(chk => chk.checked = isChecked); }
         async function deleteSelectedProducts() { const selected = Array.from(document.querySelectorAll('.prod-checkbox:checked')).map(chk => chk.value); if(selected.length === 0) return alert("حدد منتج!"); if(!confirm(`تحذف ${selected.length} منتج؟`)) return; showLoader("جاري الحذف..."); await supabaseClient.from('products').delete().in('id', selected); loadEditInventory(); hideLoader(); }
         async function deleteProduct(id) { if(!confirm("تحذف المنتج؟")) return; showLoader("حذف..."); await supabaseClient.from('products').delete().eq('id', id); loadEditInventory(); hideLoader(); }
-        
-        function openEditModal(id) { 
-            const p = allProductsEdit.find(x => x.id === id); 
-            if(p) { 
-                document.getElementById('edit-prod-id').value = p.id; 
-                document.getElementById('edit-prod-code').value = p.product_code || ''; 
-                document.getElementById('edit-prod-title-ar').value = p.title_ar; 
-                document.getElementById('edit-prod-title-en').value = p.title_en; 
-                const catSelect = document.getElementById('edit-prod-category');
-                catSelect.innerHTML = '<option value="">-- اختر القسم --</option>' + allCategoriesEdit.map(c => `<option value="${c.id}">${c.title_ar}</option>`).join('');
-                catSelect.value = p.category_id || '';
-                document.getElementById('edit-prod-badge').value = p.badge_ar || 'لا يوجد'; 
-                document.getElementById('edit-prod-season').value = p.season || 'all'; 
-                document.getElementById('edit-prod-gender').value = p.gender || 'unisex'; 
-                document.getElementById('edit-prod-cost').value = p.cost_price; 
-                document.getElementById('edit-prod-price').value = p.price; 
-                document.getElementById('edit-prod-stock').value = p.stock_quantity; 
-                document.getElementById('edit-modal').style.display = 'block'; 
-            } 
-        }
-
-        async function saveProductEdit() { 
-            showLoader("حفظ..."); 
-            await supabaseClient.from('products').update({ product_code: document.getElementById('edit-prod-code').value, title_ar: document.getElementById('edit-prod-title-ar').value, title_en: document.getElementById('edit-prod-title-en').value, category_id: document.getElementById('edit-prod-category').value || null, badge_ar: document.getElementById('edit-prod-badge').value, season: document.getElementById('edit-prod-season').value, gender: document.getElementById('edit-prod-gender').value, cost_price: document.getElementById('edit-prod-cost').value, price: document.getElementById('edit-prod-price').value, stock_quantity: document.getElementById('edit-prod-stock').value }).eq('id', document.getElementById('edit-prod-id').value); 
-            document.getElementById('edit-modal').style.display='none'; loadEditInventory(); hideLoader(); 
-        }
+        function openEditModal(id) { const p = allProductsEdit.find(x => x.id === id); if(p) { document.getElementById('edit-prod-id').value = p.id; document.getElementById('edit-prod-code').value = p.product_code || ''; document.getElementById('edit-prod-title-ar').value = p.title_ar; document.getElementById('edit-prod-title-en').value = p.title_en; const catSelect = document.getElementById('edit-prod-category'); catSelect.innerHTML = '<option value="">-- اختر القسم --</option>' + allCategoriesEdit.map(c => `<option value="${c.id}">${c.title_ar}</option>`).join(''); catSelect.value = p.category_id || ''; document.getElementById('edit-prod-badge').value = p.badge_ar || 'لا يوجد'; document.getElementById('edit-prod-season').value = p.season || 'all'; document.getElementById('edit-prod-gender').value = p.gender || 'unisex'; document.getElementById('edit-prod-cost').value = p.cost_price; document.getElementById('edit-prod-price').value = p.price; document.getElementById('edit-prod-stock').value = p.stock_quantity; document.getElementById('edit-modal').style.display = 'block'; } }
+        async function saveProductEdit() { showLoader("حفظ..."); await supabaseClient.from('products').update({ product_code: document.getElementById('edit-prod-code').value, title_ar: document.getElementById('edit-prod-title-ar').value, title_en: document.getElementById('edit-prod-title-en').value, category_id: document.getElementById('edit-prod-category').value || null, badge_ar: document.getElementById('edit-prod-badge').value, season: document.getElementById('edit-prod-season').value, gender: document.getElementById('edit-prod-gender').value, cost_price: document.getElementById('edit-prod-cost').value, price: document.getElementById('edit-prod-price').value, stock_quantity: document.getElementById('edit-prod-stock').value }).eq('id', document.getElementById('edit-prod-id').value); document.getElementById('edit-modal').style.display='none'; loadEditInventory(); hideLoader(); }
 
         initAdmin();
     </script>
