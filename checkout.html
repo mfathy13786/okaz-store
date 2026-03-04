@@ -111,7 +111,6 @@
     async function initCheckout() {
         if(cart.length === 0) { window.location.href = 'index.html'; return; }
         
-        // 1. تحميل المحافظات أولاً
         const { data: cities } = await supabaseClient.from('shipping_rules').select('*').order('city_ar');
         const citySelect = document.getElementById('cust-city');
         if(cities && cities.length > 0) {
@@ -119,7 +118,6 @@
             cities.forEach(c => { citySelect.innerHTML += `<option value="${c.city_ar}" data-cost="${c.cost}">${c.city_ar} (${c.cost} ج.م)</option>`; });
         }
 
-        // 2. سحب بيانات العميل لو مسجل وملء الخانات (Auto-fill)
         const { data: { session } } = await supabaseClient.auth.getSession();
         if(session) { 
             currentUserEmail = session.user.email; 
@@ -131,7 +129,6 @@
                 if(meta.location_url) document.getElementById('cust-location').value = meta.location_url;
                 if(meta.city) {
                     citySelect.value = meta.city;
-                    // تأكيد إن المحافظة اختيرت صح عشان يحسب الشحن
                 }
                 document.getElementById('logged-in-badge').style.display = 'block';
             }
@@ -171,7 +168,6 @@
 
         if(!name || !phone || !city || !address) return alert("برجاء ملء جميع بيانات التوصيل الأساسية.");
 
-        // دمج اللوكيشن في العنوان لو العميل حطه عشان يظهر للمندوب وللأدمن
         if(locationUrl) {
             address += ` | اللوكيشن: ${locationUrl}`;
         }
@@ -179,17 +175,24 @@
         btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التسجيل...';
         const grandTotal = itemsTotal + shippingCost;
 
-        // 1. الحفظ في جدول orders 
+        // التعديل الجذري: رجوع أسماء العواميد الصحيحة لقاعدة البيانات
         const { data: orderData, error: orderError } = await supabaseClient.from('orders').insert([{
             customer_email: currentUserEmail,
-            customer_name: name, customer_phone: phone, customer_city: city, 
-            customer_area: '-', customer_street: address, customer_building: '-', customer_apartment: '-',
-            total_price: grandTotal, status: 'قيد المراجعة'
+            customer_name: name, 
+            customer_phone: phone, 
+            customer_city: city, 
+            customer_area: '-', 
+            customer_street: address, 
+            customer_building: '-', 
+            customer_apartment: '-',
+            total_items_price: itemsTotal,
+            shipping_cost: shippingCost,
+            grand_total: grandTotal, 
+            status: 'قيد المراجعة'
         }]).select().single();
 
-        if(orderError) { alert("خطأ: " + orderError.message); btn.disabled = false; btn.innerHTML = 'تأكيد'; return; }
+        if(orderError) { alert("حدث خطأ تقني: " + orderError.message); btn.disabled = false; btn.innerHTML = 'تأكيد إتمام الطلب <i class="fas fa-check-circle"></i>'; return; }
 
-        // 2. الحفظ في جدول order_items 
         const orderItems = cart.map(item => ({
             order_id: orderData.id, product_name: item.title, selected_size: item.size || '', selected_color: item.color || '',
             quantity: item.qty, price: item.price, image: item.image, code: item.code
@@ -201,7 +204,6 @@
         
         finalizedOrderData = { id: shortOrderId, name, phone, city, address, grandTotal, shippingCost, date: new Date().toLocaleDateString('ar-EG') };
 
-        // بناء رسالة الواتساب 
         let message = `*طلب جديد #${shortOrderId}* 🛍️\n\n`;
         message += `👤 *العميل:* ${name}\n📞 *الموبايل:* ${phone}\n📍 *العنوان:* ${city} - ${address}\n\n*المنتجات:*\n`;
         cart.forEach(i => { message += `▪️ ${i.qty}x ${i.title} (${i.size||'-'} | ${i.color||'-'}) - ${i.price}ج\n`; });
