@@ -53,14 +53,40 @@
         .product-title { font-size: 0.9em; font-weight: 700; height: 2.6em; overflow: hidden; margin-bottom: 5px; }
         .product-price { color: var(--primary); font-weight: 900; font-size: 1.1em; }
 
-        /* مودال عام */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); padding: 20px; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; border-radius: 20px; padding: 25px; position: relative; animation: scaleIn 0.3s ease; }
-        .auth-content { background: var(--card-bg); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border-radius: 20px; padding: 30px; position: relative; animation: scaleIn 0.3s ease; }
-        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .close-modal { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.1); border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2em; z-index: 10; cursor: pointer; transition:0.2s;}
-        .close-modal:hover { background: var(--danger); color: #fff;}
+        /* =========================================================
+           الحل الجذري للمودال والنوافذ المنبثقة لمنع كسر الشاشة 
+           استخدام !important لفرض السيطرة المطلقة على التصميم
+           ========================================================= */
+        .modal-overlay, .product-modal { 
+            position: fixed !important; 
+            top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+            background: rgba(0,0,0,0.8) !important; 
+            z-index: 9999 !important; 
+            display: none; 
+            align-items: center !important; 
+            justify-content: center !important; 
+            backdrop-filter: blur(3px) !important; 
+            padding: 20px !important; 
+        }
         
+        .modal-content, .auth-content { 
+            background: var(--card-bg) !important; 
+            width: 100% !important; 
+            max-width: 500px !important; 
+            max-height: 90vh !important; 
+            overflow-y: auto !important; 
+            border-radius: 20px !important; 
+            padding: 25px !important; 
+            position: relative !important; 
+            animation: scaleIn 0.3s ease !important; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+        }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .close-modal { position: absolute !important; top: 15px !important; left: 15px !important; background: rgba(0,0,0,0.1) !important; border: none !important; width: 35px !important; height: 35px !important; border-radius: 50% !important; font-size: 1.2em !important; z-index: 10 !important; cursor: pointer !important; transition:0.2s !important; display: flex !important; align-items: center !important; justify-content: center !important;}
+        .close-modal:hover { background: var(--danger) !important; color: #fff !important;}
+        /* ========================================================= */
+
         /* لوحة تحكم العميل الاحترافية */
         .profile-header { display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; margin-bottom: 15px;}
         .profile-avatar { width: 65px; height: 65px; border-radius: 50%; background: #eee; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 2em; overflow: hidden; border: 2px solid var(--primary); position: relative;}
@@ -84,18 +110,21 @@
         .btn-gps { background: #3498db; color: #fff; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; font-weight: bold; width: 100%; margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 8px;}
         .btn-upload { background: #eee; color: #333; border: 1px dashed #aaa; padding: 10px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; width: 100%; margin-top: 5px; font-weight: bold;}
 
-        /* Product Modal */
+        /* Product Modal Details */
         .img-zoom-container { width: 100%; height: 350px; background: #f9f9f9; text-align: center; margin: -25px -25px 20px -25px; border-radius: 20px 20px 0 0; overflow:hidden;}
         .img-zoom-container img { height: 100%; max-width: 100%; object-fit: contain; }
+        .modal-details { padding: 10px 0; }
+        .options-title { font-weight: bold; font-size: 0.9em; margin: 15px 0 10px; display: block; color: #555; }
         .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;}
         .chip { border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; font-size: 0.9em; cursor: pointer; font-weight: bold;}
         .chip.selected { border-color: var(--primary); background: var(--primary); color: #fff; }
         .color-chip { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; padding: 2px; }
         .color-chip.selected { border-color: var(--primary); } .color-chip span { display: block; width: 100%; height: 100%; border-radius: 50%; }
 
-        .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2400; display: none; }
+        /* السلة الجانبية المحمية */
+        .cart-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.5) !important; z-index: 2400 !important; display: none; }
         .cart-overlay.open { display: block; }
-        .cart-drawer { position: fixed; top: 0; bottom: 0; right: 0; width: 100%; max-width: 400px; background: #fff; z-index: 2500; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
+        .cart-drawer { position: fixed !important; top: 0 !important; bottom: 0 !important; right: 0 !important; width: 100% !important; max-width: 400px !important; background: #fff !important; z-index: 2500 !important; transform: translateX(100%); transition: transform 0.3s ease; display: flex !important; flex-direction: column !important; box-shadow: -5px 0 15px rgba(0,0,0,0.1) !important; }
         .cart-drawer.open { transform: translateX(0); }
         .cart-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 1.2em; color: var(--primary); }
         .cart-items { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
@@ -220,13 +249,14 @@
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
             <div class="img-zoom-container"><img id="modal-img" src=""></div>
-            <p id="modal-promo" style="color: var(--primary); font-weight: bold; font-size: 0.9em; margin-bottom: 5px;"></p>
-            <h2 id="modal-title" style="font-weight:900; font-size:1.3em; margin-bottom:5px;"></h2>
-            <div class="product-price" style="font-size:1.5em; margin-bottom:15px;"><span id="modal-price"></span> <span class="old-price" id="modal-old-price"></span></div>
-            
-            <div id="modal-colors-section" style="display:none;"><b class="options-title">اللون:</b><div class="chips" id="modal-colors-list"></div></div>
-            <div id="modal-sizes-section" style="display:none;"><b class="options-title">المقاس:</b><div class="chips" id="modal-sizes-list"></div></div>
-            
+            <div class="modal-details">
+                <p id="modal-promo" style="color: var(--primary); font-weight: bold; font-size: 0.9em; margin-bottom: 5px;"></p>
+                <h2 id="modal-title" style="font-weight:900; font-size:1.3em; margin-bottom:5px; color:#000;"></h2>
+                <div class="product-price" style="font-size:1.5em; margin-bottom:15px;"><span id="modal-price"></span> <span class="old-price" id="modal-old-price"></span></div>
+                
+                <div id="modal-colors-section" style="display:none;"><b class="options-title">اللون:</b><div class="chips" id="modal-colors-list"></div></div>
+                <div id="modal-sizes-section" style="display:none;"><b class="options-title">المقاس:</b><div class="chips" id="modal-sizes-list"></div></div>
+            </div>
             <button class="btn-main" style="margin-top:15px; font-size:1.1em; padding:15px;" onclick="addToCart()">أضف للسلة <i class="fas fa-cart-plus"></i></button>
         </div>
     </div>
@@ -372,7 +402,6 @@
             btn.disabled = false;
         }
 
-        // التعديل السحري: قراءة المنتجات مباشرة من cart_info من الداتا بيز
         async function fetchMyOrders() {
             if(!currentUser) return;
             const list = document.getElementById('my-orders-list');
@@ -396,7 +425,6 @@
                     cancelBtn = `<button style="background:var(--danger); color:#fff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-family:'Cairo'; font-size:0.8em; font-weight:bold;" onclick="cancelMyOrder('${o.id}')"><i class="fas fa-times"></i> إلغاء الطلب</button>`;
                 }
                 
-                // قراءة المنتجات من العمود الجديد اللي إنت عملته باحترافية
                 let itemsHtml = '';
                 if (o.cart_info && Array.isArray(o.cart_info) && o.cart_info.length > 0) {
                      itemsHtml = o.cart_info.map(i => `
@@ -406,7 +434,7 @@
                         </div>
                     `).join('');
                 } else {
-                     itemsHtml = '<div style="text-align:center; color:#aaa; font-size:0.9em;">(تفاصيل المنتجات غير متوفرة لهذا الطلب القديم)</div>';
+                     itemsHtml = '<div style="text-align:center; color:#aaa; font-size:0.9em;">(تفاصيل المنتجات غير متوفرة لهذا الطلب)</div>';
                 }
 
                 return `
