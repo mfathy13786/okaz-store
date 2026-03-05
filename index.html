@@ -6,7 +6,7 @@
     <title id="main-site-title">جاري التحميل...</title>
     
     <meta name="theme-color" id="meta-theme-color" content="#e67e22">
-    <link rel="apple-touch-icon" id="meta-apple-icon" href="https://placehold.co/192x192/e67e22/ffffff.png?text=App">
+    <link rel="apple-touch-icon" id="meta-apple-icon" href="https://placehold.co/512x512/e67e22/ffffff.png?text=App">
     <link rel="manifest" id="dynamic-manifest">
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
@@ -470,21 +470,22 @@
             return stars;
         }
 
-        // 🌟 أكواد تفعيل الـ PWA 🌟
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').then(reg => console.log('PWA Registered')).catch(err => console.log('PWA Error')); });
         }
+        
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
-            setTimeout(() => { document.getElementById('pwa-install-banner').style.display = 'flex'; }, 3000);
+            e.preventDefault(); 
+            deferredPrompt = e;
         });
+
         document.getElementById('pwa-install-btn').addEventListener('click', async () => {
             document.getElementById('pwa-install-banner').style.display = 'none';
             if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null; }
         });
 
-        // 🌟 دالة توليد ملف الـ PWA الوهمي (Dynamic Manifest) من الداتا بيز 🌟
+        // 🌟 دالة توليد التطبيق بعد التأكد من وجود صورة صحيحة 🌟
         function buildDynamicManifest() {
             const appName = systemSettings.store_name || "المتجر";
             const appColor = systemSettings.theme_color || "#e67e22";
@@ -494,12 +495,22 @@
             document.getElementById('meta-apple-icon').href = appIcon;
 
             const manifest = {
-                "name": appName, "short_name": appName, "description": "أفضل متجر إلكتروني للتسوق", "start_url": "/index.html", "display": "standalone", "background_color": "#ffffff", "theme_color": appColor,
-                "icons": [ { "src": appIcon, "sizes": "192x192", "type": "image/png" }, { "src": appIcon, "sizes": "512x512", "type": "image/png" } ]
+                "name": appName, "short_name": appName, "description": "أفضل متجر إلكتروني للتسوق", "start_url": "./index.html", "display": "standalone", "background_color": "#ffffff", "theme_color": appColor,
+                "icons": [ 
+                    { "src": appIcon, "sizes": "192x192", "type": "image/png" }, 
+                    { "src": appIcon, "sizes": "512x512", "type": "image/png", "purpose": "any maskable" } 
+                ]
             };
 
-            const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-            document.getElementById('dynamic-manifest').href = URL.createObjectURL(blob);
+            const stringManifest = JSON.stringify(manifest);
+            const blob = new Blob([stringManifest], {type: 'application/json'});
+            const manifestURL = URL.createObjectURL(blob);
+            document.getElementById('dynamic-manifest').setAttribute('href', manifestURL);
+
+            // إظهار زر التثبيت فقط بعد بناء الـ Manifest
+            setTimeout(() => {
+                if (deferredPrompt) { document.getElementById('pwa-install-banner').style.display = 'flex'; }
+            }, 1500);
         }
 
         async function initStore() {
@@ -522,7 +533,7 @@
             const {data} = await supabaseClient.from('store_settings').select('*');
             if(data) data.forEach(s => systemSettings[s.setting_key] = s.setting_value);
             
-            // 🔥 بمجرد سحب الإعدادات، نبني التطبيق 🔥
+            // 🔥 بناء التطبيق بالأيقونة الجديدة 🔥
             buildDynamicManifest();
 
             const storeNameDisplay = systemSettings.store_name || 'المتجر';
@@ -609,7 +620,6 @@
             const [sz, cl] = await Promise.all([supabaseClient.from('product_sizes').select('*').eq('product_id', id), supabaseClient.from('product_colors').select('*').eq('product_id', id)]); 
             let sliderImages = [currentProd.image]; let colorHtml = ''; const cSec = document.getElementById('pdp-colors-section'); 
             
-            // اختيار تلقائي لأول لون ومقاس
             if(cl.data && cl.data.length > 0) { 
                 cSec.style.display = 'block'; 
                 colorHtml = cl.data.map((c, idx) => { 
