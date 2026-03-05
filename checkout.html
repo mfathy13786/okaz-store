@@ -10,6 +10,7 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -17,81 +18,94 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent;}
         body { background-color: var(--bg); color: var(--text); padding-bottom: 50px; }
 
-        .toast-msg { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); color: #fff; padding: 12px 25px; border-radius: 30px; z-index: 99999; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: dropDown 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; align-items: center; gap: 10px; width: 90%; max-width: 450px; justify-content: center; text-align:center; line-height:1.4;}
+        /* الإشعارات */
+        .toast-msg { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); color: #fff; padding: 12px 25px; border-radius: 30px; z-index: 99999; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: dropDown 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; align-items: center; gap: 10px; width: 90%; max-width: 450px; justify-content: center; text-align:center;}
         @keyframes dropDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
 
-        header { background: var(--card-bg); padding: 15px 20px; text-align: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
+        header { background: var(--card-bg); padding: 15px 20px; text-align: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;}
         header h1 { color: var(--primary); font-weight: 900; margin: 0; font-size: 1.5em; cursor: pointer;}
+        
         .checkout-container { max-width: 1000px; margin: 20px auto; padding: 0 15px; display: flex; flex-wrap: wrap; gap: 20px; flex-direction: row-reverse;}
-        .col-right { flex: 1; min-width: 300px; background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #eee;}
-        .col-left { flex: 1; min-width: 300px; background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #eee; height: fit-content;}
+        .col-right, .col-left { flex: 1; min-width: 320px; background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #eee;}
 
         h2 { font-size: 1.2em; font-weight: 900; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;}
-        h2 i { color: var(--primary); }
         .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; font-size: 0.9em;}
-        .input-style { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Cairo'; outline: none; background: #fafafa; font-size: 0.95em; transition:0.3s;}
-        .input-style:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(230,126,34,0.1);}
+        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; font-size: 0.85em;}
+        .input-style { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Cairo'; outline: none; background: #fafafa; font-size: 0.95em;}
+        
         .flex-row { display: flex; gap: 10px; } .flex-row > div { flex: 1; }
-        .building-type-group { display: flex; gap: 10px; margin-bottom: 15px; }
-        .build-btn { flex: 1; padding: 10px; text-align: center; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; font-weight: bold; color: #777; background: #fafafa; transition: 0.2s; user-select: none; }
+
+        .build-btn { flex: 1; padding: 12px; text-align: center; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; font-weight: bold; color: #777; background: #fafafa; }
         .build-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-        .build-btn input { display: none; }
-        #map { height: 250px; width: 100%; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 10px;}
-        .map-overlay-btn { background: var(--info); color: #fff; border: none; padding: 10px; width: 100%; font-weight: bold; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1em; border-radius: 8px; margin-bottom: 15px;}
-        .cart-item { display: flex; gap: 15px; padding-bottom: 15px; border-bottom: 1px dashed #eee; margin-bottom: 15px; position: relative;}
-        .cart-item img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; border: 1px solid #eee;}
-        .item-details { flex: 1; } .item-title { font-weight: bold; color: #333; font-size: 0.95em; margin-bottom: 5px;}
-        .item-meta { font-size: 0.8em; color: #777;} .item-price { color: var(--primary); font-weight: 900;}
-        .summary-total { display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 2px dashed #ddd; font-size: 1.3em; font-weight: 900; color: #000;}
-        .btn-submit { background: var(--success); color: #fff; width: 100%; border: none; padding: 15px; border-radius: 10px; font-weight: 900; font-size: 1.1em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 20px;}
-        .modal { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:99999; display:none; align-items:center; justify-content:center; backdrop-filter:blur(3px); padding:20px; }
-        .modal-content { background:#fff; padding:40px 20px; border-radius:20px; text-align:center; max-width:400px; width:100%; animation:scaleIn 0.3s ease; }
-        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        #map { height: 220px; width: 100%; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 10px;}
+        
+        .cart-item { display: flex; gap: 15px; padding-bottom: 15px; border-bottom: 1px dashed #eee; margin-bottom: 15px;}
+        .cart-item img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid #eee;}
+
+        .btn-submit { background: var(--success); color: #fff; width: 100%; border: none; padding: 18px; border-radius: 12px; font-weight: 900; font-size: 1.2em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 20px;}
+        
+        /* شاشة النجاح */
+        .modal { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:99999; display:none; align-items:center; justify-content:center; backdrop-filter:blur(5px); padding:20px; }
+        .modal-content { background:#fff; padding:35px 20px; border-radius:25px; text-align:center; max-width:450px; width:100%; animation:scaleIn 0.3s ease; }
+        .success-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 25px; }
+        .btn-wa { background: #25D366; color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: bold; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1em; }
+        .btn-print { background: #34495e; color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1em; }
     </style>
 </head>
 <body>
 
-    <header><h1 id="store-title" onclick="window.location.href='index.html'">المتجر</h1></header>
+    <header><h1 id="store-title">المتجر</h1></header>
 
     <div class="checkout-container">
         <div class="col-right">
-            <h2><i class="fas fa-truck"></i> تفاصيل الشحن</h2>
-            <div class="input-group"><label>البريد الإلكتروني</label><input type="email" id="co-email" class="input-style" placeholder="اختياري"></div>
+            <h2><i class="fas fa-truck"></i> بيانات الشحن</h2>
             <div class="input-group"><label>الاسم بالكامل *</label><input type="text" id="co-name" class="input-style" placeholder="الاسم الثلاثي"></div>
             <div class="input-group"><label>رقم الهاتف *</label><input type="tel" id="co-phone" class="input-style" placeholder="01xxxxxxxxx"></div>
             <div class="input-group"><label>المحافظة *</label><select id="co-city" class="input-style" onchange="calculateTotals()"><option value="">-- اختر المحافظة --</option></select></div>
-            <label style="display:block; font-weight:bold; margin-bottom:5px; color:#555; font-size:0.9em;">الموقع على الخريطة</label>
+            
+            <label style="font-weight:bold; font-size:0.85em; color:#555;">الموقع على الخريطة (اختياري)</label>
             <div id="map"></div>
-            <button class="map-overlay-btn" onclick="getUserLocation()"><i class="fas fa-crosshairs"></i> تحديد موقعي الحالي</button>
-            <div class="input-group"><label>اسم الشارع أو المنطقة *</label><textarea id="co-street" class="input-style" rows="2" placeholder="الشارع، رقم العمارة..."></textarea></div>
-            <div id="co-apartment-section">
-                <label style="display:block; font-weight:bold; margin-bottom:5px; color:#555; font-size:0.9em;">نوع المبنى</label>
-                <div class="building-type-group">
-                    <label class="build-btn active" onclick="setBuildingType(this, 'سكني')"><input type="radio" name="b_type" value="سكني" checked> منزل</label>
-                    <label class="build-btn" onclick="setBuildingType(this, 'عمل')"><input type="radio" name="b_type" value="عمل"> عمل</label>
-                </div>
-                <div class="flex-row">
-                    <div class="input-group"><label>رقم الدور</label><input type="text" id="co-floor" class="input-style"></div>
-                    <div class="input-group"><label>رقم الشقة</label><input type="text" id="co-apartment" class="input-style"></div>
-                </div>
+            
+            <div class="input-group"><label>اسم الشارع / المنطقة *</label><textarea id="co-street" class="input-style" rows="2"></textarea></div>
+            
+            <div class="flex-row" style="margin-bottom:15px;">
+                <div class="build-btn active" onclick="setBuildingType(this, 'منزل')">منزل</div>
+                <div class="build-btn" onclick="setBuildingType(this, 'عمل')">عمل</div>
             </div>
-            <div class="input-group"><label>علامة مميزة (اختياري)</label><input type="text" id="co-notes" class="input-style"></div>
+
+            <div class="flex-row">
+                <div class="input-group"><label>رقم الدور</label><input type="text" id="co-floor" class="input-style"></div>
+                <div class="input-group"><label>رقم الشقة</label><input type="text" id="co-apartment" class="input-style"></div>
+            </div>
+            <div class="input-group"><label>علامة مميزة أو ملاحظات</label><input type="text" id="co-notes" class="input-style"></div>
         </div>
 
         <div class="col-left">
             <h2><i class="fas fa-shopping-bag"></i> ملخص الطلب</h2>
             <div id="cart-items-container"></div>
-            <div style="background:#f9f9f9; padding:15px; border-radius:10px; margin-top:20px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>المنتجات:</span><b id="sum-subtotal">0 ج.م</b></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>الشحن:</span><b id="sum-shipping">0 ج.م</b></div>
-                <div class="summary-total"><span>الإجمالي:</span><span id="sum-grandtotal">0 ج.م</span></div>
+            <div style="background:#f9f9f9; padding:15px; border-radius:10px; margin-top:15px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>المنتجات:</span><b id="sum-subtotal">0 ج.م</b></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>الشحن:</span><b id="sum-shipping">0 ج.م</b></div>
+                <div style="display:flex; justify-content:space-between; font-size:1.4em; font-weight:900; border-top:2px dashed #ddd; pt-10; margin-top:10px; padding-top:10px;"><span>الإجمالي:</span><span id="sum-grandtotal" style="color:var(--primary);">0 ج.م</span></div>
             </div>
-            <button class="btn-submit" id="btn-submit-order" onclick="submitOrder()">تأكيد الطلب <i class="fas fa-check-circle"></i></button>
+            <button class="btn-submit" id="btn-submit-order" onclick="submitOrder()">إرسال الطلب وتأكيد <i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
-    <div id="success-modal" class="modal"><div class="modal-content"><i class="fas fa-check-circle" style="font-size:4em; color:var(--success); margin-bottom:15px;"></i><h2 style="border:none;">تم الطلب بنجاح!</h2><p>رقم طلبك هو: <b id="success-order-id" style="color:var(--primary);"></b></p><button onclick="window.location.href='index.html'" style="background:var(--primary); color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; width:100%; font-weight:bold;">العودة للرئيسية</button></div></div>
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <i class="fas fa-check-circle" style="font-size:4em; color:var(--success); margin-bottom:15px;"></i>
+            <h2 style="border:none; justify-content:center;">تم إرسال طلبك!</h2>
+            <p style="color:#666;">رقم الطلب: <b id="success-order-id" style="color:var(--primary);"></b></p>
+            
+            <div class="success-actions">
+                <a href="#" id="wa-link" target="_blank" class="btn-wa"><i class="fab fa-whatsapp"></i> متابعة عبر الواتساب</a>
+                <button onclick="printInvoiceFromData()" class="btn-print"><i class="fas fa-file-invoice"></i> تحميل فاتورة الطلب</button>
+                <button onclick="window.location.href='index.html'" style="background:none; border:1px solid #ccc; padding:10px; border-radius:10px; cursor:pointer;">العودة للمتجر</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const SUPABASE_URL = 'https://wkfiocqhkspsvqgyjpea.supabase.co';
@@ -99,21 +113,23 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
-        let shippingRules = []; let subtotal = 0; let shippingCost = 0;
-        let map; let marker; let currentLat = 30.0444; let currentLng = 31.2357;
+        let systemSettings = {}; let shippingRules = [];
+        let subtotal = 0; let shippingCost = 0; let lastOrder = null;
+        let map; let marker; let lat = 30.0444; let lng = 31.2357;
 
         function showToast(msg, icon='fas fa-info-circle', color='#333') {
             const exist = document.querySelector('.toast-msg'); if(exist) exist.remove();
             const div = document.createElement('div'); div.className = 'toast-msg'; div.style.background = color;
             div.innerHTML = `<i class="${icon}"></i> ${msg}`;
-            document.body.appendChild(div); setTimeout(() => { if(div) div.remove(); }, 6000);
+            document.body.appendChild(div); setTimeout(() => { if(div) div.remove(); }, 5000);
         }
 
         async function initCheckout() {
             if(cart.length === 0) { window.location.href='index.html'; return; }
-            renderCartItems(); initMap();
+            renderCart(); initMap();
             const [setReq, shipReq] = await Promise.all([supabaseClient.from('store_settings').select('*'), supabaseClient.from('shipping_rules').select('*').order('city_ar')]);
-            if(setReq.data) setReq.data.forEach(s => { if(s.setting_key==='store_name') document.getElementById('store-title').innerText=s.setting_value; });
+            if(setReq.data) setReq.data.forEach(s => systemSettings[s.setting_key] = s.setting_value);
+            document.getElementById('store-title').innerText = systemSettings.store_name || 'المتجر';
             shippingRules = shipReq.data || [];
             const citySel = document.getElementById('co-city');
             shippingRules.forEach(c => { citySel.innerHTML += `<option value="${c.id}" data-cost="${c.cost}">${c.city_ar}</option>`; });
@@ -121,26 +137,19 @@
         }
 
         function initMap() {
-            map = L.map('map').setView([currentLat, currentLng], 13);
+            map = L.map('map').setView([lat, lng], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            marker = L.marker([currentLat, currentLng], {draggable: true}).addTo(map);
-            marker.on('dragend', () => { currentLat = marker.getLatLng().lat; currentLng = marker.getLatLng().lng; });
+            marker = L.marker([lat, lng], {draggable: true}).addTo(map);
+            marker.on('dragend', () => { lat = marker.getLatLng().lat; lng = marker.getLatLng().lng; });
         }
 
-        function getUserLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((p) => {
-                    currentLat = p.coords.latitude; currentLng = p.coords.longitude;
-                    map.setView([currentLat, currentLng], 16); marker.setLatLng([currentLat, currentLng]);
-                });
-            }
-        }
+        function setBuildingType(el, v) { document.querySelectorAll('.build-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
 
-        function renderCartItems() {
+        function renderCart() {
             subtotal = 0;
-            document.getElementById('cart-items-container').innerHTML = cart.map(item => {
-                subtotal += (item.price * item.qty);
-                return `<div class="cart-item"><img src="${item.image}"><div class="item-details"><div class="item-title">${item.title}</div><div class="item-price">${item.price} ج.م × ${item.qty}</div></div></div>`;
+            document.getElementById('cart-items-container').innerHTML = cart.map(i => {
+                subtotal += (i.price * i.qty);
+                return `<div class="cart-item"><img src="${i.image}"><div style="flex:1;"><div style="font-weight:bold; font-size:0.9em;">${i.title}</div><small style="color:#777;">${i.size||''} | ${i.color||''}</small><div style="color:var(--primary); font-weight:900;">${i.price} ج.م × ${i.qty}</div></div></div>`;
             }).join('');
         }
 
@@ -152,51 +161,71 @@
             document.getElementById('sum-grandtotal').innerText = `${subtotal + shippingCost} ج.م`;
         }
 
-        function setBuildingType(el, v) { document.querySelectorAll('.build-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
-
         async function submitOrder() {
             const name = document.getElementById('co-name').value.trim();
             const phone = document.getElementById('co-phone').value.trim();
             const citySel = document.getElementById('co-city');
             const street = document.getElementById('co-street').value.trim();
-            if(!name || !phone || citySel.selectedIndex === 0 || !street) return showToast("برجاء إكمال البيانات الإجبارية", "fas fa-exclamation", "#e74c3c");
+            if(!name || !phone || citySel.selectedIndex === 0 || !street) return showToast("برجاء إكمال البيانات الإجبارية (*)", "fas fa-exclamation", "#e74c3c");
 
             const btn = document.getElementById('btn-submit-order');
-            btn.disabled = true; btn.innerHTML = "جاري الإرسال...";
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري إرسال الطلب...';
 
-            const googleMapUrl = `http://googleusercontent.com/maps.google.com/q=${currentLat},${currentLng}`;
+            const mapLink = `http://googleusercontent.com/maps.google.com/q=${lat},${lng}`;
             
             try {
-                // 🔥 إرسال البيانات مع مطابقة أسماء الأعمدة المفقودة في Supabase 🔥
                 const orderData = {
-                    customer_name: name,
-                    customer_phone: phone,
+                    customer_name: name, customer_phone: phone,
                     customer_city: citySel.options[citySel.selectedIndex].text,
-                    customer_street: street + " | الخريطة: " + googleMapUrl,
-                    customer_email: document.getElementById('co-email').value || null,
-                    customer_building: document.querySelector('.build-btn.active').innerText.trim(),
-                    customer_floor: document.getElementById('co-floor').value || null,
-                    customer_apartment: document.getElementById('co-apartment').value || null,
-                    customer_landmark: document.getElementById('co-notes').value || null,
-                    total_items_price: parseFloat(subtotal), // ⬅️ العمود الذي كان يسبب الخطأ
-                    shipping_cost: parseFloat(shippingCost),
-                    discount_amount: 0, // ⬅️ العمود الإجباري الثاني
-                    grand_total: parseFloat(subtotal + shippingCost),
-                    status: 'قيد المراجعة',
-                    cart_info: { items: cart }
+                    customer_street: street + " | الخريطة: " + mapLink,
+                    customer_building: document.querySelector('.build-btn.active').innerText,
+                    customer_floor: document.getElementById('co-floor').value,
+                    customer_apartment: document.getElementById('co-apartment').value,
+                    customer_landmark: document.getElementById('co-notes').value,
+                    total_items_price: subtotal, shipping_cost: shippingCost, discount_amount: 0,
+                    grand_total: (subtotal + shippingCost),
+                    status: 'قيد المراجعة', cart_info: { items: cart }
                 };
 
                 const { data, error } = await supabaseClient.from('orders').insert([orderData]).select().single();
                 if(error) throw error;
+                lastOrder = data;
 
+                // 🌟 تجهيز رسالة الواتساب 🌟
+                const waMsg = `طلب جديد من المتجر: %0Aالاسم: ${name}%0Aالموبايل: ${phone}%0Aالعنوان: ${orderData.customer_city} - ${street}%0Aرابط الموقع: ${mapLink}%0A%0Aالمنتجات:%0A` + cart.map(i => `- ${i.title} (${i.size||''}) x${i.qty}`).join('%0A') + `%0A%0Aالإجمالي: ${orderData.grand_total} ج.م`;
+                document.getElementById('wa-link').href = `https://wa.me/${systemSettings.social_whatsapp}?text=${waMsg}`;
+                
                 localStorage.removeItem('okaz_cart');
                 document.getElementById('success-order-id').innerText = data.id.split('-')[0].toUpperCase();
-                document.getElementById('success-modal').style.display='flex';
+                document.getElementById('success-modal').style.display = 'flex';
             } catch(e) {
-                showToast("خطأ من قاعدة البيانات: " + e.message, "fas fa-times", "#e74c3c");
-                btn.disabled = false; btn.innerHTML = "تأكيد الطلب";
+                showToast("خطأ: " + e.message, "fas fa-times", "#e74c3c");
+                btn.disabled = false; btn.innerHTML = "إرسال الطلب وتأكيد";
             }
         }
+
+        // 🌟 دالة طباعة الفاتورة للعميل 🌟
+        function printInvoiceFromData() {
+            if(!lastOrder) return;
+            const storeName = systemSettings.store_name || 'المتجر';
+            const shortId = lastOrder.id.split('-')[0].toUpperCase();
+            let itemsHtml = cart.map(i => `<tr><td style="text-align:right;">${i.title}</td><td style="text-align:center;">${i.qty}</td><td style="text-align:left;">${i.price} ج</td></tr>`).join('');
+            
+            const html = `<div style="direction:rtl; text-align:center; font-family:'Cairo'; padding:20px; border:2px solid #eee;">
+                <h2>${storeName}</h2><p>فاتورة رقم: #ORD-${shortId}</p><hr>
+                <div style="text-align:right;"><b>العميل:</b> ${lastOrder.customer_name}<br><b>الموبايل:</b> ${lastOrder.customer_phone}<br><b>العنوان:</b> ${lastOrder.customer_city}</div>
+                <table style="width:100%; margin-top:20px; border-collapse:collapse;">
+                    <tr style="background:#eee;"><th>الصنف</th><th>الكمية</th><th>السعر</th></tr>${itemsHtml}
+                </table>
+                <h3 style="margin-top:20px; background:#fafafa; padding:10px;">الإجمالي: ${lastOrder.grand_total} ج.م</h3>
+                <p>شكراً لثقتكم بنا!</p>
+            </div>`;
+            
+            const win = window.open('', '', 'width=600,height=800');
+            win.document.write(`<html><head><link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet"><style>body{font-family:'Cairo';}</style></head><body>${html}</body></html>`);
+            win.document.close(); setTimeout(() => { win.print(); win.close(); }, 500);
+        }
+
         initCheckout();
     </script>
 </body>
