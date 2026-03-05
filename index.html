@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title id="main-site-title">جاري التحميل...</title>
     
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#e67e22">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/e67e22/ffffff.png?text=App">
+    
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
@@ -17,9 +21,14 @@
         body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; overflow-x: hidden; }
         .main-container { max-width: 1200px; margin: 0 auto; background: #fff; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; }
 
-        /* الإشعارات الاحترافية (Toasts) */
         .toast-msg { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); color: #fff; padding: 12px 25px; border-radius: 30px; z-index: 99999; font-weight: bold; font-family: 'Cairo'; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: dropDown 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; align-items: center; gap: 10px; width: 90%; max-width: 400px; justify-content: center;}
         @keyframes dropDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
+
+        /* 🌟 تصميم بانر تثبيت التطبيق 🌟 */
+        .pwa-banner { position: fixed; bottom: 85px; left: 15px; right: 15px; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); display: none; align-items: center; justify-content: space-between; z-index: 4000; border: 2px solid var(--primary); animation: slideUp 0.4s ease; max-width: 500px; margin: 0 auto;}
+        .pwa-banner-text { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 0.9em; color: #333; }
+        .pwa-btn { background: var(--primary); color: #fff; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-family: 'Cairo'; cursor: pointer; box-shadow: 0 3px 10px rgba(230,126,34,0.3); transition: 0.2s;}
+        .pwa-btn:active { transform: scale(0.95); }
 
         #announcement-bar { background: var(--primary); color: #fff; text-align: center; padding: 8px; font-size: 0.85em; font-weight: bold; display: none; }
 
@@ -122,7 +131,6 @@
         .static-link { display: flex; align-items: center; gap: 15px; padding: 15px 20px; color: #333; font-weight: bold; border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: 0.2s;}
         .static-link i { width: 20px; text-align: center; color: var(--primary); }
 
-        /* شاشة المنتج الكاملة */
         .pdp-sheet { position: fixed; inset: 0; background: #fff; z-index: 4000; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; max-width: 1200px; margin: 0 auto; }
         .pdp-sheet.open { transform: translateY(0); }
         
@@ -168,7 +176,6 @@
         .pdp-bottom-price { font-weight: 900; font-size: 1.5em; color: #000; display:flex; flex-direction:column; line-height:1.2;}
         .pdp-add-btn { background: var(--primary); color: #fff; border: none; padding: 15px 35px; border-radius: 15px; font-weight: 900; font-size: 1.1em; font-family: 'Cairo'; cursor: pointer; display:flex; gap:10px; align-items:center;}
 
-        /* الفلتر */
         .drawer-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.5) !important; z-index: 2400 !important; display: none; }
         .drawer-overlay.open { display: block; }
         .drawer-panel { position: fixed !important; top: 0 !important; bottom: 0 !important; right: 0 !important; width: 100% !important; max-width: 400px !important; background: #fff !important; z-index: 2500 !important; transform: translateX(100%); transition: transform 0.3s ease; display: flex !important; flex-direction: column !important; box-shadow: -5px 0 15px rgba(0,0,0,0.1) !important; }
@@ -182,7 +189,6 @@
         .filter-group label { display: block; font-weight: bold; margin-bottom: 10px; color: #333; }
         .filter-select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Cairo'; outline: none; background: #fafafa; }
         
-        /* نوافذ الحساب */
         .modal-overlay { position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; background: rgba(0,0,0,0.8) !important; z-index: 9999 !important; display: none; align-items: center !important; justify-content: center !important; backdrop-filter: blur(3px) !important; padding: 20px !important; }
         .auth-content { background: var(--card-bg) !important; width: 100% !important; max-width: 500px !important; max-height: 90vh !important; overflow-y: auto !important; border-radius: 20px !important; padding: 25px !important; position: relative !important; animation: scaleIn 0.3s ease !important;}
         @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -202,7 +208,6 @@
         .profile-tab.active { color: var(--primary); border-color: var(--primary); }
         .profile-section { display: none; } .profile-section.active { display: block; }
 
-        /* 🌟 CSS شريط التتبع البصري الجديد للطلبات 🌟 */
         .order-timeline { display: flex; justify-content: space-between; position: relative; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #eee; direction: rtl;}
         .order-timeline::before { content: ''; position: absolute; top: 27px; left: 10px; right: 10px; height: 3px; background: #eee; z-index: 1; }
         .timeline-step { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 5px; color: #ccc; font-size: 0.7em; font-weight: bold; width: 25%; text-align: center; }
@@ -216,6 +221,14 @@
     </style>
 </head>
 <body>
+
+    <div class="pwa-banner" id="pwa-install-banner">
+        <div class="pwa-banner-text"><i class="fas fa-mobile-alt" style="font-size:1.5em; color:var(--primary);"></i> <span>قم بتثبيت التطبيق لتجربة تسوق أسرع!</span></div>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <button class="pwa-btn" id="pwa-install-btn">تثبيت</button>
+            <i class="fas fa-times" style="color:#aaa; cursor:pointer; padding:5px; font-size:1.2em;" onclick="document.getElementById('pwa-install-banner').style.display='none'"></i>
+        </div>
+    </div>
 
     <div class="main-container">
         <div id="announcement-bar"></div>
@@ -441,7 +454,6 @@
         let currentProd = null; let selectedSize = ''; let selectedColor = ''; let pdpSwiperInstance = null; let relatedSwiperInstance = null; let currentUser = null;
         let searchTrendsArray = []; let currentTrendIndex = 0; let searchPlaceholderInterval;
 
-        // 🌟 دالة الإشعارات 🌟
         function showToast(msg, icon='fas fa-info-circle', color='#333') {
             const exist = document.querySelector('.toast-msg'); if(exist) exist.remove();
             const div = document.createElement('div'); div.className = 'toast-msg'; div.style.background = color;
@@ -458,6 +470,22 @@
             }
             return stars;
         }
+
+        // 🌟 أكواد تفعيل الـ PWA (التطبيق) 🌟
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => console.log('PWA Registered')).catch(err => console.log('PWA Error'));
+            });
+        }
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); deferredPrompt = e;
+            setTimeout(() => { document.getElementById('pwa-install-banner').style.display = 'flex'; }, 3000);
+        });
+        document.getElementById('pwa-install-btn').addEventListener('click', async () => {
+            document.getElementById('pwa-install-banner').style.display = 'none';
+            if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null; }
+        });
 
         async function initStore() {
             updateCartBadge(); fetchCitiesForProfile(); await fetchSettings(); 
@@ -642,7 +670,6 @@
 
         async function fetchCitiesForProfile() { const { data } = await supabaseClient.from('shipping_rules').select('city_ar').order('city_ar'); const citySelect = document.getElementById('prof-city'); if(data && citySelect) { citySelect.innerHTML = '<option value="">-- اختر المحافظة --</option>'; data.forEach(c => { citySelect.innerHTML += `<option value="${c.city_ar}">${c.city_ar}</option>`; }); } }
         
-        // 🌟 شريط التتبع البصري للطلبات السابقة 🌟
         async function fetchMyOrders() { 
             if(!currentUser) return; 
             const list = document.getElementById('my-orders-list'); 
@@ -652,20 +679,14 @@
             
             list.innerHTML = orders.map(o => { 
                 const st = o.status ? o.status.trim() : '';
-                let statusBadge = '';
-                let timelineHtml = '';
+                let statusBadge = ''; let timelineHtml = '';
 
                 if(st === 'ملغي' || st === 'مرتجع' || st === 'إلغاء من العميل') {
                     statusBadge = `<span style="background:#e74c3c22; color:#e74c3c; padding:4px 10px; border-radius:15px; font-size:0.8em; font-weight:bold;"><i class="fas fa-times-circle"></i> ${st}</span>`;
                 } else {
                     statusBadge = `<span style="background:#27ae6022; color:#27ae60; padding:4px 10px; border-radius:15px; font-size:0.8em; font-weight:bold;">${st}</span>`;
                     let step1 = '', step2 = '', step3 = '', step4 = '';
-                    
-                    if(st === 'قيد المراجعة') { step1 = 'active'; }
-                    else if(st === 'جاري التجهيز') { step1 = 'completed'; step2 = 'active'; }
-                    else if(st === 'مع المندوب') { step1 = 'completed'; step2 = 'completed'; step3 = 'active'; }
-                    else if(st === 'تم التوصيل') { step1 = 'completed'; step2 = 'completed'; step3 = 'completed'; step4 = 'completed'; }
-                    else { step1 = 'active'; } 
+                    if(st === 'قيد المراجعة') { step1 = 'active'; } else if(st === 'جاري التجهيز') { step1 = 'completed'; step2 = 'active'; } else if(st === 'مع المندوب') { step1 = 'completed'; step2 = 'completed'; step3 = 'active'; } else if(st === 'تم التوصيل') { step1 = 'completed'; step2 = 'completed'; step3 = 'completed'; step4 = 'completed'; } else { step1 = 'active'; } 
 
                     timelineHtml = `
                     <div class="order-timeline">
@@ -680,15 +701,10 @@
                 return `
                 <div style="background:#fff; border:1px solid #eee; border-radius:12px; padding:20px; margin-bottom:15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <div>
-                            <b style="color:var(--primary); font-size:1.1em;">#ORD-${o.id.split('-')[0].toUpperCase()}</b><br>
-                            <span style="font-size:0.8em; color:#888;"><i class="far fa-calendar-alt"></i> ${date}</span>
-                        </div>
+                        <div><b style="color:var(--primary); font-size:1.1em;">#ORD-${o.id.split('-')[0].toUpperCase()}</b><br><span style="font-size:0.8em; color:#888;"><i class="far fa-calendar-alt"></i> ${date}</span></div>
                         ${statusBadge}
                     </div>
-                    <div style="font-size:1em; color:#333; margin-top:10px; font-weight:bold;">
-                        الإجمالي: <span style="color:var(--success); font-size:1.2em;">${o.grand_total} ج.م</span>
-                    </div>
+                    <div style="font-size:1em; color:#333; margin-top:10px; font-weight:bold;">الإجمالي: <span style="color:var(--success); font-size:1.2em;">${o.grand_total} ج.م</span></div>
                     ${timelineHtml}
                 </div>`; 
             }).join(''); 
