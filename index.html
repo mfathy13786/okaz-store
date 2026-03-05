@@ -201,6 +201,18 @@
         .profile-tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-weight: bold; color: #888; border-bottom: 3px solid transparent;}
         .profile-tab.active { color: var(--primary); border-color: var(--primary); }
         .profile-section { display: none; } .profile-section.active { display: block; }
+
+        /* 🌟 CSS شريط التتبع البصري الجديد للطلبات 🌟 */
+        .order-timeline { display: flex; justify-content: space-between; position: relative; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #eee; direction: rtl;}
+        .order-timeline::before { content: ''; position: absolute; top: 27px; left: 10px; right: 10px; height: 3px; background: #eee; z-index: 1; }
+        .timeline-step { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 5px; color: #ccc; font-size: 0.7em; font-weight: bold; width: 25%; text-align: center; }
+        .timeline-icon { width: 28px; height: 28px; border-radius: 50%; background: #eee; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.9em; border: 3px solid #fff; box-shadow: 0 0 0 1px #eee; }
+        .timeline-step.completed { color: var(--success); }
+        .timeline-step.completed .timeline-icon { background: var(--success); box-shadow: 0 0 0 1px var(--success); border-color: #fff;}
+        .timeline-step.active { color: var(--primary); }
+        .timeline-step.active .timeline-icon { background: var(--primary); box-shadow: 0 0 0 2px var(--primary); border-color: #fff; animation: pulse 1.5s infinite;}
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(230,126,34,0.4); } 70% { box-shadow: 0 0 0 10px rgba(230,126,34,0); } 100% { box-shadow: 0 0 0 0 rgba(230,126,34,0); } }
+
     </style>
 </head>
 <body>
@@ -425,14 +437,11 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let systemSettings = {}; let allProducts = []; let allCategories = []; let activeBanners = { top: false, middle: false, bottom: false };
-        
-        // ⚠️ تم إرجاع أسماء السلة والمفضلة لـ okaz_cart عشان تتوافق مع صفحة الـ checkout.html الخاصة بك ⚠️
-        let cart = JSON.parse(localStorage.getItem('okaz_cart')) || []; 
-        let wishlist = JSON.parse(localStorage.getItem('okaz_wishlist')) || [];
-        
+        let cart = JSON.parse(localStorage.getItem('okaz_cart')) || []; let wishlist = JSON.parse(localStorage.getItem('okaz_wishlist')) || [];
         let currentProd = null; let selectedSize = ''; let selectedColor = ''; let pdpSwiperInstance = null; let relatedSwiperInstance = null; let currentUser = null;
         let searchTrendsArray = []; let currentTrendIndex = 0; let searchPlaceholderInterval;
 
+        // 🌟 دالة الإشعارات 🌟
         function showToast(msg, icon='fas fa-info-circle', color='#333') {
             const exist = document.querySelector('.toast-msg'); if(exist) exist.remove();
             const div = document.createElement('div'); div.className = 'toast-msg'; div.style.background = color;
@@ -451,7 +460,7 @@
         }
 
         async function initStore() {
-            updateCartBadge(); 
+            updateCartBadge(); fetchCitiesForProfile(); await fetchSettings(); 
             const [catReq, prodReq, colorsReq] = await Promise.all([ 
                 supabaseClient.from('categories').select('*'), 
                 supabaseClient.from('products').select('*').eq('is_visible', true).order('created_at', {ascending:false}),
@@ -461,7 +470,7 @@
             const colorsData = colorsReq.data || [];
             allProducts = (prodReq.data || []).map(p => { p.colors = colorsData.filter(c => c.product_id === p.id).map(c => c.color_hex); return p; });
             
-            fetchCitiesForProfile(); populateFilterCategories(); await fetchSettings(); await fetchBanners(); await checkUser(); 
+            populateFilterCategories(); await fetchBanners(); await checkUser(); 
             showAllProducts(); buildMenuAccordion(); initSmartSearch(); setInterval(updateFlashTimers, 1000);
             if(window.location.search.includes('login=true') && !currentUser) openAuthModal();
         }
@@ -603,7 +612,6 @@
             if(document.getElementById('pdp-colors-section').style.display === 'block' && !selectedColor) return showToast("اختر اللون أولاً", "fas fa-exclamation-triangle", "#e74c3c"); 
             const cartId = currentProd.id + selectedSize + selectedColor; const exist = cart.find(x => x.id === cartId); const activeImg = document.querySelector('#pdp-swiper .swiper-slide-active img') ? document.querySelector('#pdp-swiper .swiper-slide-active img').src : currentProd.image; 
             if(exist) exist.qty++; else cart.push({ id: cartId, code: currentProd.product_code||'-', title: currentProd.title_ar, price: currentProd.price, image: activeImg, size: selectedSize, color: selectedColor, qty: 1 }); 
-            // ⚠️ حفظ السلة بالاسم الأصلي
             localStorage.setItem('okaz_cart', JSON.stringify(cart)); 
             updateCartBadge(); closePDP(); 
             showToast("تمت الإضافة للسلة بنجاح", "fas fa-check-circle", "#27ae60");
@@ -627,20 +635,72 @@
         function updateQty(idx, val) { 
             cart[idx].qty += val; 
             if(cart[idx].qty <= 0) cart.splice(idx, 1); 
-            // ⚠️ تحديث السلة بالاسم الأصلي
             localStorage.setItem('okaz_cart', JSON.stringify(cart)); 
             updateCartBadge(); 
             renderCart(); 
         }
 
         async function fetchCitiesForProfile() { const { data } = await supabaseClient.from('shipping_rules').select('city_ar').order('city_ar'); const citySelect = document.getElementById('prof-city'); if(data && citySelect) { citySelect.innerHTML = '<option value="">-- اختر المحافظة --</option>'; data.forEach(c => { citySelect.innerHTML += `<option value="${c.city_ar}">${c.city_ar}</option>`; }); } }
+        
+        // 🌟 شريط التتبع البصري للطلبات السابقة 🌟
+        async function fetchMyOrders() { 
+            if(!currentUser) return; 
+            const list = document.getElementById('my-orders-list'); 
+            list.innerHTML = '<div style="text-align:center; padding: 20px;">جاري جلب طلباتك...</div>'; 
+            const { data: orders } = await supabaseClient.from('orders').select('*').eq('customer_email', currentUser.email).order('created_at', { ascending: false }); 
+            if (!orders || orders.length === 0) { list.innerHTML = '<div style="text-align:center; padding: 30px; color:#888;">لا توجد طلبات سابقة.</div>'; return; } 
+            
+            list.innerHTML = orders.map(o => { 
+                const st = o.status ? o.status.trim() : '';
+                let statusBadge = '';
+                let timelineHtml = '';
+
+                if(st === 'ملغي' || st === 'مرتجع' || st === 'إلغاء من العميل') {
+                    statusBadge = `<span style="background:#e74c3c22; color:#e74c3c; padding:4px 10px; border-radius:15px; font-size:0.8em; font-weight:bold;"><i class="fas fa-times-circle"></i> ${st}</span>`;
+                } else {
+                    statusBadge = `<span style="background:#27ae6022; color:#27ae60; padding:4px 10px; border-radius:15px; font-size:0.8em; font-weight:bold;">${st}</span>`;
+                    let step1 = '', step2 = '', step3 = '', step4 = '';
+                    
+                    if(st === 'قيد المراجعة') { step1 = 'active'; }
+                    else if(st === 'جاري التجهيز') { step1 = 'completed'; step2 = 'active'; }
+                    else if(st === 'مع المندوب') { step1 = 'completed'; step2 = 'completed'; step3 = 'active'; }
+                    else if(st === 'تم التوصيل') { step1 = 'completed'; step2 = 'completed'; step3 = 'completed'; step4 = 'completed'; }
+                    else { step1 = 'active'; } 
+
+                    timelineHtml = `
+                    <div class="order-timeline">
+                        <div class="timeline-step ${step1}"><div class="timeline-icon"><i class="fas fa-clipboard-list"></i></div><span>استلام</span></div>
+                        <div class="timeline-step ${step2}"><div class="timeline-icon"><i class="fas fa-box-open"></i></div><span>تجهيز</span></div>
+                        <div class="timeline-step ${step3}"><div class="timeline-icon"><i class="fas fa-motorcycle"></i></div><span>شحن</span></div>
+                        <div class="timeline-step ${step4}"><div class="timeline-icon"><i class="fas fa-home"></i></div><span>توصيل</span></div>
+                    </div>`;
+                }
+
+                const date = new Date(o.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' }); 
+                return `
+                <div style="background:#fff; border:1px solid #eee; border-radius:12px; padding:20px; margin-bottom:15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div>
+                            <b style="color:var(--primary); font-size:1.1em;">#ORD-${o.id.split('-')[0].toUpperCase()}</b><br>
+                            <span style="font-size:0.8em; color:#888;"><i class="far fa-calendar-alt"></i> ${date}</span>
+                        </div>
+                        ${statusBadge}
+                    </div>
+                    <div style="font-size:1em; color:#333; margin-top:10px; font-weight:bold;">
+                        الإجمالي: <span style="color:var(--success); font-size:1.2em;">${o.grand_total} ج.م</span>
+                    </div>
+                    ${timelineHtml}
+                </div>`; 
+            }).join(''); 
+        }
+
         async function checkUser() { const { data: { session } } = await supabaseClient.auth.getSession(); if(session) { currentUser = session.user; document.getElementById('login-state').style.display = 'none'; document.getElementById('dashboard-state').style.display = 'block'; document.getElementById('user-email-display').innerText = currentUser.email; const meta = currentUser.user_metadata || {}; const name = meta.full_name || meta.name || 'عميلنا العزيز'; const avatar = meta.avatar_url || meta.picture || ''; document.getElementById('user-name-display').innerText = name; document.getElementById('prof-name').value = name; if(avatar) { document.getElementById('user-avatar-display').innerHTML = `<img src="${avatar}">`; } if(meta.phone) document.getElementById('prof-phone').value = meta.phone; if(meta.city) document.getElementById('prof-city').value = meta.city; if(meta.address) document.getElementById('prof-address').value = meta.address; if(meta.location_url) document.getElementById('prof-location').value = meta.location_url; fetchMyOrders(); } else { currentUser = null; document.getElementById('login-state').style.display = 'block'; document.getElementById('dashboard-state').style.display = 'none'; } }
         function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; }
         function switchProfileTab(tabId, element) { document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.profile-section').forEach(c => c.classList.remove('active')); element.classList.add('active'); document.getElementById(tabId).classList.add('active'); }
         function getCurrentLocation() { const btn = document.getElementById('btn-gps'); btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحديد...'; if (navigator.geolocation) { navigator.geolocation.getCurrentPosition( (position) => { const lat = position.coords.latitude; const lon = position.coords.longitude; document.getElementById('prof-location').value = `http://maps.google.com/maps?q=${lat},${lon}`; btn.innerHTML = '<i class="fas fa-check"></i> تم التقاط الموقع بنجاح'; btn.style.background = 'var(--success)'; }, (error) => { showToast("تأكد من تفعيل الـ GPS في هاتفك", "fas fa-exclamation-triangle", "#e74c3c"); btn.innerHTML = '<i class="fas fa-map-marker-alt"></i> تحديد موقعي الحالي تلقائياً'; } ); } }
         function previewAvatar(input) { if(input.files && input.files[0]) { const reader = new FileReader(); reader.onload = function(e) { document.getElementById('user-avatar-display').innerHTML = `<img src="${e.target.result}">`; }; reader.readAsDataURL(input.files[0]); } }
         async function updateProfile() { const btn = event.target; btn.innerHTML = 'جاري الحفظ...'; btn.disabled = true; let finalAvatarUrl = currentUser.user_metadata?.avatar_url || ''; const fileInput = document.getElementById('prof-avatar-file'); if(fileInput.files.length > 0) { const file = fileInput.files[0]; const ext = file.name.split('.').pop(); const fileName = `avatar_${currentUser.id}_${Date.now()}.${ext}`; const { error: uploadErr } = await supabaseClient.storage.from('store_images').upload(fileName, file); if(!uploadErr) { finalAvatarUrl = supabaseClient.storage.from('store_images').getPublicUrl(fileName).data.publicUrl; } } const updates = { full_name: document.getElementById('prof-name').value, phone: document.getElementById('prof-phone').value, city: document.getElementById('prof-city').value, address: document.getElementById('prof-address').value, location_url: document.getElementById('prof-location').value, avatar_url: finalAvatarUrl }; const { error } = await supabaseClient.auth.updateUser({ data: updates }); if(error) showToast(error.message, "fas fa-times-circle", "#e74c3c"); else { showToast("تم حفظ بياناتك بنجاح!", "fas fa-check-circle", "#27ae60"); await checkUser(); } btn.innerHTML = '<i class="fas fa-save"></i> حفظ التعديلات'; btn.disabled = false; }
-        async function fetchMyOrders() { if(!currentUser) return; const list = document.getElementById('my-orders-list'); list.innerHTML = '<div style="text-align:center; padding: 20px;">جاري جلب طلباتك...</div>'; const { data: orders } = await supabaseClient.from('orders').select('*').eq('customer_email', currentUser.email).order('created_at', { ascending: false }); if (!orders || orders.length === 0) { list.innerHTML = '<div style="text-align:center; padding: 30px; color:#888;">لا توجد طلبات سابقة.</div>'; return; } list.innerHTML = orders.map(o => { let statusColor = '#f39c12'; if(o.status === 'تم التوصيل') statusColor = '#27ae60'; if(o.status === 'ملغي' || o.status === 'مرتجع') statusColor = '#e74c3c'; const date = new Date(o.created_at).toLocaleDateString('ar-EG'); return `<div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:15px; margin-bottom:15px;"><div style="display:flex; justify-content:space-between; border-bottom:1px dashed #ddd; padding-bottom:10px; margin-bottom:10px;"><b style="color:var(--primary);">#ORD-${o.id.split('-')[0].toUpperCase()}</b><span style="background:${statusColor}22; color:${statusColor}; padding:3px 8px; border-radius:15px; font-size:0.8em; font-weight:bold;">${o.status}</span></div><div style="font-size:0.85em; color:#555;">التاريخ: ${date} <br>الإجمالي: <b style="color:#000; font-size:1.1em;">${o.grand_total} ج.م</b></div></div>`; }).join(''); }
+        
         async function handleEmailAuth() { const email = document.getElementById('auth-email').value.trim(); const password = document.getElementById('auth-password').value.trim(); if(!email || password.length < 6) return showToast("إيميل صحيح وباسورد 6 حروف.", "fas fa-exclamation-triangle", "#e74c3c"); document.getElementById('btn-auth-action').innerText = "جاري التحميل..."; const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error && error.message.includes("Invalid login credentials")) { const { error: err2 } = await supabaseClient.auth.signUp({ email, password }); if(!err2) { showToast("تم إنشاء الحساب!", "fas fa-check-circle", "#27ae60"); await checkUser(); } else showToast(err2.message, "fas fa-times-circle", "#e74c3c"); } else if(!error) { showToast("تم تسجيل الدخول بنجاح", "fas fa-check-circle", "#27ae60"); await checkUser(); } document.getElementById('btn-auth-action').innerText = "دخول / إنشاء حساب"; }
         async function signInWithGoogle() { const { error } = await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } }); if (error) showToast(error.message, "fas fa-times-circle", "#e74c3c"); }
         async function logout() { await supabaseClient.auth.signOut(); await checkUser(); showToast("تم تسجيل الخروج", "fas fa-info-circle", "#333"); }
