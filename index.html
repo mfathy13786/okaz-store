@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title id="main-site-title">جاري التحميل...</title>
     
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#e67e22">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/e67e22/ffffff.png?text=App">
+    <meta name="theme-color" id="meta-theme-color" content="#e67e22">
+    <link rel="apple-touch-icon" id="meta-apple-icon" href="https://placehold.co/192x192/e67e22/ffffff.png?text=App">
+    <link rel="manifest" id="dynamic-manifest">
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -24,7 +24,6 @@
         .toast-msg { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); color: #fff; padding: 12px 25px; border-radius: 30px; z-index: 99999; font-weight: bold; font-family: 'Cairo'; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: dropDown 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; align-items: center; gap: 10px; width: 90%; max-width: 400px; justify-content: center;}
         @keyframes dropDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
 
-        /* 🌟 تصميم بانر تثبيت التطبيق 🌟 */
         .pwa-banner { position: fixed; bottom: 85px; left: 15px; right: 15px; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); display: none; align-items: center; justify-content: space-between; z-index: 4000; border: 2px solid var(--primary); animation: slideUp 0.4s ease; max-width: 500px; margin: 0 auto;}
         .pwa-banner-text { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 0.9em; color: #333; }
         .pwa-btn { background: var(--primary); color: #fff; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-family: 'Cairo'; cursor: pointer; box-shadow: 0 3px 10px rgba(230,126,34,0.3); transition: 0.2s;}
@@ -471,11 +470,9 @@
             return stars;
         }
 
-        // 🌟 أكواد تفعيل الـ PWA (التطبيق) 🌟
+        // 🌟 أكواد تفعيل الـ PWA 🌟
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(reg => console.log('PWA Registered')).catch(err => console.log('PWA Error'));
-            });
+            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').then(reg => console.log('PWA Registered')).catch(err => console.log('PWA Error')); });
         }
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -486,6 +483,24 @@
             document.getElementById('pwa-install-banner').style.display = 'none';
             if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null; }
         });
+
+        // 🌟 دالة توليد ملف الـ PWA الوهمي (Dynamic Manifest) من الداتا بيز 🌟
+        function buildDynamicManifest() {
+            const appName = systemSettings.store_name || "المتجر";
+            const appColor = systemSettings.theme_color || "#e67e22";
+            const appIcon = systemSettings.site_favicon || "https://placehold.co/512x512/e67e22/ffffff.png?text=App";
+
+            document.getElementById('meta-theme-color').content = appColor;
+            document.getElementById('meta-apple-icon').href = appIcon;
+
+            const manifest = {
+                "name": appName, "short_name": appName, "description": "أفضل متجر إلكتروني للتسوق", "start_url": "/index.html", "display": "standalone", "background_color": "#ffffff", "theme_color": appColor,
+                "icons": [ { "src": appIcon, "sizes": "192x192", "type": "image/png" }, { "src": appIcon, "sizes": "512x512", "type": "image/png" } ]
+            };
+
+            const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+            document.getElementById('dynamic-manifest').href = URL.createObjectURL(blob);
+        }
 
         async function initStore() {
             updateCartBadge(); fetchCitiesForProfile(); await fetchSettings(); 
@@ -507,6 +522,9 @@
             const {data} = await supabaseClient.from('store_settings').select('*');
             if(data) data.forEach(s => systemSettings[s.setting_key] = s.setting_value);
             
+            // 🔥 بمجرد سحب الإعدادات، نبني التطبيق 🔥
+            buildDynamicManifest();
+
             const storeNameDisplay = systemSettings.store_name || 'المتجر';
             document.getElementById('main-site-title').innerText = storeNameDisplay; 
             document.getElementById('menu-logo-text').innerText = storeNameDisplay;
