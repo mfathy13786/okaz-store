@@ -18,7 +18,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent;}
         body { background-color: var(--bg); color: var(--text); padding-bottom: 50px; }
 
-        /* الإشعارات الاحترافية */
         .toast-msg { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); color: #fff; padding: 12px 25px; border-radius: 30px; z-index: 99999; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: dropDown 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; align-items: center; gap: 10px; width: 90%; max-width: 400px; justify-content: center;}
         @keyframes dropDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
 
@@ -40,18 +39,15 @@
         .flex-row { display: flex; gap: 10px; }
         .flex-row > div { flex: 1; }
 
-        /* أزرار نوع المبنى */
         .building-type-group { display: flex; gap: 10px; margin-bottom: 15px; }
         .build-btn { flex: 1; padding: 10px; text-align: center; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; font-weight: bold; color: #777; background: #fafafa; transition: 0.2s; user-select: none; }
         .build-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         .build-btn input { display: none; }
 
-        /* خريطة الموقع */
         .map-wrapper { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin-bottom: 10px; position: relative;}
         #map { height: 250px; width: 100%; z-index: 1;}
         .map-overlay-btn { background: var(--info); color: #fff; border: none; padding: 10px; width: 100%; font-weight: bold; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1em; border-radius: 8px; margin-bottom: 15px;}
 
-        /* عناصر السلة */
         .cart-item { display: flex; gap: 15px; padding-bottom: 15px; border-bottom: 1px dashed #eee; margin-bottom: 15px; position: relative;}
         .cart-item img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; border: 1px solid #eee;}
         .item-details { flex: 1; }
@@ -145,8 +141,8 @@
             </div>
 
             <div id="co-notes-section" class="input-group">
-                <label>ملاحظات للمندوب (اختياري)</label>
-                <input type="text" id="co-notes" class="input-style" placeholder="مثال: اتصل بي قبل الوصول بـ 10 دقائق">
+                <label>ملاحظات للمندوب (علامة مميزة) (اختياري)</label>
+                <input type="text" id="co-notes" class="input-style" placeholder="مثال: بجوار صيدلية كذا">
             </div>
 
         </div>
@@ -154,7 +150,7 @@
         <div class="col-left">
             <h2><i class="fas fa-shopping-bag"></i> مراجعة الطلب</h2>
             <div id="cart-items-container">
-                </div>
+            </div>
 
             <div style="background:#f9f9f9; padding:15px; border-radius:10px; margin-top:20px;">
                 <div class="summary-row"><span>مجموع المنتجات:</span><b id="sum-subtotal">0 ج.م</b></div>
@@ -187,9 +183,11 @@
         let subtotal = 0; let shippingCost = 0;
         let systemSettings = {};
         
-        // متغيرات الخريطة
         let map; let marker;
-        let currentLat = 30.0444; let currentLng = 31.2357; // القاهرة كافتراضي
+        let currentLat = 30.0444; let currentLng = 31.2357; 
+
+        // صورة احتياطية للـ fallback
+        const fallbackSVG = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzIyMiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkeT0iLjNlbSIgZmlsbD0iIzU1NSIgZm9udC1zaXplPSIxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+";
 
         function showToast(msg, icon='fas fa-info-circle', color='#333') {
             const exist = document.querySelector('.toast-msg'); if(exist) exist.remove();
@@ -208,7 +206,6 @@
             renderCartItems();
             initMap();
 
-            // جلب الإعدادات والمحافظات
             const [setReq, shipReq] = await Promise.all([
                 supabaseClient.from('store_settings').select('*'),
                 supabaseClient.from('shipping_rules').select('*').order('city_ar')
@@ -224,7 +221,6 @@
             const citySel = document.getElementById('co-city');
             shippingRules.forEach(c => { citySel.innerHTML += `<option value="${c.id}" data-cost="${c.cost}">${c.city_ar}</option>`; });
 
-            // جلب بيانات العميل المحفوظة
             const { data: { session } } = await supabaseClient.auth.getSession();
             if(session && session.user && session.user.user_metadata) {
                 const meta = session.user.user_metadata;
@@ -239,36 +235,23 @@
             }
         }
 
-        // 🌟 تهيئة الخريطة المجانية (Leaflet) 🌟
         function initMap() {
             map = L.map('map').setView([currentLat, currentLng], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-            
-            // أيقونة الدبوس
-            const customIcon = L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-                iconSize: [38, 38], iconAnchor: [19, 38]
-            });
-
+            const customIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [38, 38], iconAnchor: [19, 38] });
             marker = L.marker([currentLat, currentLng], {icon: customIcon, draggable: true}).addTo(map);
-            
-            // تحديث الإحداثيات عند تحريك الدبوس
             marker.on('dragend', function (e) {
-                currentLat = marker.getLatLng().lat;
-                currentLng = marker.getLatLng().lng;
+                currentLat = marker.getLatLng().lat; currentLng = marker.getLatLng().lng;
             });
         }
 
-        // تحديد الموقع بالـ GPS
         function getUserLocation() {
             if (navigator.geolocation) {
                 showToast("جاري تحديد موقعك...", "fas fa-spinner fa-spin", "#3498db");
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        currentLat = position.coords.latitude;
-                        currentLng = position.coords.longitude;
-                        map.setView([currentLat, currentLng], 16);
-                        marker.setLatLng([currentLat, currentLng]);
+                        currentLat = position.coords.latitude; currentLng = position.coords.longitude;
+                        map.setView([currentLat, currentLng], 16); marker.setLatLng([currentLat, currentLng]);
                         showToast("تم التقاط موقعك بنجاح", "fas fa-check-circle", "#27ae60");
                     }, 
                     () => { showToast("يرجى السماح للمتصفح بالوصول لموقعك (GPS)", "fas fa-exclamation-triangle", "#e74c3c"); }
@@ -278,8 +261,7 @@
 
         function setBuildingType(el, val) {
             document.querySelectorAll('.build-btn').forEach(b => b.classList.remove('active'));
-            el.classList.add('active');
-            el.querySelector('input').checked = true;
+            el.classList.add('active'); el.querySelector('input').checked = true;
         }
 
         function renderCartItems() {
@@ -291,7 +273,7 @@
                 const metaText = `مقاس: ${item.size||'-'} | لون: ${item.color||'-'}`;
                 return `
                 <div class="cart-item">
-                    <img src="${item.image}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzIyMiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkeT0iLjNlbSIgZmlsbD0iIzU1NSIgZm9udC1zaXplPSIxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+'">
+                    <img src="${item.image}" onerror="this.src='${fallbackSVG}'">
                     <div class="item-details">
                         <div class="item-title">${item.title}</div>
                         <div class="item-meta">${metaText}</div>
@@ -313,8 +295,7 @@
         function updateQty(idx, val) {
             cart[idx].qty += val;
             if(cart[idx].qty <= 0) cart.splice(idx, 1);
-            localStorage.setItem('okaz_cart', JSON.stringify(cart));
-            renderCartItems();
+            localStorage.setItem('okaz_cart', JSON.stringify(cart)); renderCartItems();
         }
 
         function removeItem(idx) {
@@ -331,7 +312,6 @@
         }
 
         async function submitOrder() {
-            // تجميع البيانات
             const name = document.getElementById('co-name').value.trim();
             const phone = document.getElementById('co-phone').value.trim();
             const citySel = document.getElementById('co-city');
@@ -352,39 +332,38 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري إرسال الطلب...'; 
             btn.disabled = true;
 
-            // تنسيق الإضافات
-            const apartmentInfo = (floor || apart) ? `دور: ${floor||'-'} | شقة: ${apart||'-'}` : '';
             const googleMapUrl = `https://www.google.com/maps?q=${currentLat},${currentLng}`;
+            const fullStreetAddress = street + (currentLat !== 30.0444 ? ` | رابط الموقع: ${googleMapUrl}` : '');
 
             try {
+                // 🔥 تحديث أسماء الأعمدة لتطابق قاعدة البيانات بتاعتك إنت بالمللي 🔥
                 const orderData = {
                     customer_name: name,
                     customer_phone: phone,
                     customer_city: city,
-                    customer_street: street,
+                    customer_street: fullStreetAddress, 
                     customer_email: email || null,
+                    customer_building: bType,         // مطابق للداتا بيز
+                    customer_floor: floor || null,    // مطابق للداتا بيز
+                    customer_apartment: apart || null,// مطابق للداتا بيز
+                    customer_landmark: notes || null, // استخدمنا ده للملاحظات
                     grand_total: subtotal + shippingCost,
                     shipping_cost: shippingCost,
                     status: 'قيد المراجعة',
-                    cart_info: cart, // ⚠️ لازم تكون ضفت العمود ده في Supabase زي ما اتفقنا
-                    apartment_info: apartmentInfo,
-                    building_type: bType,
-                    notes: notes,
-                    map_url: googleMapUrl
+                    cart_info: cart                   // مطابق للداتا بيز
                 };
 
                 const { data, error } = await supabaseClient.from('orders').insert([orderData]).select().single();
 
                 if(error) throw error;
 
-                // نجاح
                 localStorage.removeItem('okaz_cart');
                 const orderShortId = data.id.split('-')[0].toUpperCase();
                 document.getElementById('success-order-id').innerText = `#ORD-${orderShortId}`;
                 document.getElementById('success-modal').style.display = 'flex';
                 
             } catch(e) {
-                showToast("حدث خطأ! تأكد من تحديث أعمدة قاعدة البيانات (Supabase).", "fas fa-times", "#e74c3c");
+                showToast("حدث خطأ أثناء إرسال الطلب", "fas fa-times", "#e74c3c");
                 btn.innerHTML = 'تأكيد إتمام الطلب <i class="fas fa-check-circle"></i>'; 
                 btn.disabled = false;
             }
