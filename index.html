@@ -315,6 +315,9 @@
             <div id="menu-pages" class="menu-section">
                 <div class="static-link" onclick="showAllProducts(); toggleSideMenu();"><i class="fas fa-home"></i> الصفحة الرئيسية</div>
                 <div class="static-link" onclick="showAllProducts(); toggleSideMenu();"><i class="fas fa-shopping-bag"></i> كل المنتجات</div>
+                <div class="static-link" id="desktop-install-btn" style="display:none; color: var(--primary); background: #fff3e0;">
+                    <i class="fas fa-download"></i> تثبيت التطبيق
+                </div>
             </div>
         </div>
         <div class="menu-social">
@@ -470,6 +473,7 @@
             return stars;
         }
 
+        // 🌟 أكواد تفعيل الـ PWA مع الزرار اليدوي 🌟
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').then(reg => console.log('PWA Registered')).catch(err => console.log('PWA Error')); });
         }
@@ -478,14 +482,26 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault(); 
             deferredPrompt = e;
+            // إظهار الزرار اليدوي في القائمة الجانبية (للكمبيوتر والموبايل)
+            document.getElementById('desktop-install-btn').style.display = 'flex';
         });
 
+        // تشغيل التثبيت من بانر الموبايل
         document.getElementById('pwa-install-btn').addEventListener('click', async () => {
             document.getElementById('pwa-install-banner').style.display = 'none';
-            if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null; }
+            if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null; document.getElementById('desktop-install-btn').style.display = 'none';}
         });
 
-        // 🌟 دالة توليد التطبيق بعد التأكد من وجود صورة صحيحة 🌟
+        // تشغيل التثبيت من زرار القائمة الجانبية (للكمبيوتر)
+        document.getElementById('desktop-install-btn').addEventListener('click', async () => {
+            if (deferredPrompt) { 
+                deferredPrompt.prompt(); 
+                const { outcome } = await deferredPrompt.userChoice; 
+                if(outcome === 'accepted') { document.getElementById('desktop-install-btn').style.display = 'none'; }
+                deferredPrompt = null; 
+            }
+        });
+
         function buildDynamicManifest() {
             const appName = systemSettings.store_name || "المتجر";
             const appColor = systemSettings.theme_color || "#e67e22";
@@ -507,9 +523,8 @@
             const manifestURL = URL.createObjectURL(blob);
             document.getElementById('dynamic-manifest').setAttribute('href', manifestURL);
 
-            // إظهار زر التثبيت فقط بعد بناء الـ Manifest
             setTimeout(() => {
-                if (deferredPrompt) { document.getElementById('pwa-install-banner').style.display = 'flex'; }
+                if (deferredPrompt && window.innerWidth <= 768) { document.getElementById('pwa-install-banner').style.display = 'flex'; }
             }, 1500);
         }
 
@@ -533,7 +548,6 @@
             const {data} = await supabaseClient.from('store_settings').select('*');
             if(data) data.forEach(s => systemSettings[s.setting_key] = s.setting_value);
             
-            // 🔥 بناء التطبيق بالأيقونة الجديدة 🔥
             buildDynamicManifest();
 
             const storeNameDisplay = systemSettings.store_name || 'المتجر';
