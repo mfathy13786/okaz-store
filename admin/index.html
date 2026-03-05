@@ -272,7 +272,7 @@
                 <h3 style="color:var(--primary); margin-top:30px; border-bottom:1px solid #333; padding-bottom:10px;"><i class="fas fa-star"></i> إعدادات الزر المركزي (الشريط السفلي)</h3>
                 <div class="switch-container"><span>تفعيل الزرار البارز في المنتصف؟</span><label class="switch"><input type="checkbox" id="set-show-fab" checked><span class="slider"></span></label></div>
                 <div class="flex-row">
-                    <div class="input-group"><label>اسم الزرار (مثال: عروض)</label><input type="text" id="set-fab-text" placeholder="عروض تريند"></div>
+                    <div class="input-group"><label>اسم الزرار</label><input type="text" id="set-fab-text" placeholder="عروض تريند"></div>
                     <div class="input-group"><label>القسم المربوط به</label><select id="set-fab-cat"></select></div>
                 </div>
                 <div class="flex-row" style="background:#1a1a1a; padding:15px; border-radius:8px; border:1px solid #333; margin-bottom:15px;">
@@ -362,42 +362,23 @@
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
         function toggleFabTypeInput(val) { document.getElementById('fab-icon-group').style.display = val === 'icon' ? 'block' : 'none'; document.getElementById('fab-img-group').style.display = val === 'image' ? 'block' : 'none'; }
 
-        // 🌟 دالة الترجمة التلقائية 🌟
+        // دالة الترجمة السحرية
         let typingTimer;
         async function smartTranslate(text, targetId, magicId) {
             clearTimeout(typingTimer);
             const targetInput = document.getElementById(targetId);
             const magicIcon = document.getElementById(magicId);
-            
-            if (!text.trim()) {
-                if(targetInput) targetInput.value = '';
-                if (magicIcon) magicIcon.style.display = 'none';
-                return;
-            }
-
-            if (magicIcon) {
-                magicIcon.style.display = 'inline-block';
-                magicIcon.className = 'fas fa-spinner fa-spin auto-translate-badge';
-                magicIcon.style.color = 'var(--primary)';
-            }
-
+            if (!text.trim()) { if(targetInput) targetInput.value = ''; if (magicIcon) magicIcon.style.display = 'none'; return; }
+            if (magicIcon) { magicIcon.style.display = 'inline-block'; magicIcon.className = 'fas fa-spinner fa-spin auto-translate-badge'; magicIcon.style.color = 'var(--primary)'; }
             typingTimer = setTimeout(async () => {
                 try {
                     const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=ar|en`);
                     const data = await res.json();
                     if (data && data.responseData && data.responseData.translatedText) {
                         if(targetInput) targetInput.value = data.responseData.translatedText;
-                        if (magicIcon) {
-                            magicIcon.className = 'fas fa-check auto-translate-badge';
-                            magicIcon.style.color = 'var(--success)';
-                        }
+                        if (magicIcon) { magicIcon.className = 'fas fa-check auto-translate-badge'; magicIcon.style.color = 'var(--success)'; }
                     }
-                } catch (err) {
-                    if (magicIcon) {
-                        magicIcon.className = 'fas fa-times auto-translate-badge';
-                        magicIcon.style.color = 'var(--danger)';
-                    }
-                }
+                } catch (err) { if (magicIcon) { magicIcon.className = 'fas fa-times auto-translate-badge'; magicIcon.style.color = 'var(--danger)'; } }
             }, 1000); 
         }
 
@@ -415,7 +396,7 @@
 
         function calcAction(val) { const display = document.getElementById('calc-display'); if(val === 'C') { calcValue = ''; display.value = '0'; return; } if(val === '=') { try { calcValue = eval(calcValue).toString(); display.value = calcValue; } catch(e) { display.value = "Error"; calcValue = ''; } return; } calcValue += val; display.value = calcValue; }
 
-        async function uploadImage(file) { const ext = file.name.split('.').pop(); const fName = `img_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`; const { error } = await supabaseClient.storage.from('okaz_images').upload(fName, file); if(error) throw error; return supabaseClient.storage.from('okaz_images').getPublicUrl(fName).data.publicUrl; }
+        async function uploadImage(file) { const ext = file.name.split('.').pop(); const fName = `img_${Date.now()}_${Math.floor(Math.random()*1000)}.${ext}`; const { error } = await supabaseClient.storage.from('store_images').upload(fName, file); if(error) throw error; return supabaseClient.storage.from('store_images').getPublicUrl(fName).data.publicUrl; }
 
         async function loadStoreSettingsFromDB() {
             const { data } = await supabaseClient.from('store_settings').select('*');
@@ -549,11 +530,9 @@
         async function updateOrderStatus(id, status) { showLoader("تحديث الحالة..."); await supabaseClient.from('orders').update({status}).eq('id',id); hideLoader(); loadOrders(); loadComprehensiveReports();}
         async function deleteOrder(id) { if(!confirm("حذف الطلب نهائياً؟")) return; showLoader("حذف..."); await supabaseClient.from('order_items').delete().eq('order_id', id); const { error } = await supabaseClient.from('orders').delete().eq('id', id); if(error) alert("خطأ: " + error.message); else { loadOrders(); loadComprehensiveReports(); } hideLoader(); }
         window.viewOrderDetails = function(id) { const o = allOrdersDetailed.find(x => x.id === id); if(!o) return; document.getElementById('order-modal-title').innerText = `تفاصيل #OKZ-${o.id.split('-')[0].toUpperCase()}`; const date = new Date(o.created_at).toLocaleString('ar-EG'); const total = o.grand_total || 0; const shipping = o.shipping_cost || 0; const address = o.customer_street || o.address || '-'; let html = `<div style="background:#1a1a1a; padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid #333; font-size:0.9em; line-height:1.8;"><div style="display:flex; justify-content:space-between; border-bottom:1px dashed #444; padding-bottom:10px; margin-bottom:10px;"><span style="color:#fff;"><b>العميل:</b> ${o.customer_name}</span><span style="color:#aaa;"><b>التاريخ:</b> ${date}</span></div><div style="color:#ccc;"><b>الموبايل:</b> ${o.customer_phone}</div><div style="color:#ccc;"><b>العنوان:</b> ${o.customer_city || ''} - ${address}</div><div style="margin-top:10px; color:var(--primary); font-weight:900; font-size:1.2em; text-align:left; border-top:1px solid #333; padding-top:10px;">الإجمالي: ${total} ج.م <br><small style="color:#888; font-size:0.7em;">(شامل ${shipping} ج.م شحن)</small></div></div><h3 style="color:var(--text); margin-bottom:10px; font-size:1.1em; border-right:3px solid var(--primary); padding-right:8px;">المنتجات المطلوبة:</h3>`; let itemsArray = (o.order_items && o.order_items.length > 0) ? o.order_items : (o.cart_info || o.items || []); if(itemsArray.length === 0) html += '<p style="color:#888;">لا توجد تفاصيل.</p>'; else { html += itemsArray.map(i => `<div style="display:flex; align-items:center; gap:15px; background:#222; padding:15px; border-radius:10px; border:1px solid #444; margin-bottom:10px;"><img src="${i.image || 'https://via.placeholder.com/60'}" style="width:70px; height:70px; border-radius:8px; object-fit:cover;"><div style="flex:1;"><b style="color:var(--primary); font-size:1.1em;">${i.product_name || i.title}</b> <span style="color:#888; font-size:0.8em;">(كود: ${i.code || '-'})</span><br><span style="color:#ccc;">المقاس: <b>${i.selected_size || i.size || '-'}</b> | اللون: <b>${i.selected_color || i.color || '-'}</b></span></div><div style="font-weight:bold; font-size:1.2em; color:var(--success); background:#111; padding:5px 15px; border-radius:8px;">x${i.quantity || i.qty}</div></div>`).join(''); } document.getElementById('order-modal-items').innerHTML = html; document.getElementById('order-details-modal').style.display = 'flex'; }
-        
-        // 🌟 دالة طباعة الفاتورة 🌟
         window.printInvoice = function(id) { const o = allOrdersDetailed.find(x => x.id === id); if(!o) return; const storeName = systemSettings.store_name || 'لوحة الإدارة'; const date = new Date(o.created_at).toLocaleString('ar-EG'); const shortId = o.id.split('-')[0].toUpperCase(); let itemsHtml = ''; let itemsArray = (o.order_items && o.order_items.length > 0) ? o.order_items : (o.cart_info || o.items || []); itemsArray.forEach(i => { itemsHtml += `<tr><td style="text-align:right; padding:8px; border-bottom:1px dashed #ccc; font-weight:bold;">${i.product_name || i.title}<br><small style="color:#555; font-weight:normal;">المقاس: ${i.selected_size || i.size || '-'} | اللون: ${i.selected_color || i.color || '-'}</small></td><td style="text-align:center; padding:8px; border-bottom:1px dashed #ccc; font-family:monospace; font-weight:bold; color:#333;">${i.code || '-'}</td><td style="text-align:center; padding:8px; border-bottom:1px dashed #ccc; font-weight:bold;">${i.quantity || i.qty || 1}</td><td style="text-align:left; padding:8px; border-bottom:1px dashed #ccc;">${i.price} ج.م</td></tr>`; }); const totalToPay = o.grand_total || 0; const address = o.customer_street || o.address || ''; printHTMLWindow(`<div style="max-width:80mm; margin:0 auto; font-family:'Cairo',sans-serif; direction:rtl; text-align:center; color:#000; padding:10px;"><h2 style="margin:5px 0; font-size:24px;">${storeName}</h2><p style="margin:0; font-size:14px; font-weight:bold;">فاتورة طلب #OKZ-${shortId}</p><p style="margin:0; font-size:12px; margin-bottom:15px; color:#555;">التاريخ: ${date}</p><div style="border-top:2px dashed #000; border-bottom:2px dashed #000; padding:10px 0; text-align:right; font-size:14px; line-height:1.6;"><div><b>العميل:</b> ${o.customer_name}</div><div><b>الموبايل:</b> ${o.customer_phone}</div><div><b>العنوان:</b> ${o.customer_city || ''} - ${address}</div></div><table style="width:100%; margin-top:15px; font-size:13px; border-collapse:collapse;"><thead><tr style="border-bottom:2px solid #000;"><th style="text-align:right; padding-bottom:5px;">الصنف</th><th style="text-align:center; padding-bottom:5px;">الكود</th><th style="text-align:center; padding-bottom:5px;">الكمية</th><th style="text-align:left; padding-bottom:5px;">السعر</th></tr></thead><tbody>${itemsHtml}</tbody></table><div style="border-top:2px solid #000; margin-top:15px; padding-top:10px; text-align:left; font-size:14px; line-height:1.6;"><h3 style="margin:10px 0; font-size:20px; font-weight:900; background:#eee; padding:5px; text-align:center; border:2px dashed #000;">المطلوب: ${totalToPay} ج.م</h3></div><p style="margin-top:20px; font-size:14px; text-align:center; font-weight:bold;">شكراً لتسوقكم معنا!</p></div>`); }
-        
-        // 🌟 دالة طباعة الباركود (تم إرجاعها) 🌟
+
+        // 🌟 دالة طباعة الباركود 🌟
         window.printBarcode = function(id) {
             const p = allProductsEdit.find(x => x.id === id);
             if (!p) return;
@@ -577,7 +556,7 @@
             }
         };
 
-        function printHTMLWindow(htmlContent) { const iframe = document.createElement('iframe'); iframe.style.display = 'none'; document.body.appendChild(iframe); iframe.contentWindow.document.open(); iframe.contentWindow.document.write(`<html dir="rtl"><head><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"><style>body { font-family: 'Cairo', sans-serif; padding: 0; margin: 0; color: #000; } @media print { @page { margin: 0; } body { margin: 0.5cm; } }</style></head><body>${htmlContent}</body></html>`); iframe.contentWindow.document.close(); setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => document.body.removeChild(iframe), 1000); }, 1000); }
+        function printHTMLWindow(htmlContent) { const iframe = document.createElement('iframe'); iframe.style.display = 'none'; document.body.appendChild(iframe); iframe.contentWindow.document.open(); iframe.contentWindow.document.write(`<html dir="rtl"><head><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet"><style>body { font-family: 'Cairo', sans-serif; padding: 0; margin: 0; color: #000; } @media print { @page { margin: 0; } body { margin: 0; } }</style></head><body>${htmlContent}</body></html>`); iframe.contentWindow.document.close(); setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => document.body.removeChild(iframe), 1000); }, 1000); }
         async function deleteCategory(id) { if(!confirm("حذف القسم؟")) return; showLoader("حذف..."); const { error } = await supabaseClient.from('categories').delete().eq('id', id); if(error) alert("لا يمكن الحذف! مسح المنتجات أولاً."); else { alert("تم الحذف!"); loadCategoriesForSelects(); } hideLoader(); }
         
         async function loadEditInventory() { 
@@ -629,7 +608,7 @@
 
         function exportToCSV() { if(allProductsEdit.length === 0) return alert("المخزن فارغ."); const csvData = allProductsEdit.map(p => ({ id: p.id, title_ar: p.title_ar, title_en: p.title_en || '', price: p.price, cost_price: p.cost_price || 0, stock_quantity: p.stock_quantity || 0, image: p.image || '', is_visible: p.is_visible })); const csv = Papa.unparse(csvData); const blob = new Blob(["\uFEFF"+csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Store_Inventory_" + new Date().getTime() + ".csv"; link.click(); }
         
-        // 🌟 دالة الاستيراد الخارقة المحدثة (لربط المقاسات والألوان أوتوماتيك) 🌟
+        // 🌟 دالة الاستيراد الخارقة (الذكية) 🌟
         async function importFromCSV(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -699,7 +678,7 @@
                                 const newProductId = insertedProduct.id;
                                 successCount++;
 
-                                // ربط المقاسات
+                                // ربط المقاسات أوتوماتيك
                                 if(item.sizes) {
                                     const sizeList = item.sizes.split(',').map(s => s.trim()).filter(s => s);
                                     if(sizeList.length > 0) {
@@ -708,7 +687,7 @@
                                     }
                                 }
 
-                                // ربط الألوان
+                                // ربط الألوان أوتوماتيك
                                 if(item.colors) {
                                     const colorList = item.colors.split('|').map(c => c.trim()).filter(c => c);
                                     const colorsToInsert = colorList.map(c => {
