@@ -82,7 +82,6 @@
         .success-icon { font-size: 4em; color: var(--success); margin-bottom: 10px; animation: popIn 0.5s forwards;}
         @keyframes popIn { 0% { transform: scale(0); opacity:0; } 100% { transform: scale(1); opacity:1; } }
         
-        /* تصميم رقم الطلب وزرار النسخ */
         .order-badge { background: #fff3e0; border: 1px dashed var(--primary); padding: 15px; border-radius: 12px; margin: 15px 0; display: flex; flex-direction: column; align-items: center; gap: 5px;}
         .order-badge span { color: #d35400; font-size: 0.9em; font-weight: 700;}
         .order-id-wrapper { display: flex; align-items: center; gap: 15px;}
@@ -307,10 +306,10 @@
             el.classList.add('active'); el.querySelector('input').checked = true;
         }
 
-        // 🔥 رجعنا لخريطة OpenStreetMap لأنها مليانة تفاصيل وعمارات باللون الأحمر (وآمنة بـ HTTPS) 🔥
+        // 🔥 خريطة 2026 المودرن والفخمة (CartoDB Voyager) اللي عجبتك ألوانها 🔥
         function initMap() {
-            map = L.map('map').setView([lat, lng], 16); // الزووم أعلى عشان العمارات تبان بوضوح
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            map = L.map('map').setView([lat, lng], 16);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 attribution: '© OpenStreetMap'
             }).addTo(map);
             const customIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [38, 38], iconAnchor: [19, 38] });
@@ -323,14 +322,14 @@
                 showToast("جاري التحديد...", "fas fa-spinner fa-spin", "#3b82f6");
                 navigator.geolocation.getCurrentPosition((p) => {
                     lat = p.coords.latitude; lng = p.coords.longitude;
-                    map.setView([lat, lng], 17); marker.setLatLng([lat, lng]);
+                    map.setView([lat, lng], 16); marker.setLatLng([lat, lng]);
                     reverseGeocode(lat, lng);
                     showToast("تم التحديد بنجاح", "fas fa-check-circle", "#10b981");
                 });
             }
         }
 
-        // 🔥 الدالة الأصلية اللي بتسحب العنوان بالكامل (زي صورتك بالظبط) بدون أي حذف 🔥
+        // 🔥 سحب العنوان كامل بدون حذف عشان العمارات تظهر 🔥
         async function reverseGeocode(l, g) {
             try {
                 const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${l}&lon=${g}&accept-language=ar`);
@@ -407,8 +406,7 @@
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
             let mapLink = '';
-            // 🔥 رابط جوجل مابس الرسمي اللي هيفتح على تليفون المندوب فوراً 🔥
-            if(lat !== 30.0444 && systemSettings.chk_show_map !== 'false') { mapLink = `https://www.google.com/maps?q=${lat},${lng}`; }
+            if(lat !== 30.0444 && systemSettings.chk_show_map !== 'false') { mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}`; }
             let fullAddress = house ? `${street} - مبنى رقم: ${house}` : street;
             if(mapLink) fullAddress += ` | اللوكيشن: ${mapLink}`;
 
