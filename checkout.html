@@ -10,7 +10,6 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -21,6 +20,7 @@
             --input-bg: #f1f5f9; --danger: #ef4444; --success: #10b981; --info: #3b82f6; 
             --radius: 16px; --shadow: 0 10px 30px rgba(0,0,0,0.04);
         }
+        
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent;}
         body { background-color: var(--bg); color: var(--text-main); padding-bottom: 60px; }
 
@@ -81,9 +81,13 @@
         .success-icon { font-size: 4em; color: var(--success); margin-bottom: 10px; animation: popIn 0.5s forwards;}
         @keyframes popIn { 0% { transform: scale(0); opacity:0; } 100% { transform: scale(1); opacity:1; } }
         
-        .order-badge { background: #fff3e0; border: 1px dashed var(--primary); padding: 12px; border-radius: 12px; margin: 15px 0;}
-        .order-badge span { display: block; color: #d35400; font-size: 0.9em; font-weight: 700; margin-bottom: 5px;}
-        .order-badge b { color: var(--primary); font-size: 1.5em; font-family: monospace; letter-spacing: 1px;}
+        /* تصميم رقم الطلب وزرار النسخ */
+        .order-badge { background: #fff3e0; border: 1px dashed var(--primary); padding: 15px; border-radius: 12px; margin: 15px 0; display: flex; flex-direction: column; align-items: center; gap: 5px;}
+        .order-badge span { color: #d35400; font-size: 0.9em; font-weight: 700;}
+        .order-id-wrapper { display: flex; align-items: center; gap: 15px;}
+        .order-badge b { color: var(--primary); font-size: 1.6em; font-family: monospace; letter-spacing: 1px;}
+        .copy-btn { background: none; border: none; color: var(--text-muted); font-size: 1.3em; cursor: pointer; transition: 0.2s;}
+        .copy-btn:hover { color: var(--primary); transform: scale(1.1);}
 
         .instruction-box { background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; text-align: right; line-height: 1.8; color: #475569; font-size: 0.9em; font-weight: 700;}
         
@@ -189,7 +193,11 @@
             <p style="color:var(--success); font-weight:700; margin-bottom:15px;">سيتم التواصل من خلالنا لتأكيد الشحنة.</p>
             
             <div class="order-badge">
-                <span>رقم الطلب الخاص بك:</span><b id="success-order-id">#ORD-XXXX</b>
+                <span>رقم الطلب الخاص بك:</span>
+                <div class="order-id-wrapper">
+                    <b id="success-order-id">#ORD-XXXX</b>
+                    <button class="copy-btn" onclick="copyOrderId()" title="نسخ رقم الطلب"><i id="copy-icon" class="fas fa-copy"></i></button>
+                </div>
             </div>
 
             <div class="instruction-box">
@@ -218,6 +226,7 @@
         let systemSettings = {}; let shippingRules = [];
         let subtotal = 0; let shippingCost = 0; let lastOrder = null;
         let map; let marker; let lat = 30.0444; let lng = 31.2357;
+        let activeUserSession = null; // لحفظ حالة العميل المسجل
 
         function showToast(msg, icon='fas fa-info-circle', color='#ef4444') {
             const exist = document.querySelector('.toast-msg'); if(exist) exist.remove();
@@ -264,10 +273,10 @@
             const citySel = document.getElementById('co-city');
             shippingRules.forEach(c => { citySel.innerHTML += `<option value="${c.id}" data-cost="${c.cost}">${c.city_ar}</option>`; });
             
-            // 🌟 الملء التلقائي الذكي من حساب العميل 🌟
             const { data: { session } } = await supabaseClient.auth.getSession();
-            if(session && session.user && session.user.user_metadata) {
-                const meta = session.user.user_metadata;
+            if(session && session.user) {
+                activeUserSession = session; // نحفظه عشان تحديث البيانات بعدين
+                const meta = session.user.user_metadata || {};
                 
                 if(meta.full_name) document.getElementById('co-name').value = meta.full_name;
                 if(meta.phone) document.getElementById('co-phone').value = meta.phone;
@@ -297,16 +306,12 @@
             el.classList.add('active'); el.querySelector('input').checked = true;
         }
 
-        // 🗺️ الخريطة الخرافية (تسحب شكل Google Maps) 🗺️
+        // 🔥 استخدام HTTPS لخريطة جوجل الآمنة 🔥
         function initMap() {
             map = L.map('map').setView([lat, lng], 13);
-            
-            // سحب خريطة جوجل الرسمية (شوارع دقيقة) بدل OpenStreetMap
-            L.tileLayer('http://mt0.google.com/vt/lyrs=m&hl=ar&x={x}&y={y}&z={z}', {
-                attribution: '© Google Maps',
-                maxZoom: 20
+            L.tileLayer('https://mt0.google.com/vt/lyrs=m&hl=ar&x={x}&y={y}&z={z}', {
+                attribution: '© Google Maps'
             }).addTo(map);
-
             const customIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [38, 38], iconAnchor: [19, 38] });
             marker = L.marker([lat, lng], {icon: customIcon, draggable: true}).addTo(map);
             marker.on('dragend', () => { lat = marker.getLatLng().lat; lng = marker.getLatLng().lng; reverseGeocode(lat, lng); });
@@ -343,7 +348,7 @@
                 const meta = (i.size || i.color) ? `<span class="item-meta" style="font-size:0.8em; color:#777;">${i.size||''} | ${i.color||''}</span>` : '';
                 return `
                 <div class="cart-item">
-                    <img src="${i.image}" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">
+                    <img src="${i.image}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YxZjVmOSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkeT0iLjNlbSIgZmlsbD0iIzY0NzQ4YiIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPklNQUdFPC90ZXh0Pjwvc3ZnPg=='" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">
                     <div class="item-details">
                         <div class="item-title">${i.title}</div>
                         ${meta}
@@ -365,6 +370,16 @@
             document.getElementById('sum-grandtotal').innerText = `${subtotal + shippingCost} ج.م`;
         }
 
+        function copyOrderId() {
+            const idText = document.getElementById('success-order-id').innerText;
+            navigator.clipboard.writeText(idText).then(() => {
+                const icon = document.getElementById('copy-icon');
+                icon.className = 'fas fa-check';
+                icon.style.color = 'var(--success)';
+                setTimeout(() => { icon.className = 'fas fa-copy'; icon.style.color = ''; }, 2000);
+            });
+        }
+
         async function submitOrder() {
             const name = document.getElementById('co-name').value.trim();
             const phone = document.getElementById('co-phone').value.trim();
@@ -375,6 +390,8 @@
             const floor = document.getElementById('co-floor') ? document.getElementById('co-floor').value.trim() : '';
             const apart = document.getElementById('co-apartment') ? document.getElementById('co-apartment').value.trim() : '';
             const email = document.getElementById('co-email') ? document.getElementById('co-email').value.trim() : '';
+            const notes = document.getElementById('co-notes') ? document.getElementById('co-notes').value.trim() : '';
+            const bType = document.querySelector('.build-btn.active') ? document.querySelector('.build-btn.active').innerText.trim() : 'منزل';
 
             if(!name || !phone || citySel.selectedIndex === 0 || !street) return showToast("برجاء ملء البيانات الأساسية (الاسم، الهاتف، المحافظة، الشارع)");
             
@@ -387,7 +404,7 @@
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
             let mapLink = '';
-            if(lat !== 30.0444 && systemSettings.chk_show_map !== 'false') { mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}`; }
+            if(lat !== 30.0444 && systemSettings.chk_show_map !== 'false') { mapLink = `https://www.google.com/maps?q=${lat},${lng}`; }
             let fullAddress = house ? `${street} - مبنى رقم: ${house}` : street;
             if(mapLink) fullAddress += ` | اللوكيشن: ${mapLink}`;
 
@@ -395,9 +412,8 @@
                 const orderData = {
                     customer_name: name, customer_phone: phone, customer_city: citySel.options[citySel.selectedIndex].text,
                     customer_street: fullAddress, customer_email: email || null,
-                    customer_building: document.querySelector('.build-btn.active') ? document.querySelector('.build-btn.active').innerText.trim() : null,
-                    customer_floor: floor || null, customer_apartment: apart || null,
-                    customer_landmark: document.getElementById('co-notes') ? document.getElementById('co-notes').value.trim() : null,
+                    customer_building: bType, customer_floor: floor || null, customer_apartment: apart || null,
+                    customer_landmark: notes || null,
                     total_items_price: subtotal, shipping_cost: shippingCost, discount_amount: 0, grand_total: (subtotal + shippingCost),
                     status: 'قيد المراجعة', cart_info: { items: cart }
                 };
@@ -406,13 +422,26 @@
                 if(error) throw error;
                 
                 lastOrder = data; 
-                const shortId = data.id.split('-')[0].toUpperCase();
+                
+                // 🌟 بادئة رقم الطلب من لوحة التحكم 🌟
+                const prefix = systemSettings.order_id_prefix || 'ORD-';
+                const shortId = `${prefix}${data.id.split('-')[0].toUpperCase()}`;
 
                 const orderItems = cart.map(item => ({ order_id: data.id, product_name: item.title, selected_size: item.size || '', selected_color: item.color || '', quantity: item.qty, price: item.price, image: item.image, code: item.code }));
                 await supabaseClient.from('order_items').insert(orderItems);
 
+                // 🌟 تحديث بيانات العميل في الخلفية لو مسجل دخول 🌟
+                if (activeUserSession) {
+                    supabaseClient.auth.updateUser({
+                        data: {
+                            full_name: name, phone: phone, city: citySel.options[citySel.selectedIndex].text,
+                            address: street, house: house, floor: floor, apartment: apart, building_type: bType, notes: notes
+                        }
+                    }).catch(err => console.log('Background profile update failed', err));
+                }
+
                 let waMsg = `*طلب جديد #${shortId}* 🛍️\n\n👤 الاسم: ${name}\n📞 الموبايل: ${phone}\n📍 المحافظة: ${orderData.customer_city}\n🛣️ الشارع: ${street}\n`;
-                if(house) waMsg += `🏠 المبنى: ${orderData.customer_building} | رقم: ${house} | دور: ${floor||'-'} | شقة: ${apart||'-'}\n`;
+                if(house) waMsg += `🏠 المبنى: ${bType} | رقم: ${house} | دور: ${floor||'-'} | شقة: ${apart||'-'}\n`;
                 if(mapLink) waMsg += `🗺️ اللوكيشن: ${mapLink}\n`;
                 waMsg += `\n*المنتجات:*\n`;
                 cart.forEach(i => { waMsg += `▪️ ${i.qty}x ${i.title} (${i.size||'-'}) - ${i.price}ج\n`; });
@@ -420,9 +449,9 @@
                 
                 document.getElementById('wa-link').href = `https://wa.me/${systemSettings.social_whatsapp || ''}?text=${encodeURIComponent(waMsg)}`;
                 
-                buildInvoiceHTML(); 
+                buildInvoiceHTML(shortId); 
                 localStorage.removeItem('okaz_cart');
-                document.getElementById('success-order-id').innerText = `#ORD-${shortId}`;
+                document.getElementById('success-order-id').innerText = `#${shortId}`;
                 const modal = document.getElementById('success-modal');
                 modal.style.display = 'flex';
                 setTimeout(() => modal.classList.add('show'), 50);
@@ -433,9 +462,8 @@
             }
         }
 
-        function buildInvoiceHTML() {
+        function buildInvoiceHTML(shortId) {
             const storeName = systemSettings.store_name || 'المتجر';
-            const shortId = lastOrder.id.split('-')[0].toUpperCase();
             const date = new Date(lastOrder.created_at).toLocaleDateString('ar-EG');
             
             let itemsHtml = cart.map((i, index) => `<tr style="border-bottom: 1px solid #eee;"><td style="padding:10px; text-align:center;">${index + 1}</td><td style="padding:10px; text-align:right;"><b>${i.title}</b><br><small style="color:#777;">(${i.size||'-'} / ${i.color||'-'})</small></td><td style="padding:10px; text-align:center;">${i.qty}</td><td style="padding:10px; text-align:left;">${i.price} ج.م</td></tr>`).join('');
@@ -445,7 +473,7 @@
                 <div style="display:flex; justify-content:space-between; border-bottom:2px solid #eee; padding-bottom:20px; margin-bottom:20px;">
                     <div><h1 style="color:#e67e22; margin:0;">${storeName}</h1><p style="margin:5px 0 0; color:#777;">فاتورة ضريبية مبسطة</p></div>
                     <div style="text-align:left; background:#f9f9f9; padding:10px 20px; border-radius:10px; border:1px dashed #ccc;">
-                        <h3 style="margin:0; color:#2d3436;">#ORD-${shortId}</h3><p style="margin:5px 0 0; color:#777;">التاريخ: ${date}</p>
+                        <h3 style="margin:0; color:#2d3436;">#${shortId}</h3><p style="margin:5px 0 0; color:#777;">التاريخ: ${date}</p>
                     </div>
                 </div>
                 <div style="background:#f9f9f9; padding:20px; border-radius:10px; margin-bottom:20px; border:1px solid #eee;">
@@ -475,7 +503,8 @@
 
         function downloadPDF() {
             const element = document.getElementById('invoice-content');
-            const opt = { margin: 0.5, filename: `Invoice_${lastOrder.id.split('-')[0].toUpperCase()}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+            const shortIdText = document.getElementById('success-order-id').innerText.replace('#', '');
+            const opt = { margin: 0.5, filename: `Invoice_${shortIdText}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
             html2pdf().set(opt).from(element).save();
         }
 
