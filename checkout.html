@@ -53,7 +53,7 @@
 
         #map-wrapper { margin-bottom: 20px; }
         .map-container { border-radius: 12px; overflow: hidden; border: 2px solid var(--border); margin-bottom: 10px; z-index: 1;}
-        #map { height: 200px; width: 100%; }
+        #map { height: 250px; width: 100%; }
         .btn-gps { background: #eff6ff; color: var(--info); border: 1px dashed #bfdbfe; padding: 12px; width: 100%; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95em; border-radius: 12px; transition: 0.3s;}
         .btn-gps:hover { background: var(--info); color: #fff; border-style: solid;}
 
@@ -306,13 +306,17 @@
             el.classList.add('active'); el.querySelector('input').checked = true;
         }
 
-        // 🔥 خريطة 2026 المودرن والفخمة (CartoDB Voyager) اللي عجبتك ألوانها 🔥
+        // 🔥 خريطة جوجل القمر الصناعي (الهجينة) - قمة الفخامة والدقة 🔥
         function initMap() {
-            map = L.map('map').setView([lat, lng], 16);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: '© OpenStreetMap'
+            map = L.map('map').setView([lat, lng], 17); // زووم قريب عشان المباني تبان
+            
+            // سحب خريطة جوجل بالقمر الصناعي وعليها أسماء الشوارع (Hybrid)
+            L.tileLayer('https://mt1.google.com/vt/lyrs=y&hl=ar&x={x}&y={y}&z={z}', {
+                attribution: '© Google Maps',
+                maxZoom: 21
             }).addTo(map);
-            const customIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [38, 38], iconAnchor: [19, 38] });
+            
+            const customIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [40, 40], iconAnchor: [20, 40] });
             marker = L.marker([lat, lng], {icon: customIcon, draggable: true}).addTo(map);
             marker.on('dragend', () => { lat = marker.getLatLng().lat; lng = marker.getLatLng().lng; reverseGeocode(lat, lng); });
         }
@@ -322,14 +326,13 @@
                 showToast("جاري التحديد...", "fas fa-spinner fa-spin", "#3b82f6");
                 navigator.geolocation.getCurrentPosition((p) => {
                     lat = p.coords.latitude; lng = p.coords.longitude;
-                    map.setView([lat, lng], 16); marker.setLatLng([lat, lng]);
+                    map.setView([lat, lng], 18); marker.setLatLng([lat, lng]);
                     reverseGeocode(lat, lng);
                     showToast("تم التحديد بنجاح", "fas fa-check-circle", "#10b981");
                 });
             }
         }
 
-        // 🔥 سحب العنوان كامل بدون حذف عشان العمارات تظهر 🔥
         async function reverseGeocode(l, g) {
             try {
                 const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${l}&lon=${g}&accept-language=ar`);
