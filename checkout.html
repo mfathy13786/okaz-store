@@ -10,8 +10,8 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root { 
@@ -58,7 +58,7 @@
         .btn-gps { background: #eff6ff; color: var(--info); border: 1px dashed #bfdbfe; padding: 12px; width: 100%; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95em; border-radius: 12px; transition: 0.3s;}
         .btn-gps:hover { background: var(--info); color: #fff; border-style: solid;}
 
-        /* طرق الدفع */
+        /* 🔥 طرق الدفع 🔥 */
         .payment-methods { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; margin-bottom: 25px;}
         .pay-method { border: 2px solid var(--border); border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: var(--surface); }
         .pay-method.active { border-color: var(--primary); background: rgba(230,126,34,0.05); }
@@ -97,7 +97,7 @@
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(16, 185, 129, 0.3);}
         .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; transform: none;}
 
-        /* شاشة النجاح المتوافقة مع الموبايل */
+        /* شاشة النجاح المتوافقة مع الموبايل (بدون شاشة سودة) */
         .modal-overlay { 
             position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); 
             z-index: 99999; display: none; 
@@ -126,12 +126,12 @@
         .instruction-box { background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; text-align: right; line-height: 1.6; color: #475569; font-size: 0.8em; font-weight: 700;}
         
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .btn-action { padding: 12px; border-radius: 10px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; border: none; text-decoration: none; transition: 0.3s; font-family: 'Cairo';}
+        .btn-action { padding: 12px; border-radius: 10px; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; border: none; text-decoration: none; transition: 0.3s;}
         .btn-wa { background: #25D366; color: #fff; grid-column: span 2; font-size: 1em; padding: 14px;}
-        .btn-pdf { background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5;}
         .btn-print { background: #e0f2fe; color: #3b82f6; border: 1px solid #bae6fd;}
-        .btn-home { background: #f1f5f9; color: #0f172a; grid-column: span 2; border: 1px solid #cbd5e1; padding: 14px;}
+        .btn-home { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 14px;}
 
+        /* الموبايل ريسبونسيف */
         @media (max-width: 768px) {
             .checkout-wrapper { flex-direction: column-reverse; }
             .grid-2 { grid-template-columns: 1fr; }
@@ -300,9 +300,10 @@
 
             <div class="action-grid">
                 <a href="#" id="wa-link" target="_blank" class="btn-action btn-wa"><i class="fab fa-whatsapp"></i> تأكيد ومتابعة عبر واتساب</a>
-                <button onclick="downloadPDF()" class="btn-action btn-pdf" id="btn-dl-pdf"><i class="fas fa-file-pdf"></i> تحميل الفاتورة</button>
-                <button onclick="printInvoice()" class="btn-action btn-print"><i class="fas fa-print"></i> طباعة الفاتورة</button>
-                <button onclick="window.location.href='index.html'" class="btn-action btn-home">الاستمرار في التسوق <i class="fas fa-arrow-left"></i></button>
+                
+                <button onclick="openInvoice()" class="btn-action btn-print" style="grid-column: span 2;"><i class="fas fa-receipt"></i> عرض الفاتورة (طباعة / PDF)</button>
+                
+                <button onclick="window.location.href='index.html'" class="btn-action btn-home" style="grid-column: span 2;">الاستمرار في التسوق <i class="fas fa-arrow-left"></i></button>
             </div>
         </div>
     </div>
@@ -552,95 +553,11 @@
             }
         }
 
-        // بناء HTML الفاتورة (للطباعة وللـ PDF)
-        function getInvoiceHTML() {
-            const storeName = systemSettings.store_name || 'المتجر';
-            const date = new Date().toLocaleDateString('ar-EG');
-            const shortIdText = document.getElementById('success-order-id').innerText.replace('#', '');
-            
-            let itemsHtml = cart.map((i, index) => {
-                const codeTxt = i.code ? `<br>كود: ${i.code}` : '';
-                const details = (i.size || i.color) ? `<br>(${i.size||'-'} / ${i.color||'-'})` : '';
-                return `<tr>
-                    <td style="border: 1px solid #ccc; padding: 10px; text-align: center;">${index + 1}</td>
-                    <td style="border: 1px solid #ccc; padding: 10px; text-align: right;"><b>${i.title}</b>${details}${codeTxt}</td>
-                    <td style="border: 1px solid #ccc; padding: 10px; text-align: center; font-weight: bold;">${i.qty}</td>
-                    <td style="border: 1px solid #ccc; padding: 10px; text-align: left; font-weight: bold;">${i.price} ج.م</td>
-                </tr>`;
-            }).join('');
-            
-            const bType = lastOrder.customer_building || '-';
-            const house = document.getElementById('co-house').value.trim() || '-';
-            const floor = document.getElementById('co-floor').value.trim() || '-';
-            const apart = document.getElementById('co-apartment').value.trim() || '-';
-            const notes = lastOrder.customer_landmark || 'لا يوجد';
-
-            return `
-            <div style="width: 100%; max-width: 800px; margin: 0 auto; direction: rtl; text-align: right; background: #fff; color: #000; padding: 20px; font-family: sans-serif;">
-                <h1 style="text-align: center; color: #333; margin-bottom: 5px;">${storeName}</h1>
-                <p style="text-align: center; color: #555; margin-top: 0; border-bottom: 2px dashed #000; padding-bottom: 15px;">فاتورة ضريبية مبسطة</p>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                    <div><b>رقم الطلب:</b> #${shortIdText}</div>
-                    <div><b>التاريخ:</b> ${date}</div>
-                </div>
-                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 20px; line-height: 1.8;">
-                    <p style="margin: 0;"><b>العميل:</b> ${lastOrder.customer_name} | <b>الهاتف:</b> ${lastOrder.customer_phone}</p>
-                    <p style="margin: 0;"><b>العنوان:</b> ${lastOrder.customer_city} - ${lastOrder.customer_street.split('|')[0]}</p>
-                    <p style="margin: 0;"><b>العقار:</b> ${bType} | عمارة: ${house} | دور: ${floor} | شقة: ${apart}</p>
-                    <p style="margin: 0;"><b>الدفع:</b> ${selectedPaymentMethod}</p>
-                    <p style="margin: 0;"><b>ملاحظات:</b> ${notes}</p>
-                </div>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                    <thead><tr style="background: #eee;"><th style="padding: 10px; border: 1px solid #ccc;">#</th><th style="padding: 10px; border: 1px solid #ccc; text-align: right;">المنتج</th><th style="padding: 10px; border: 1px solid #ccc;">الكمية</th><th style="padding: 10px; border: 1px solid #ccc; text-align: left;">السعر</th></tr></thead>
-                    <tbody>${itemsHtml}</tbody>
-                </table>
-                <div style="text-align: left; border-top: 2px dashed #000; padding-top: 15px;">
-                    <p style="margin: 5px 0;">مجموع المنتجات: <b>${lastOrder.total_items_price} ج.م</b></p>
-                    <p style="margin: 5px 0;">مصاريف الشحن: <b>${lastOrder.shipping_cost} ج.م</b></p>
-                    <h2 style="margin: 10px 0 0; color: #000;">الإجمالي المطلوب: ${lastOrder.grand_total} ج.م</h2>
-                </div>
-            </div>`;
-        }
-
-        // الطباعة المباشرة
-        function printInvoice() {
-            const content = getInvoiceHTML();
-            const win = window.open('', '', 'width=800,height=900');
-            win.document.write(`<html dir="rtl"><head><title>طباعة الفاتورة</title><style>body{margin:0; padding:0;}</style></head><body>${content}</body></html>`);
-            win.document.close();
-            setTimeout(() => { win.print(); win.close(); }, 500);
-        }
-
-        // 🔥 الحل الجذري (تمرير النص كمُدخل مباشر لمكتبة الـ PDF) مستحيل تطلع بيضة 🔥
-        function downloadPDF() {
-            const btn = document.getElementById('btn-dl-pdf');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
-            btn.disabled = true;
-
-            const shortIdText = document.getElementById('success-order-id').innerText.replace('#', '');
-            
-            // نأخذ الـ HTML كنص ونمرره للـ html2pdf بدون إنشاء عنصر في الصفحة
-            const invoiceContent = getInvoiceHTML();
-
-            const opt = { 
-                margin: 0.3, 
-                filename: `Invoice_${shortIdText}.pdf`, 
-                image: { type: 'jpeg', quality: 1 }, 
-                html2canvas: { scale: 2, useCORS: true }, 
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
-            };
-            
-            // هنا السحر: .from() بتقبل String وبتعالجه داخلياً
-            html2pdf().set(opt).from(invoiceContent).save().then(() => {
-                btn.innerHTML = originalText; 
-                btn.disabled = false;
-                showToast("تم تحميل الفاتورة بنجاح", "fas fa-check", "var(--success)");
-            }).catch((err) => {
-                btn.innerHTML = originalText; 
-                btn.disabled = false;
-                showToast("حدث خطأ أثناء تحميل الفاتورة", "fas fa-times", "var(--danger)");
-            });
+        // 🔥 الدالة الجديدة لفتح الفاتورة المربوطة بقاعدة البيانات 🔥
+        function openInvoice() {
+            if(lastOrder && lastOrder.id) {
+                window.open(`invoice.html?id=${lastOrder.id}`, '_blank');
+            }
         }
 
         initCheckout();
