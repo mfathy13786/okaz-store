@@ -25,7 +25,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent;}
         body { background-color: var(--bg); color: var(--text-main); padding-bottom: 60px; }
 
-        /* 🌟 الإشعارات العائمة 🌟 */
         .toast-msg { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); color: #fff; padding: 14px 28px; border-radius: 50px; z-index: 99999; font-weight: 700; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: dropDown 0.4s ease; display: flex; align-items: center; gap: 10px; width: 90%; max-width: 400px; justify-content: center; font-size: 0.95em;}
         @keyframes dropDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
 
@@ -39,7 +38,6 @@
         h2.section-title { font-size: 1.2em; font-weight: 900; border-bottom: 2px solid var(--input-bg); padding-bottom: 15px; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; color: var(--text-main);}
         h2.section-title i { color: var(--primary); background: rgba(230,126,34,0.1); padding: 10px; border-radius: 12px; font-size: 0.9em;}
 
-        /* 🌟 الحقول والمدخلات 🌟 */
         .input-group { margin-bottom: 20px; }
         .input-group label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--text-muted); font-size: 0.85em;}
         .input-style { width: 100%; padding: 14px 16px; border: 2px solid transparent; border-radius: 12px; font-family: 'Cairo'; outline: none; background: var(--input-bg); font-size: 0.95em; color: var(--text-main); font-weight: 600; transition: 0.3s;}
@@ -47,20 +45,17 @@
         
         .flex-row { display: flex; gap: 15px; } .flex-row > div { flex: 1; }
 
-        /* 🌟 أزرار نوع المبنى (Pills) 🌟 */
         .building-type-group { display: flex; gap: 10px; margin-bottom: 20px; }
         .build-btn { flex: 1; padding: 12px; text-align: center; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; font-weight: 700; color: var(--text-muted); background: var(--surface); transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px;}
         .build-btn.active { background: rgba(230,126,34,0.1); color: var(--primary); border-color: var(--primary); transform: translateY(-2px);}
         .build-btn input { display: none; }
 
-        /* 🌟 الخريطة 🌟 */
         #map-wrapper { margin-bottom: 20px; }
         .map-container { border-radius: 12px; overflow: hidden; border: 2px solid var(--border); margin-bottom: 10px; z-index: 1;}
         #map { height: 200px; width: 100%; }
         .btn-gps { background: #eff6ff; color: var(--info); border: 1px dashed #bfdbfe; padding: 12px; width: 100%; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95em; border-radius: 12px; transition: 0.3s;}
         .btn-gps:hover { background: var(--info); color: #fff; border-style: solid;}
 
-        /* 🌟 السلة 🌟 */
         .cart-item { display: flex; gap: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--border); margin-bottom: 15px;}
         .cart-item img { width: 65px; height: 65px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border);}
         .item-details { flex: 1; display: flex; flex-direction: column; justify-content: center;}
@@ -82,16 +77,19 @@
         /* 🌟 شاشة النجاح الجديدة الخرافية 🌟 */
         .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 20px; opacity: 0; transition: opacity 0.3s ease;}
         .modal-overlay.show { opacity: 1; }
-        .modal-card { background: var(--surface); padding: 40px 30px; border-radius: 24px; text-align: center; max-width: 450px; width: 100%; transform: scale(0.9) translateY(20px); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 25px 50px rgba(0,0,0,0.2);}
+        .modal-card { background: var(--surface); padding: 35px 25px; border-radius: 24px; text-align: center; max-width: 480px; width: 100%; transform: scale(0.9) translateY(20px); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 25px 50px rgba(0,0,0,0.2); max-height: 95vh; overflow-y: auto;}
         .modal-overlay.show .modal-card { transform: scale(1) translateY(0); opacity: 1; }
         
-        .success-icon { font-size: 4.5em; color: var(--success); margin-bottom: 10px; animation: popIn 0.5s forwards;}
+        .success-icon { font-size: 4em; color: var(--success); margin-bottom: 10px; animation: popIn 0.5s forwards;}
         @keyframes popIn { 0% { transform: scale(0); opacity:0; } 100% { transform: scale(1); opacity:1; } }
         
-        .order-badge { background: var(--input-bg); border: 2px dashed var(--border); padding: 15px; border-radius: 12px; margin: 20px 0;}
-        .order-badge span { display: block; color: var(--text-muted); font-size: 0.85em; font-weight: 700; margin-bottom: 5px;}
+        .order-badge { background: #fff3e0; border: 1px dashed var(--primary); padding: 12px; border-radius: 12px; margin: 15px 0;}
+        .order-badge span { display: block; color: #d35400; font-size: 0.9em; font-weight: 700; margin-bottom: 5px;}
         .order-badge b { color: var(--primary); font-size: 1.5em; font-family: monospace; letter-spacing: 1px;}
 
+        /* النص التوضيحي للعميل اللي طلبته */
+        .instruction-box { background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; text-align: right; line-height: 1.8; color: #475569; font-size: 0.9em; font-weight: 700;}
+        
         /* شبكة أزرار النجاح (واتس، تحميل، طباعة، رجوع) */
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn-action { padding: 14px; border-radius: 12px; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 0.95em; border: none; text-decoration: none; transition: 0.3s;}
@@ -106,8 +104,9 @@
         .btn-print { background: #e0f2fe; color: #3b82f6; border: 1px solid #bae6fd;}
         .btn-print:hover { background: #bae6fd; color: #1d4ed8;}
         
-        .btn-home { background: transparent; color: var(--text-muted); grid-column: span 2; margin-top: 10px;}
-        .btn-home:hover { color: var(--text-main); text-decoration: underline;}
+        /* زر الاستمرار في التسوق الواضح */
+        .btn-home { background: #f1f5f9; color: #0f172a; grid-column: span 2; border: 1px solid #cbd5e1; flex-direction: row; padding: 15px;}
+        .btn-home:hover { background: #e2e8f0; text-decoration: none; transform: translateY(-1px);}
 
         /* حاوية الفاتورة المخفية للطباعة والـ PDF */
         #invoice-template { display: none; }
@@ -148,7 +147,7 @@
             
             <div class="input-group">
                 <label>اسم الشارع أو المنطقة تفصيلياً *</label>
-                <textarea id="co-street" class="input-style" rows="2" placeholder="اسم الشارع، الميدان..."></textarea>
+                <textarea id="co-street" class="input-style" rows="3" placeholder="اسم الشارع، الميدان..."></textarea>
             </div>
             
             <div id="building-details-wrapper">
@@ -184,7 +183,7 @@
             </div>
 
             <div class="input-group" id="email-wrapper">
-                <label>البريد الإلكتروني (لاستلام الفاتورة)</label>
+                <label>البريد الإلكتروني (اختياري)</label>
                 <input type="email" id="co-email" class="input-style" placeholder="example@email.com">
             </div>
         </div>
@@ -208,18 +207,24 @@
         <div class="modal-card">
             <i class="fas fa-check-circle success-icon"></i>
             <h2 style="color:var(--text-main); font-weight:900; margin-bottom:5px;">تم استلام طلبك بنجاح!</h2>
-            <p style="color:var(--success); font-weight:700; margin-bottom:20px;">جاري التجهيز، وسنتواصل معك لتأكيد الشحن.</p>
+            <p style="color:var(--success); font-weight:700; margin-bottom:15px;">سيتم التواصل من خلالنا لتأكيد الشحنة.</p>
             
             <div class="order-badge">
-                <span>رقم الطلب المرجعي</span>
+                <span>رقم الطلب الخاص بك:</span>
                 <b id="success-order-id">#ORD-XXXX</b>
+            </div>
+
+            <div class="instruction-box">
+                <i class="fas fa-info-circle" style="color:var(--info);"></i> يرجى الاحتفاظ برقم الطلب لتتبعه.<br>
+                <i class="fas fa-user-plus" style="color:var(--primary);"></i> أو قم بالتسجيل على موقعنا لتتبع شحنتك أو طلبك.<br>
+                <span style="color:var(--success);"><i class="fab fa-whatsapp"></i> أو للتواصل معنا مباشرة بطلبك اضغط على علامة الواتساب.</span>
             </div>
 
             <div class="action-grid">
                 <a href="#" id="wa-link" target="_blank" class="btn-action btn-wa"><i class="fab fa-whatsapp"></i> تأكيد ومتابعة عبر واتساب</a>
                 <button onclick="downloadPDF()" class="btn-action btn-pdf"><i class="fas fa-file-pdf"></i> تحميل الفاتورة</button>
                 <button onclick="printInvoice()" class="btn-action btn-print"><i class="fas fa-print"></i> طباعة الفاتورة</button>
-                <button onclick="window.location.href='index.html'" class="btn-action btn-home">الاستمرار في التسوق</button>
+                <button onclick="window.location.href='index.html'" class="btn-action btn-home"><i class="fas fa-arrow-right"></i> الاستمرار في التسوق</button>
             </div>
         </div>
     </div>
@@ -282,7 +287,7 @@
             el.classList.add('active'); el.querySelector('input').checked = true;
         }
 
-        // الخريطة السحرية وجلب اسم الشارع أوتوماتيك
+        // الخريطة الذكية
         function initMap() {
             map = L.map('map').setView([lat, lng], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -313,7 +318,10 @@
                 const data = await response.json();
                 if(data && data.display_name) {
                     const addrField = document.getElementById('co-street');
-                    if(addrField.value.trim() === '') addrField.value = data.display_name.split(',').slice(0,3).join('، ');
+                    if(addrField.value.trim() === '') {
+                        // وضع العنوان التفصيلي كامل
+                        addrField.value = data.display_name + "\n(برجاء إضافة تفاصيل العمارة والشقة)";
+                    }
                 }
             } catch(e) {}
         }
@@ -367,15 +375,16 @@
             const btn = document.getElementById('btn-submit-order');
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
+            // تعديل اللينك عشان يفتح مظبوط في الواتساب
             let mapLink = '';
-            if(lat !== 30.0444 && systemSettings.checkout_show_map !== 'false') { mapLink = `http://googleusercontent.com/maps.google.com/q=${lat},${lng}`; }
+            if(lat !== 30.0444 && systemSettings.checkout_show_map !== 'false') { 
+                mapLink = `https://maps.google.com/?q=${lat},${lng}`; 
+            }
             
-            // تجميع الشارع مع رقم المنزل لتخزينه في الداتا بيز
             let fullAddress = house ? `${street} - مبنى رقم: ${house}` : street;
             if(mapLink) fullAddress += ` | اللوكيشن: ${mapLink}`;
 
             try {
-                // الكود ده بيخاطب قاعدة بياناتك بأسماء الأعمدة المظبوطة
                 const orderData = {
                     customer_name: name, customer_phone: phone,
                     customer_city: citySel.options[citySel.selectedIndex].text,
@@ -399,7 +408,7 @@
                 lastOrder = data; 
                 const shortId = data.id.split('-')[0].toUpperCase();
 
-                // حفظ في order_items عشان اللوحة القديمة لو بتستخدمها
+                // حفظ في order_items للوحة القديمة
                 const orderItems = cart.map(item => ({ order_id: data.id, product_name: item.title, selected_size: item.size || '', selected_color: item.color || '', quantity: item.qty, price: item.price, image: item.image, code: item.code }));
                 await supabaseClient.from('order_items').insert(orderItems);
 
@@ -414,7 +423,7 @@
                 
                 document.getElementById('wa-link').href = `https://wa.me/${systemSettings.social_whatsapp || ''}?text=${encodeURIComponent(waMsg)}`;
                 
-                buildInvoiceHTML(); // بناء الفاتورة المخفية للطباعة والـ PDF
+                buildInvoiceHTML(); 
 
                 localStorage.removeItem('okaz_cart');
                 document.getElementById('success-order-id').innerText = `#ORD-${shortId}`;
