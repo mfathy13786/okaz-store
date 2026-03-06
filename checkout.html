@@ -114,14 +114,14 @@
         .instruction-box { background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; text-align: right; line-height: 1.6; color: #475569; font-size: 0.8em; font-weight: 700;}
         
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .btn-action { padding: 12px; border-radius: 10px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; border: none; text-decoration: none; transition: 0.3s;}
+        .btn-action { padding: 12px; border-radius: 10px; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; border: none; text-decoration: none; transition: 0.3s;}
         .btn-wa { background: #25D366; color: #fff; grid-column: span 2; font-size: 1em; padding: 14px;}
         .btn-pdf { background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5;}
         .btn-print { background: #e0f2fe; color: #3b82f6; border: 1px solid #bae6fd;}
         .btn-home { background: #f1f5f9; color: #0f172a; grid-column: span 2; border: 1px solid #cbd5e1; padding: 14px;}
 
-        /* حاوية الفاتورة المخفية تماماً - بس متاحة للـ PDF */
-        #invoice-container { display: none; }
+        /* حاوية الفاتورة - مش هنستخدم display:none عشان html2pdf يلقطها صح */
+        #invoice-template { position: absolute; left: -9999px; top: 0; width: 800px; }
         
         @media (max-width: 768px) {
             .checkout-wrapper { flex-direction: column-reverse; }
@@ -217,10 +217,10 @@
                 <label class="pay-method" onclick="setPaymentMethod(this, 'ewallet')">
                     <input type="radio" name="pay_method" value="ewallet">
                     <i class="fas fa-mobile-alt"></i>
-                    <div class="pay-text"><b>المحافظ الإلكترونية</b><small>فودافون، أورانج، اتصالات كاش</small></div>
+                    <div class="pay-text"><b>المحافظ الإلكترونية</b><small>فودافون كاش، اتصالات، أورانج</small></div>
                 </label>
                 <div id="ewallet-info" class="pay-info-box">
-                    <p id="txt-wallet-inst">يرجى تحويل الإجمالي على هذا الرقم، وإرسال لقطة شاشة (سكرين شوت) على الواتساب عند إتمام الطلب:</p>
+                    <p id="txt-wallet-inst">يرجى تحويل الإجمالي على هذا الرقم، وإرسال لقطة شاشة (سكرين شوت) على الواتساب عند إتمام الطلب.</p>
                     <div class="copy-group" id="grp-wallet-num">
                         <input type="text" class="copy-input" id="wallet-num" readonly>
                         <button class="btn-copy-pay" type="button" onclick="copyText('wallet-num')"><i class="fas fa-copy"></i> نسخ</button>
@@ -233,15 +233,18 @@
                     <div class="pay-text"><b>إنستاباي (InstaPay)</b><small>تحويل بنكي فوري وسريع</small></div>
                 </label>
                 <div id="instapay-info" class="pay-info-box">
-                    <p id="txt-insta-inst">يرجى تحويل الإجمالي على الحساب التالي، وإرسال لقطة شاشة (سكرين شوت) على الواتساب عند إتمام الطلب:</p>
+                    <p id="txt-insta-inst">يرجى تحويل الإجمالي على الحساب التالي، وإرسال لقطة شاشة (سكرين شوت) على الواتساب عند إتمام الطلب.</p>
+                    
                     <div class="copy-group" id="grp-insta-handle">
-                        <input type="text" class="copy-input" id="insta-handle" readonly>
+                        <input type="text" class="copy-input" id="insta-handle" readonly placeholder="عنوان الدفع (Handle)">
                         <button class="btn-copy-pay" type="button" onclick="copyText('insta-handle')"><i class="fas fa-copy"></i> نسخ</button>
                     </div>
+                    
                     <div class="copy-group" id="grp-insta-num">
-                        <input type="text" class="copy-input" id="insta-num" readonly>
+                        <input type="text" class="copy-input" id="insta-num" readonly placeholder="رقم الهاتف">
                         <button class="btn-copy-pay" type="button" onclick="copyText('insta-num')"><i class="fas fa-copy"></i> نسخ</button>
                     </div>
+                    
                     <a href="instapay://" class="btn-open-app"><i class="fas fa-external-link-alt"></i> فتح تطبيق InstaPay</a>
                 </div>
 
@@ -287,21 +290,19 @@
             <div class="instruction-box">
                 <i class="fas fa-info-circle" style="color:var(--info);"></i> احتفظ برقم الطلب لتتبعه لاحقاً.<br>
                 <i class="fas fa-user-plus" style="color:var(--primary);"></i> سجل دخولك لمتابعة حالة الشحنة.<br>
-                <span style="color:var(--success);"><i class="fab fa-whatsapp"></i> لتسريع الطلب، تواصل معنا عبر الواتساب.</span>
+                <span style="color:var(--success);"><i class="fab fa-whatsapp"></i> لتسريع الطلب أو إرسال الإيصال، تواصل معنا عبر الواتساب.</span>
             </div>
 
             <div class="action-grid">
                 <a href="#" id="wa-link" target="_blank" class="btn-action btn-wa"><i class="fab fa-whatsapp"></i> تأكيد ومتابعة عبر واتساب</a>
-                <button onclick="downloadPDF()" class="btn-action btn-pdf"><i class="fas fa-file-pdf"></i> تحميل الفاتورة</button>
+                <button onclick="downloadPDF()" class="btn-action btn-pdf" id="btn-dl-pdf"><i class="fas fa-file-pdf"></i> تحميل الفاتورة</button>
                 <button onclick="printInvoice()" class="btn-action btn-print"><i class="fas fa-print"></i> طباعة الفاتورة</button>
                 <button onclick="window.location.href='index.html'" class="btn-action btn-home">الاستمرار في التسوق <i class="fas fa-arrow-left"></i></button>
             </div>
         </div>
     </div>
 
-    <div id="invoice-container">
-        <div id="invoice-template" style="width:100%; max-width:800px; margin:0 auto; direction:rtl; text-align:right; font-family:'Cairo', sans-serif; padding:20px; background:#fff; color:#000;"></div>
-    </div>
+    <div id="invoice-template"></div>
 
     <script>
         const SUPABASE_URL = 'https://wkfiocqhkspsvqgyjpea.supabase.co';
@@ -444,6 +445,7 @@
             } catch(e) {}
         }
 
+        // 🔥 تحديث السلة بأزرار (+) و (-) 🔥
         function renderCart() {
             subtotal = 0;
             document.getElementById('cart-items-container').innerHTML = cart.map((i, idx) => {
@@ -514,15 +516,15 @@
             const btn = document.getElementById('btn-submit-order');
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
-            // 🔥 رابط اللوكيشن السحري (يشتغل في كل الحالات) 🔥
+            // 🔥 رابط اللوكيشن السحري 🔥
             let mapLink = '';
             if (mapTouched) {
                 // لو حرك الدبوس، ياخد الإحداثيات المظبوطة
-                mapLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+                mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}`;
             } else {
-                // لو محركش الدبوس وكتب العنوان، ياخد العنوان المكتوب يبحث بيه في جوجل مابس
+                // لو محركش الدبوس، ياخد العنوان المكتوب يبحث بيه في جوجل
                 const searchTxt = `${citySel.options[citySel.selectedIndex].text} ${street} ${house}`;
-                mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTxt)}`;
+                mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${encodeURIComponent(searchTxt)}`;
             }
 
             let fullAddress = house ? `${street} - مبنى: ${house}` : street;
@@ -553,7 +555,7 @@
                     });
                 }
 
-                // رسالة الواتس
+                // 🌟 رسالة الواتس الاحترافية 🌟
                 let waMsg = `*طلب جديد #${shortId}* 🛍️\n\n👤 الاسم: ${name}\n📞 الموبايل: ${phone}\n📍 المحافظة: ${orderData.customer_city}\n🛣️ الشارع: ${street}\n`;
                 if(house) waMsg += `🏠 المبنى: ${bType} | رقم: ${house} | دور: ${floor||'-'} | شقة: ${apart||'-'}\n`;
                 if(notes) waMsg += `📝 ملاحظات العميل: ${notes}\n`;
@@ -568,7 +570,8 @@
                 
                 document.getElementById('wa-link').href = `https://wa.me/${systemSettings.social_whatsapp || ''}?text=${encodeURIComponent(waMsg)}`;
                 
-                buildInvoiceHTML(shortId); 
+                buildInvoiceHTML(shortId); // بناء الفاتورة في الذاكرة
+                
                 localStorage.removeItem('okaz_cart');
                 document.getElementById('success-order-id').innerText = `#${shortId}`;
                 const modal = document.getElementById('success-modal');
@@ -581,87 +584,109 @@
             }
         }
 
-        // 🔥 بناء الفاتورة (مجهزة عشان تتطبع للـ A4 والـ Xprinter ومتطلعش بيضاء) 🔥
+        // 🔥 بناء الفاتورة بـ HTML نظيف عشان ميبقاش في مشاكل في الـ PDF 🔥
         function buildInvoiceHTML(shortId) {
             const storeName = systemSettings.store_name || 'المتجر';
             const date = new Date().toLocaleDateString('ar-EG');
             
             let itemsHtml = cart.map((i, index) => {
                 const codeTxt = i.code ? `<br><small style="color:#777;">كود: ${i.code}</small>` : '';
-                const details = (i.size || i.color) ? `<small style="color:#777;">(${i.size||'-'} / ${i.color||'-'})</small>` : '';
-                return `<tr><td style="border-bottom:1px solid #ddd; padding:10px; text-align:center;">${index + 1}</td><td style="border-bottom:1px solid #ddd; padding:10px; text-align:right;"><b>${i.title}</b><br>${details}${codeTxt}</td><td style="border-bottom:1px solid #ddd; padding:10px; text-align:center; font-weight:bold;">${i.qty}</td><td style="border-bottom:1px solid #ddd; padding:10px; text-align:left; font-weight:bold;">${i.price} ج.م</td></tr>`;
+                const details = (i.size || i.color) ? `<br><small style="color:#777;">(${i.size||'-'} / ${i.color||'-'})</small>` : '';
+                return `
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 12px; text-align: center;">${index + 1}</td>
+                    <td style="border: 1px solid #ddd; padding: 12px; text-align: right;"><b>${i.title}</b>${details}${codeTxt}</td>
+                    <td style="border: 1px solid #ddd; padding: 12px; text-align: center; font-weight: bold;">${i.qty}</td>
+                    <td style="border: 1px solid #ddd; padding: 12px; text-align: left; font-weight: bold;">${i.price} ج.م</td>
+                </tr>`;
             }).join('');
             
             const bType = lastOrder.customer_building || '-';
             const house = document.getElementById('co-house').value.trim() || '-';
-            const floor = lastOrder.customer_floor || '-';
-            const apart = lastOrder.customer_apartment || '-';
-            const notes = lastOrder.customer_landmark || 'لا يوجد';
+            const floor = document.getElementById('co-floor').value.trim() || '-';
+            const apart = document.getElementById('co-apartment').value.trim() || '-';
+            const notes = document.getElementById('co-notes').value.trim() || 'لا يوجد';
 
             const html = `
-                <h1 style="text-align:center; color:#e67e22; margin-bottom:5px;">${storeName}</h1>
-                <p style="text-align:center; color:#555; margin-top:0; border-bottom:2px dashed #000; padding-bottom:15px;">فاتورة ضريبية مبسطة</p>
+            <div style="width: 100%; max-width: 800px; margin: 0 auto; direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; background: #fff; color: #000; padding: 20px; box-sizing: border-box;">
+                <h1 style="text-align: center; color: #e67e22; margin-bottom: 5px; font-size: 28px;">${storeName}</h1>
+                <p style="text-align: center; color: #555; margin-top: 0; border-bottom: 2px dashed #000; padding-bottom: 15px; font-size: 16px;">فاتورة ضريبية مبسطة</p>
                 
-                <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 16px;">
                     <div><b>رقم الطلب:</b> #${shortId}</div>
                     <div><b>التاريخ:</b> ${date}</div>
                 </div>
                 
-                <div style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #ddd; margin-bottom:20px;">
-                    <p style="margin:0 0 8px 0;"><b>العميل:</b> ${lastOrder.customer_name}</p>
-                    <p style="margin:0 0 8px 0;"><b>الهاتف:</b> ${lastOrder.customer_phone}</p>
-                    <p style="margin:0 0 8px 0;"><b>العنوان:</b> ${lastOrder.customer_city} - ${lastOrder.customer_street.split('|')[0]}</p>
-                    <p style="margin:0 0 8px 0;"><b>العقار:</b> ${bType} | عمارة: ${house} | دور: ${floor} | شقة: ${apart}</p>
-                    <p style="margin:0 0 8px 0;"><b>الدفع:</b> ${selectedPaymentMethod}</p>
-                    <p style="margin:0;"><b>ملاحظات:</b> ${notes}</p>
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 20px; font-size: 15px; line-height: 1.8;">
+                    <p style="margin: 0;"><b>العميل:</b> ${lastOrder.customer_name}</p>
+                    <p style="margin: 0;"><b>الهاتف:</b> ${lastOrder.customer_phone}</p>
+                    <p style="margin: 0;"><b>العنوان:</b> ${lastOrder.customer_city} - ${lastOrder.customer_street.split('|')[0]}</p>
+                    <p style="margin: 0;"><b>العقار:</b> ${bType} | عمارة: ${house} | دور: ${floor} | شقة: ${apart}</p>
+                    <p style="margin: 0;"><b>الدفع:</b> ${selectedPaymentMethod}</p>
+                    <p style="margin: 0;"><b>ملاحظات:</b> ${notes}</p>
                 </div>
 
-                <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
-                    <tr style="background:#f1f1f1;"><th style="padding:10px; text-align:center; border-bottom:2px solid #ccc;">#</th><th style="padding:10px; text-align:right; border-bottom:2px solid #ccc;">المنتج</th><th style="padding:10px; text-align:center; border-bottom:2px solid #ccc;">الكمية</th><th style="padding:10px; text-align:left; border-bottom:2px solid #ccc;">السعر</th></tr>
-                    ${itemsHtml}
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 15px;">
+                    <thead>
+                        <tr style="background: #f1f1f1;">
+                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">#</th>
+                            <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">المنتج</th>
+                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">الكمية</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">السعر</th>
+                        </tr>
+                    </thead>
+                    <tbody>${itemsHtml}</tbody>
                 </table>
                 
-                <div style="text-align:left; border-top:2px dashed #000; padding-top:15px;">
-                    <p style="margin:5px 0;">مجموع المنتجات: <b>${lastOrder.total_items_price} ج.م</b></p>
-                    <p style="margin:5px 0;">مصاريف الشحن: <b>${lastOrder.shipping_cost} ج.م</b></p>
-                    <h2 style="margin:10px 0 0; color:#000;">الإجمالي المطلوب: ${lastOrder.grand_total} ج.م</h2>
+                <div style="text-align: left; border-top: 2px dashed #000; padding-top: 15px; font-size: 16px;">
+                    <p style="margin: 5px 0;">مجموع المنتجات: <b>${lastOrder.total_items_price} ج.م</b></p>
+                    <p style="margin: 5px 0;">مصاريف الشحن: <b>${lastOrder.shipping_cost} ج.م</b></p>
+                    <h2 style="margin: 10px 0 0; color: #000; font-size: 24px;">الإجمالي المطلوب: ${lastOrder.grand_total} ج.م</h2>
                 </div>
+            </div>
             `;
             document.getElementById('invoice-template').innerHTML = html;
         }
 
-        // الطباعة المباشرة (هتظبط على الماكينات الصغيرة والكبيرة)
+        // الطباعة المباشرة
         function printInvoice() {
             const content = document.getElementById('invoice-template').innerHTML;
             const win = window.open('', '', 'width=800,height=900');
-            win.document.write(`<html dir="rtl"><head><title>طباعة الفاتورة</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet"><style>body{font-family:'Cairo', sans-serif; padding:20px; color:#000;}</style></head><body>${content}</body></html>`);
+            win.document.write(`<html><head><title>طباعة الفاتورة</title><style>body{margin:0; padding:0;}</style></head><body>${content}</body></html>`);
             win.document.close();
-            setTimeout(() => { win.print(); win.close(); }, 800);
+            setTimeout(() => { win.print(); win.close(); }, 500);
         }
 
-        // الحل النهائي للفاتورة البيضاء للـ PDF
+        // 🔥 الحل الجذري والنهائي للـ PDF (يمرر الكود المكتوب كنص عشان يتصور صح) 🔥
         function downloadPDF() {
-            const template = document.getElementById('invoice-template');
-            // بنعمل عنصر مرئي ونحطه بره الشاشة، عشان html2pdf يشوفه ويصوره صح
-            template.style.display = 'block';
-            template.style.position = 'absolute';
-            template.style.left = '-9999px';
-            template.style.top = '0';
-            template.style.width = '800px'; 
-            template.style.background = '#fff';
-            template.style.padding = '30px';
+            const btn = document.getElementById('btn-dl-pdf');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التجهيز...';
+            btn.disabled = true;
 
+            const invoiceContent = document.getElementById('invoice-template').innerHTML;
+            
+            // إنشاء الحاوية برمجياً وتمريرها عشان متطلعش فاضية
+            const container = document.createElement('div');
+            container.innerHTML = invoiceContent;
+            
             const shortIdText = document.getElementById('success-order-id').innerText.replace('#', '');
             const opt = { 
-                margin: 0.2, 
-                filename: `Invoice_${shortIdText}.pdf`, 
-                image: { type: 'jpeg', quality: 1 }, 
-                html2canvas: { scale: 2, useCORS: true }, 
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
+                margin:       0.3, 
+                filename:     `Invoice_${shortIdText}.pdf`, 
+                image:        { type: 'jpeg', quality: 1 }, 
+                html2canvas:  { scale: 2, useCORS: true }, 
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' } 
             };
             
-            html2pdf().set(opt).from(template).save().then(() => {
-                template.style.display = 'none'; // نرجع نخفيه تاني
+            html2pdf().set(opt).from(container).save().then(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showToast("تم تحميل الفاتورة بنجاح", "fas fa-check-circle", "var(--success)");
+            }).catch(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showToast("حدث خطأ أثناء تحميل الفاتورة", "fas fa-times", "var(--danger)");
             });
         }
 
