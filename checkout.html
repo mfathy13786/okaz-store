@@ -50,8 +50,9 @@
         .custom-select-input { padding-left: 35px; }
         .custom-select-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer; padding: 5px; z-index: 2; pointer-events: none;}
         .custom-select-list { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--border); border-radius: 12px; z-index: 9999; max-height: 220px; overflow-y: auto; display: none; box-shadow: 0 15px 35px rgba(0,0,0,0.15); list-style: none; padding: 5px; margin-top: 5px; margin-bottom: 0;}
-        .custom-select-list li { padding: 12px 15px; cursor: pointer; border-radius: 8px; transition: 0.2s; font-weight: 700; color: var(--text-main); margin-bottom: 2px; text-align: right; direction: ltr; display: flex; justify-content: flex-end;}
+        .custom-select-list li { padding: 12px 15px; cursor: pointer; border-radius: 8px; transition: 0.2s; font-weight: 700; color: var(--text-main); margin-bottom: 2px; display: flex; justify-content: space-between; align-items: center;}
         .custom-select-list li:hover { background: rgba(230,126,34,0.1); color: var(--primary); padding-right: 20px;}
+        .custom-select-list li .en-text { color: #94a3b8; font-size: 0.85em; font-family: sans-serif; font-weight: 600;}
         .custom-select-list li.no-results { color: var(--danger); text-align: center; background: none; cursor: default; justify-content: center;}
 
         .building-type-group { display: flex; gap: 10px; margin-bottom: 20px; }
@@ -66,6 +67,7 @@
         .btn-gps { background: #eff6ff; color: var(--info); border: 1px dashed #bfdbfe; padding: 12px; width: 100%; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95em; border-radius: 12px; transition: 0.3s;}
         .btn-gps:hover { background: var(--info); color: #fff; border-style: solid;}
 
+        /* طرق الدفع */
         .payment-methods { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; margin-bottom: 25px;}
         .pay-method { border: 2px solid var(--border); border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: var(--surface); }
         .pay-method.active { border-color: var(--primary); background: rgba(230,126,34,0.05); }
@@ -85,6 +87,7 @@
         
         @keyframes fadeIn { from {opacity: 0; transform: translateY(-5px);} to {opacity: 1; transform: translateY(0);} }
 
+        /* السلة */
         .cart-item { display: flex; gap: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--border); margin-bottom: 15px;}
         .cart-item img { width: 65px; height: 65px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border);}
         .item-details { flex: 1; display: flex; flex-direction: column; justify-content: center;}
@@ -324,31 +327,34 @@
         let map; let marker; let lat = 30.0444; let lng = 31.2357; let mapTouched = false;
         let activeUserSession = null; let selectedPaymentMethod = 'الدفع عند الاستلام';
 
-        // 🔥 قاموس الإنجليزي - العربي للمحافظات (عشان لو كتب بالانجليزي يتترجم ويفلتر) 🔥
+        // قواميس المحافظات والمناطق ثنائية اللغة
         const govEnMap = {
             "القاهرة": "Cairo", "الجيزة": "Giza", "الاسكندرية": "Alexandria", "القليوبية": "Qalyubia",
             "الشرقية": "Al Sharqia", "الدقهلية": "Dakahlia", "الغربية": "Gharbia", "المنوفية": "Monufia",
             "البحيرة": "Beheira", "الإسماعيلية": "Ismailia", "السويس": "Suez", "بورسعيد": "Port Said",
             "دمياط": "Damietta", "كفر الشيخ": "Kafr El Sheikh", "الفيوم": "Faiyum", "بني سويف": "Beni Suef",
             "المنيا": "Minya", "أسيوط": "Assiut", "سوهاج": "Sohag", "قنا": "Qena", "الأقصر": "Luxor",
-            "أسوان": "Aswan", "البحر الأحمر": "Red Sea", "مطروح": "Matrouh", "الوادي الجديد": "New Valley",
-            "شمال سيناء": "North Sinai", "جنوب سيناء": "South Sinai"
+            "أسوان": "Aswan", "البحر الأحمر": "Red Sea", "مطروح": "Matrouh", "شمال سيناء": "North Sinai", "جنوب سيناء": "South Sinai"
         };
 
-        // 🔥 قاموس المناطق ثنائي اللغة (مكتوب عربي وانجليزي مع بعض في القائمة) 🔥
         const egyRegionsData = {
             "القاهرة": ["مدينة نصر - Nasr City", "مصر الجديدة - Heliopolis", "المعادي - Maadi", "التجمع الخامس - 5th Settlement", "الرحاب - Al Rehab", "الشروق - El Shorouk", "مدينتي - Madinaty", "حلوان - Helwan", "شبرا - Shoubra", "وسط البلد - Downtown", "الزمالك - Zamalek", "المرج - El Marg", "عين شمس - Ain Shams", "المقطم - Mokattam", "العباسية - Abbassia", "دار السلام - Dar El Salam", "الزاوية الحمراء - El Zawya", "حدائق القبة - Hadaeq El Kobba", "النزهة - El Nozha", "بدر - Badr City", "العاصمة الإدارية - New Capital"],
             "الجيزة": ["المهندسين - Mohandeseen", "الدقي - Dokki", "الهرم - Haram", "فيصل - Faisal", "6 أكتوبر - 6th of October", "الشيخ زايد - Sheikh Zayed", "العجوزة - Agouza", "إمبابة - Imbaba", "البدرشين - Badrashin", "العمرانية - Omrania", "بولاق الدكرور - Bulaq El Dakrour", "حدائق الأهرام - Hadayek El Ahram", "الحوامدية - Hawamdia", "أبو النمرس - Abu Nomros", "العياط - El Ayat", "الصف - El Saff"],
             "الاسكندرية": ["سموحة - Smouha", "ميامي - Miami", "سيدي بشر - Sidi Beshr", "المنتزه - Montaza", "لوران - Loran", "العجمي - Agami", "محطة الرمل - Raml Station", "سيدي جابر - Sidi Gaber", "المندرة - Mandara", "جليم - Gleem", "ستانلي - Stanley", "كليوباترا - Cleopatra", "رشدي - Roushdy", "سبورتنج - Sporting", "برج العرب - Borg El Arab", "العامرية - Amreya", "أبو قير - Abu Qir"],
             "القليوبية": ["العبور - El Obour", "شبرا الخيمة - Shubra El Kheima", "بنها - Banha", "القناطر الخيرية - El Qanater", "الخانكة - Khanka", "قليوب - Qalyub", "طوخ - Toukh", "الخصوص - El Khusus", "شبين القناطر - Shebin El Qanater", "قها - Qaha"],
-            "الشرقية": ["الزقازيق - Zagazig", "العاشر من رمضان - 10th of Ramadan", "بلبيس - Belbeis", "منيا القمح - Minya El Qamh", "أبو حماد - Abu Hammad", "فاقوس - Faqous", "أبو كبير - Abu Kebir", "ديرب نجم - Diyarb Negm", "مشتول السوق - Mashtoul El Souk", "الحسينية - El Husseiniya"],
-            "الدقهلية": ["المنصورة - Mansoura", "ميت غمر - Mit Ghamr", "طلخا - Talkha", "دكرنس - Dekernes", "بلقاس - Belqas", "السنبلاوين - Senbellawein"],
-            "الغربية": ["طنطا - Tanta", "المحلة الكبرى - El Mahalla El Kubra", "زفتى - Zefta", "كفر الزيات - Kafr El Zayat"],
-            "المنوفية": ["شبين الكوم - Shebin El Kom", "منوف - Menouf", "أشمون - Ashmoun", "قويسنا - Quesna", "السادات - Sadat"],
-            "البحيرة": ["دمنهور - Damanhour", "كفر الدوار - Kafr El Dawwar", "إيتاي البارود - Itay El Baroud"],
-            "الإسماعيلية": ["الإسماعيلية - Ismailia", "فايد - Fayed", "القصاصين - Kassassin", "التل الكبير - Tell El Kebir"],
-            "السويس": ["السويس - Suez", "حي الأربعين - Arbaeen", "عتاقة - Ataqah"],
-            "بورسعيد": ["الشرق - Al Sharq", "العرب - Al Arab", "المناخ - Al Manakh", "الضواحي - Al Dawahy", "بورفؤاد - Port Fouad"]
+            "الشرقية": ["الزقازيق - Zagazig", "العاشر من رمضان - 10th of Ramadan", "بلبيس - Belbeis", "منيا القمح - Minya El Qamh", "أبو حماد - Abu Hammad", "فاقوس - Faqous", "أبو كبير - Abu Kebir", "ديرب نجم - Diyarb Negm", "مشتول السوق - Mashtoul El Souk", "الحسينية - El Husseiniya"]
+        };
+
+        const smartEnMap = {
+            "cairo": "القاهره", "alex": "الاسكندريه", "giza": "الجيزه", 
+            "shark": "الشرقيه", "qal": "القليوبيه", "dak": "الدقهليه",
+            "ghar": "الغربيه", "men": "المنوفيه", "bah": "البحيره",
+            "ismailia": "الاسماعيليه", "suez": "السويس", "port": "بورسعيد",
+            "nasr": "نصر", "maadi": "معادي", "tagamo": "تجمع", 
+            "zayed": "زايد", "october": "اكتوبر", "haram": "هرم",
+            "rehab": "رحاب", "shorouk": "شروق", "madinaty": "مدينتي",
+            "mohandeseen": "مهندسين", "dokki": "دقي", "zamalek": "زمالك",
+            "smouha": "سموحه", "miami": "ميامي", "agami": "عجمي"
         };
 
         function showToast(msg, icon='fas fa-info-circle', color='#ef4444') {
@@ -358,7 +364,6 @@
             document.body.appendChild(div); setTimeout(() => { if(div) div.remove(); }, 4000);
         }
 
-        // دالة مساعدة بتجيب اسم المحافظة ثنائي اللغة لو متاح
         function getBilingualGovName(govAr) {
             let cleanGov = govAr.trim();
             return govEnMap[cleanGov] ? `${cleanGov} - ${govEnMap[cleanGov]}` : cleanGov;
@@ -366,7 +371,10 @@
 
         function normalizeAr(str) {
             if(!str) return '';
-            return str.toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').trim();
+            let s = str.trim().toLowerCase();
+            s = s.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+            for (let enKey in smartEnMap) { if (s.includes(enKey)) return smartEnMap[enKey]; }
+            return s;
         }
 
         let activeDropdown = null;
@@ -387,17 +395,17 @@
             }
         });
 
-        // 🔥 رسم وبحث المحافظات (بيدعم الانجليزي والعربي في البحث) 🔥
         function renderCityOptions(rulesArray) {
             const list = document.getElementById('city-dropdown-list');
             list.innerHTML = '';
             if(rulesArray.length === 0) { list.innerHTML = '<li class="no-results">الرجاء كتابة المحافظة يدوياً</li>'; return; }
+            
             rulesArray.forEach(rule => {
-                const bilingualName = getBilingualGovName(rule.city_ar);
+                const arName = rule.city_ar.trim();
+                const enName = govEnMap[arName] || '';
                 const li = document.createElement('li');
-                li.innerText = bilingualName;
-                // بنحفظ الاسم الأساسي العربي عشان نربطه بقاموس المناطق، وبنحط الاسم الثنائي في الشاشة
-                li.onclick = () => selectCity(rule.city_ar, bilingualName, rule.cost);
+                li.innerHTML = `<span>${arName}</span> <span class="en-text">${enName}</span>`;
+                li.onclick = () => selectCity(arName, rule.cost);
                 list.appendChild(li);
             });
         }
@@ -405,21 +413,19 @@
         function smartFilterCities() {
             const query = normalizeAr(document.getElementById('co-city').value);
             const filtered = shippingRules.filter(r => {
-                const bilingualName = getBilingualGovName(r.city_ar);
-                return normalizeAr(bilingualName).includes(query);
+                const arName = normalizeAr(r.city_ar);
+                const enName = normalizeAr(govEnMap[r.city_ar] || '');
+                return arName.includes(query) || enName.includes(query);
             });
             renderCityOptions(filtered);
             toggleDropdown('city-dropdown-list', true);
         }
 
-        function selectCity(dbCityName, bilingualName, cost) {
-            const cityInput = document.getElementById('co-city');
-            cityInput.value = bilingualName;
-            cityInput.dataset.dbCity = dbCityName; // بنخزن الاسم العربي الصافي في الخلفية
-            
+        function selectCity(arCityName, cost) {
+            document.getElementById('co-city').value = arCityName;
             shippingCost = parseFloat(cost) || 0;
             calculateTotals();
-            updateRegions(dbCityName);
+            updateRegions(arCityName);
             toggleDropdown('city-dropdown-list', false);
             document.getElementById('co-region').focus();
         }
@@ -427,22 +433,17 @@
         function handleCityBlur() {
             setTimeout(() => {
                 const val = document.getElementById('co-city').value.trim();
-                const matched = shippingRules.find(r => getBilingualGovName(r.city_ar) === val || r.city_ar === val);
+                const normVal = normalizeAr(val);
+                const matched = shippingRules.find(r => normalizeAr(r.city_ar) === normVal || normalizeAr(govEnMap[r.city_ar]||'') === normVal);
                 if (matched) { 
+                    document.getElementById('co-city').value = matched.city_ar;
                     shippingCost = matched.cost; 
-                    document.getElementById('co-city').dataset.dbCity = matched.city_ar;
                     updateRegions(matched.city_ar); 
                 } 
-                else { 
-                    shippingCost = 0; 
-                    document.getElementById('co-city').dataset.dbCity = val;
-                    updateRegions(val); 
-                }
                 calculateTotals();
             }, 200);
         }
 
-        // 🔥 رسم وبحث المناطق (بيدعم الانجليزي والعربي في البحث) 🔥
         let currentGovRegions = [];
         function updateRegions(govName) {
             currentGovRegions = egyRegionsData[govName] ? [...egyRegionsData[govName]].sort() : [];
@@ -454,10 +455,15 @@
             const list = document.getElementById('region-dropdown-list');
             list.innerHTML = '';
             if(regionsArray.length === 0) { list.innerHTML = '<li class="no-results">اكتب منطقتك يدوياً</li>'; return; }
-            regionsArray.forEach(region => {
+            
+            regionsArray.forEach(regionString => {
+                const parts = regionString.split('-');
+                const arName = parts[0].trim();
+                const enName = parts[1] ? parts[1].trim() : '';
+
                 const li = document.createElement('li');
-                li.innerText = region;
-                li.onclick = () => { document.getElementById('co-region').value = region; toggleDropdown('region-dropdown-list', false); };
+                li.innerHTML = `<span>${arName}</span> <span class="en-text">${enName}</span>`;
+                li.onclick = () => { document.getElementById('co-region').value = arName; toggleDropdown('region-dropdown-list', false); };
                 list.appendChild(li);
             });
         }
@@ -505,11 +511,11 @@
                 if(meta.apartment) document.getElementById('co-apartment').value = meta.apartment;
                 if(meta.region) document.getElementById('co-region').value = meta.region;
                 if(meta.city) {
-                    const matchedRule = shippingRules.find(r => getBilingualGovName(r.city_ar) === meta.city || r.city_ar === meta.city);
-                    if(matchedRule) selectCity(matchedRule.city_ar, getBilingualGovName(matchedRule.city_ar), matchedRule.cost);
-                    else {
-                        document.getElementById('co-city').value = meta.city;
-                        document.getElementById('co-city').dataset.dbCity = meta.city;
+                    const matchedRule = shippingRules.find(r => r.city_ar === meta.city);
+                    if(matchedRule) {
+                        document.getElementById('co-city').value = matchedRule.city_ar;
+                        shippingCost = matchedRule.cost;
+                        updateRegions(matchedRule.city_ar);
                     }
                 }
             }
@@ -568,6 +574,7 @@
             }
         }
 
+        // 🔥 الخريطة بتسحب العنوان كاااامل زي ما طلبت من غير فلترة 🔥
         async function reverseGeocode(l, g) {
             try {
                 const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${l}&lon=${g}&accept-language=ar`);
@@ -624,8 +631,6 @@
         async function submitOrder() {
             const name = document.getElementById('co-name').value.trim();
             const phone = document.getElementById('co-phone').value.trim();
-            
-            // ناخد القيم المكتوبة (الثنائية اللغة)
             const govName = document.getElementById('co-city').value.trim();
             const region = document.getElementById('co-region').value.trim();
             const street = document.getElementById('co-street').value.trim();
@@ -642,24 +647,23 @@
             const btn = document.getElementById('btn-submit-order');
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
+            // 🔥 رابط الخريطة الذكي السليم 🔥
             let mapLink = '';
             if (mapTouched) { 
-                mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}`; 
+                mapLink = `https://maps.google.com/maps?q=${lat},${lng}`; 
             } else {
                 let cleanAddress = `${govName} ${region} ${street} ${house}`.replace(/\s+/g, '+');
-                mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${encodeURIComponent(cleanAddress)}`;
+                mapLink = `https://maps.google.com/maps?q=${encodeURIComponent(cleanAddress)}`;
             }
 
-            let fullAddress = house ? `${region} - ${street} - مبنى: ${house}` : `${region} - ${street}`;
-            fullAddress += ` | اللوكيشن: ${mapLink}`;
-
             try {
+                // بنحفظ الداتا منفصلة عشان متكررش في اللوحة
                 const orderData = {
-                    customer_name: name, customer_phone: phone, customer_city: govName, // هتتسجل ثنائية اللغة في الداتا بيز
-                    customer_street: fullAddress, customer_email: email || null,
+                    customer_name: name, customer_phone: phone, customer_city: govName,
+                    customer_street: street, // شارع الاستلام بس
                     customer_building: bType, customer_floor: floor || null, customer_apartment: apart || null, customer_landmark: notes || null,
                     total_items_price: subtotal, shipping_cost: shippingCost, discount_amount: 0, grand_total: (subtotal + shippingCost),
-                    status: 'قيد المراجعة', cart_info: { items: cart, payment_method: selectedPaymentMethod }
+                    status: 'قيد المراجعة', cart_info: { items: cart, payment_method: selectedPaymentMethod, region: region, map_link: mapLink }
                 };
 
                 const { data, error } = await supabaseClient.from('orders').insert([orderData]).select().single();
@@ -680,10 +684,19 @@
                 const currentDomain = window.location.origin; 
                 const invoiceLink = `${currentDomain}/invoice.html?id=${lastOrder.id}`;
 
-                let waMsg = `*طلب جديد #${shortId}* 🛍️\n\n👤 الاسم: ${name}\n📞 الموبايل: ${phone}\n📍 العنوان: ${govName}\n🛣️ المنطقة/الشارع: ${fullAddress.split('|')[0].trim()}\n`;
+                // 🔥 رسالة الواتس مفصولة ومترتبة ومفيهاش تكرار 🔥
+                let waMsg = `*طلب جديد #${shortId}* 🛍️\n\n`;
+                waMsg += `👤 الاسم: ${name}\n📞 الموبايل: ${phone}\n`;
+                waMsg += `📍 منطقة الشحن: ${govName} - ${region}\n`;
+                waMsg += `🛣️ عنوان الاستلام: ${street}\n`;
+                
+                if(house || floor || apart) {
+                    waMsg += `🏠 تفاصيل العقار: ${bType} | رقم: ${house||'-'} | دور: ${floor||'-'} | شقة: ${apart||'-'}\n`;
+                }
+                
                 if(notes) waMsg += `📝 ملاحظات العميل: ${notes}\n`;
                 waMsg += `💳 طريقة الدفع: *${selectedPaymentMethod}*\n`;
-                waMsg += `🗺️ اللوكيشن:\n${mapLink}\n`;
+                waMsg += `🗺️ اللوكيشن: ${mapLink}\n`;
                 waMsg += `\n*المنتجات:*\n`;
                 cart.forEach(i => { const barcode = i.code ? ` (كود: ${i.code})` : ''; waMsg += `▪️ ${i.qty}x ${i.title} ${barcode} - ${i.price}ج\n`; });
                 waMsg += `\n🚚 الشحن: ${shippingCost} ج.م\n💰 *الإجمالي المطلوب: ${orderData.grand_total} ج.م*\n`;
