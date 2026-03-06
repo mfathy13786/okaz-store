@@ -24,7 +24,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent;}
         body { background-color: var(--bg); color: var(--text-main); padding-bottom: 60px; }
 
-        .toast-msg { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); color: #fff; padding: 14px 28px; border-radius: 50px; z-index: 99999; font-weight: 700; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: dropDown 0.4s ease; display: flex; align-items: center; gap: 10px; width: 90%; max-width: 400px; justify-content: center; font-size: 0.95em;}
+        .toast-msg { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); color: #fff; padding: 14px 28px; border-radius: 50px; z-index: 999999; font-weight: 700; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: dropDown 0.4s ease; display: flex; align-items: center; gap: 10px; width: 90%; max-width: 400px; justify-content: center; font-size: 0.95em;}
         @keyframes dropDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
 
         header { background: var(--surface); padding: 15px 20px; text-align: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;}
@@ -58,7 +58,7 @@
         .btn-gps { background: #eff6ff; color: var(--info); border: 1px dashed #bfdbfe; padding: 12px; width: 100%; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95em; border-radius: 12px; transition: 0.3s;}
         .btn-gps:hover { background: var(--info); color: #fff; border-style: solid;}
 
-        /* 🔥 طرق الدفع 🔥 */
+        /* طرق الدفع */
         .payment-methods { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; margin-bottom: 25px;}
         .pay-method { border: 2px solid var(--border); border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: var(--surface); }
         .pay-method.active { border-color: var(--primary); background: rgba(230,126,34,0.05); }
@@ -78,7 +78,7 @@
         
         @keyframes fadeIn { from {opacity: 0; transform: translateY(-5px);} to {opacity: 1; transform: translateY(0);} }
 
-        /* 🔥 السلة وأزرار الكمية 🔥 */
+        /* السلة */
         .cart-item { display: flex; gap: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--border); margin-bottom: 15px;}
         .cart-item img { width: 65px; height: 65px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border);}
         .item-details { flex: 1; display: flex; flex-direction: column; justify-content: center;}
@@ -97,9 +97,22 @@
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(16, 185, 129, 0.3);}
         .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; transform: none;}
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: 99999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 15px; opacity: 0; transition: opacity 0.3s ease;}
+        /* 🔥 الحل السحري لشاشة النجاح على الموبايل (لا شاشة سودة بعد اليوم) 🔥 */
+        .modal-overlay { 
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); 
+            z-index: 99999; display: none; 
+            align-items: flex-start; /* بدل center عشان تسمح بالنزول لتحت */
+            justify-content: center; backdrop-filter: blur(5px); 
+            padding: 40px 15px; overflow-y: auto; /* السماح بالسكرول لو الشاشة صغيرة */
+            opacity: 0; transition: opacity 0.3s ease;
+        }
         .modal-overlay.show { opacity: 1; }
-        .modal-card { background: var(--surface); padding: 30px 20px; border-radius: 24px; text-align: center; max-width: 450px; width: 100%; transform: scale(0.9) translateY(20px); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 25px 50px rgba(0,0,0,0.2);}
+        .modal-card { 
+            background: var(--surface); padding: 30px 20px; border-radius: 24px; 
+            text-align: center; width: 100%; max-width: 450px; margin: auto; /* margin auto لضبط التوسيط */
+            transform: scale(0.9) translateY(20px); opacity: 0; 
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
         .modal-overlay.show .modal-card { transform: scale(1) translateY(0); opacity: 1; }
         
         .success-icon { font-size: 3.5em; color: var(--success); margin-bottom: 5px; animation: popIn 0.5s forwards;}
@@ -114,22 +127,20 @@
         .instruction-box { background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; text-align: right; line-height: 1.6; color: #475569; font-size: 0.8em; font-weight: 700;}
         
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .btn-action { padding: 12px; border-radius: 10px; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; border: none; text-decoration: none; transition: 0.3s;}
+        .btn-action { padding: 12px; border-radius: 10px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; border: none; text-decoration: none; transition: 0.3s; font-family: 'Cairo';}
         .btn-wa { background: #25D366; color: #fff; grid-column: span 2; font-size: 1em; padding: 14px;}
         .btn-pdf { background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5;}
         .btn-print { background: #e0f2fe; color: #3b82f6; border: 1px solid #bae6fd;}
         .btn-home { background: #f1f5f9; color: #0f172a; grid-column: span 2; border: 1px solid #cbd5e1; padding: 14px;}
 
-        /* حاوية الفاتورة - مش هنستخدم display:none عشان html2pdf يلقطها صح */
-        #invoice-template { position: absolute; left: -9999px; top: 0; width: 800px; }
-        
+        /* تظبيط الموبايل */
         @media (max-width: 768px) {
             .checkout-wrapper { flex-direction: column-reverse; }
             .grid-2 { grid-template-columns: 1fr; }
             .grid-3 { grid-template-columns: 1fr 1fr; }
             .grid-3 .input-group:first-child { grid-column: span 2; }
             .col-summary { position: relative; top: 0; margin-bottom: 0;}
-            .col-form { margin-top: 0; }
+            .col-form { margin-top: 0; padding: 20px;}
         }
     </style>
 </head>
@@ -302,8 +313,6 @@
         </div>
     </div>
 
-    <div id="invoice-template"></div>
-
     <script>
         const SUPABASE_URL = 'https://wkfiocqhkspsvqgyjpea.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_l2vgR8Xbt0Csw8W_Slo_1Q_9glKlIoN'; 
@@ -336,7 +345,6 @@
                 document.getElementById('store-title').innerText = systemSettings.store_name || 'المتجر';
                 if(systemSettings.theme_color) document.documentElement.style.setProperty('--primary', systemSettings.theme_color);
                 
-                // جلب تعليمات الدفع وبياناته من لوحة التحكم
                 if(systemSettings.pay_text_ewallet) document.getElementById('txt-wallet-inst').innerText = systemSettings.pay_text_ewallet;
                 if(systemSettings.pay_text_instapay) document.getElementById('txt-insta-inst').innerText = systemSettings.pay_text_instapay;
 
@@ -445,7 +453,6 @@
             } catch(e) {}
         }
 
-        // 🔥 تحديث السلة بأزرار (+) و (-) 🔥
         function renderCart() {
             subtotal = 0;
             document.getElementById('cart-items-container').innerHTML = cart.map((i, idx) => {
@@ -459,7 +466,6 @@
                         ${meta}
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
                             <div class="item-price" style="color:var(--primary); font-weight:bold;">${i.price} ج.م</div>
-                            
                             <div class="qty-controls">
                                 <button class="qty-btn" onclick="updateQty(${idx}, 1)">+</button>
                                 <span style="font-weight:900; font-size:1.1em; width:20px; text-align:center;">${i.qty}</span>
@@ -516,13 +522,10 @@
             const btn = document.getElementById('btn-submit-order');
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
-            // 🔥 رابط اللوكيشن السحري 🔥
             let mapLink = '';
             if (mapTouched) {
-                // لو حرك الدبوس، ياخد الإحداثيات المظبوطة
                 mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}`;
             } else {
-                // لو محركش الدبوس، ياخد العنوان المكتوب يبحث بيه في جوجل
                 const searchTxt = `${citySel.options[citySel.selectedIndex].text} ${street} ${house}`;
                 mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${encodeURIComponent(searchTxt)}`;
             }
@@ -555,7 +558,6 @@
                     });
                 }
 
-                // 🌟 رسالة الواتس الاحترافية 🌟
                 let waMsg = `*طلب جديد #${shortId}* 🛍️\n\n👤 الاسم: ${name}\n📞 الموبايل: ${phone}\n📍 المحافظة: ${orderData.customer_city}\n🛣️ الشارع: ${street}\n`;
                 if(house) waMsg += `🏠 المبنى: ${bType} | رقم: ${house} | دور: ${floor||'-'} | شقة: ${apart||'-'}\n`;
                 if(notes) waMsg += `📝 ملاحظات العميل: ${notes}\n`;
@@ -570,8 +572,6 @@
                 
                 document.getElementById('wa-link').href = `https://wa.me/${systemSettings.social_whatsapp || ''}?text=${encodeURIComponent(waMsg)}`;
                 
-                buildInvoiceHTML(shortId); // بناء الفاتورة في الذاكرة
-                
                 localStorage.removeItem('okaz_cart');
                 document.getElementById('success-order-id').innerText = `#${shortId}`;
                 const modal = document.getElementById('success-modal');
@@ -584,20 +584,21 @@
             }
         }
 
-        // 🔥 بناء الفاتورة بـ HTML نظيف عشان ميبقاش في مشاكل في الـ PDF 🔥
-        function buildInvoiceHTML(shortId) {
+        // 🔥 دالة بناء الفاتورة المشتركة (تستخدم للطباعة وللـ PDF) 🔥
+        function getInvoiceHTML() {
             const storeName = systemSettings.store_name || 'المتجر';
             const date = new Date().toLocaleDateString('ar-EG');
+            const shortIdText = document.getElementById('success-order-id').innerText.replace('#', '');
             
             let itemsHtml = cart.map((i, index) => {
                 const codeTxt = i.code ? `<br><small style="color:#777;">كود: ${i.code}</small>` : '';
                 const details = (i.size || i.color) ? `<br><small style="color:#777;">(${i.size||'-'} / ${i.color||'-'})</small>` : '';
                 return `
                 <tr>
-                    <td style="border: 1px solid #ddd; padding: 12px; text-align: center;">${index + 1}</td>
-                    <td style="border: 1px solid #ddd; padding: 12px; text-align: right;"><b>${i.title}</b>${details}${codeTxt}</td>
-                    <td style="border: 1px solid #ddd; padding: 12px; text-align: center; font-weight: bold;">${i.qty}</td>
-                    <td style="border: 1px solid #ddd; padding: 12px; text-align: left; font-weight: bold;">${i.price} ج.م</td>
+                    <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${index + 1}</td>
+                    <td style="border: 1px solid #ddd; padding: 10px; text-align: right;"><b>${i.title}</b>${details}${codeTxt}</td>
+                    <td style="border: 1px solid #ddd; padding: 10px; text-align: center; font-weight: bold;">${i.qty}</td>
+                    <td style="border: 1px solid #ddd; padding: 10px; text-align: left; font-weight: bold;">${i.price} ج.م</td>
                 </tr>`;
             }).join('');
             
@@ -605,85 +606,92 @@
             const house = document.getElementById('co-house').value.trim() || '-';
             const floor = document.getElementById('co-floor').value.trim() || '-';
             const apart = document.getElementById('co-apartment').value.trim() || '-';
-            const notes = document.getElementById('co-notes').value.trim() || 'لا يوجد';
+            const notes = lastOrder.customer_landmark || 'لا يوجد';
 
-            const html = `
-            <div style="width: 100%; max-width: 800px; margin: 0 auto; direction: rtl; text-align: right; font-family: 'Cairo', sans-serif; background: #fff; color: #000; padding: 20px; box-sizing: border-box;">
-                <h1 style="text-align: center; color: #e67e22; margin-bottom: 5px; font-size: 28px;">${storeName}</h1>
-                <p style="text-align: center; color: #555; margin-top: 0; border-bottom: 2px dashed #000; padding-bottom: 15px; font-size: 16px;">فاتورة ضريبية مبسطة</p>
+            return `
+            <div style="width: 100%; max-width: 800px; margin: 0 auto; direction: rtl; text-align: right; background: #fff; color: #000; padding: 20px; box-sizing: border-box;">
+                <h1 style="text-align: center; color: #e67e22; margin-bottom: 5px; font-size: 26px;">${storeName}</h1>
+                <p style="text-align: center; color: #555; margin-top: 0; border-bottom: 2px dashed #000; padding-bottom: 15px; font-size: 15px;">فاتورة ضريبية مبسطة</p>
                 
-                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 16px;">
-                    <div><b>رقم الطلب:</b> #${shortId}</div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 15px;">
+                    <div><b>رقم الطلب:</b> #${shortIdText}</div>
                     <div><b>التاريخ:</b> ${date}</div>
                 </div>
                 
-                <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 20px; font-size: 15px; line-height: 1.8;">
-                    <p style="margin: 0;"><b>العميل:</b> ${lastOrder.customer_name}</p>
-                    <p style="margin: 0;"><b>الهاتف:</b> ${lastOrder.customer_phone}</p>
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px; font-size: 14px; line-height: 1.8;">
+                    <p style="margin: 0;"><b>العميل:</b> ${lastOrder.customer_name} | <b>الهاتف:</b> ${lastOrder.customer_phone}</p>
                     <p style="margin: 0;"><b>العنوان:</b> ${lastOrder.customer_city} - ${lastOrder.customer_street.split('|')[0]}</p>
                     <p style="margin: 0;"><b>العقار:</b> ${bType} | عمارة: ${house} | دور: ${floor} | شقة: ${apart}</p>
                     <p style="margin: 0;"><b>الدفع:</b> ${selectedPaymentMethod}</p>
                     <p style="margin: 0;"><b>ملاحظات:</b> ${notes}</p>
                 </div>
 
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 15px;">
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
                     <thead>
                         <tr style="background: #f1f1f1;">
-                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">#</th>
-                            <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">المنتج</th>
-                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">الكمية</th>
-                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">السعر</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">#</th>
+                            <th style="padding: 10px; text-align: right; border: 1px solid #ddd;">المنتج</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">الكمية</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">السعر</th>
                         </tr>
                     </thead>
                     <tbody>${itemsHtml}</tbody>
                 </table>
                 
-                <div style="text-align: left; border-top: 2px dashed #000; padding-top: 15px; font-size: 16px;">
+                <div style="text-align: left; border-top: 2px dashed #000; padding-top: 15px; font-size: 15px;">
                     <p style="margin: 5px 0;">مجموع المنتجات: <b>${lastOrder.total_items_price} ج.م</b></p>
                     <p style="margin: 5px 0;">مصاريف الشحن: <b>${lastOrder.shipping_cost} ج.م</b></p>
-                    <h2 style="margin: 10px 0 0; color: #000; font-size: 24px;">الإجمالي المطلوب: ${lastOrder.grand_total} ج.م</h2>
+                    <h2 style="margin: 10px 0 0; color: #000; font-size: 22px;">الإجمالي المطلوب: ${lastOrder.grand_total} ج.م</h2>
                 </div>
-            </div>
-            `;
-            document.getElementById('invoice-template').innerHTML = html;
+            </div>`;
         }
 
-        // الطباعة المباشرة
+        // طباعة مباشرة
         function printInvoice() {
-            const content = document.getElementById('invoice-template').innerHTML;
+            const content = getInvoiceHTML();
             const win = window.open('', '', 'width=800,height=900');
-            win.document.write(`<html><head><title>طباعة الفاتورة</title><style>body{margin:0; padding:0;}</style></head><body>${content}</body></html>`);
+            win.document.write(`<html dir="rtl"><head><title>طباعة الفاتورة</title><style>body{margin:0; padding:0; font-family:sans-serif;}</style></head><body>${content}</body></html>`);
             win.document.close();
             setTimeout(() => { win.print(); win.close(); }, 500);
         }
 
-        // 🔥 الحل الجذري والنهائي للـ PDF (يمرر الكود المكتوب كنص عشان يتصور صح) 🔥
+        // 🔥 الحل الجذري للـ PDF (إنشاء عنصر في الـ Body بدون display:none) 🔥
         function downloadPDF() {
             const btn = document.getElementById('btn-dl-pdf');
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التجهيز...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
             btn.disabled = true;
 
-            const invoiceContent = document.getElementById('invoice-template').innerHTML;
-            
-            // إنشاء الحاوية برمجياً وتمريرها عشان متطلعش فاضية
+            // نعمل عنصر جديد تماماً ونحطه في الـ DOM بس نطلعه بره الشاشة
             const container = document.createElement('div');
-            container.innerHTML = invoiceContent;
+            container.style.position = 'absolute';
+            container.style.left = '-9999px';
+            container.style.top = '0';
+            container.style.width = '800px'; 
+            container.style.background = '#ffffff';
+            container.style.color = '#000000';
+            container.style.fontFamily = 'sans-serif';
+            container.innerHTML = getInvoiceHTML();
             
+            document.body.appendChild(container); // لازم يتحط في البودي عشان يتصور
+
             const shortIdText = document.getElementById('success-order-id').innerText.replace('#', '');
             const opt = { 
                 margin:       0.3, 
                 filename:     `Invoice_${shortIdText}.pdf`, 
                 image:        { type: 'jpeg', quality: 1 }, 
-                html2canvas:  { scale: 2, useCORS: true }, 
+                html2canvas:  { scale: 2, logging: false }, 
                 jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' } 
             };
             
             html2pdf().set(opt).from(container).save().then(() => {
+                document.body.removeChild(container); // نمسحه بعد ما يخلص
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-                showToast("تم تحميل الفاتورة بنجاح", "fas fa-check-circle", "var(--success)");
-            }).catch(() => {
+                showToast("تم تحميل الفاتورة بنجاح", "fas fa-check", "var(--success)");
+            }).catch(err => {
+                console.error(err);
+                document.body.removeChild(container);
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 showToast("حدث خطأ أثناء تحميل الفاتورة", "fas fa-times", "var(--danger)");
