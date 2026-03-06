@@ -10,7 +10,6 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -58,7 +57,7 @@
         .btn-gps { background: #eff6ff; color: var(--info); border: 1px dashed #bfdbfe; padding: 12px; width: 100%; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95em; border-radius: 12px; transition: 0.3s;}
         .btn-gps:hover { background: var(--info); color: #fff; border-style: solid;}
 
-        /* 🔥 طرق الدفع 🔥 */
+        /* طرق الدفع */
         .payment-methods { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; margin-bottom: 25px;}
         .pay-method { border: 2px solid var(--border); border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: var(--surface); }
         .pay-method.active { border-color: var(--primary); background: rgba(230,126,34,0.05); }
@@ -97,7 +96,7 @@
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(16, 185, 129, 0.3);}
         .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; transform: none;}
 
-        /* شاشة النجاح المتوافقة مع الموبايل (بدون شاشة سودة) */
+        /* شاشة النجاح المتوافقة مع الموبايل */
         .modal-overlay { 
             position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); 
             z-index: 99999; display: none; 
@@ -131,7 +130,6 @@
         .btn-print { background: #e0f2fe; color: #3b82f6; border: 1px solid #bae6fd;}
         .btn-home { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 14px;}
 
-        /* الموبايل ريسبونسيف */
         @media (max-width: 768px) {
             .checkout-wrapper { flex-direction: column-reverse; }
             .grid-2 { grid-template-columns: 1fr; }
@@ -496,11 +494,13 @@
             const btn = document.getElementById('btn-submit-order');
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
+            // 🔥 التصليح النهائي للينك الخريطة 🔥
             let mapLink = '';
-            if (mapTouched) { mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}`; } 
-            else {
-                const searchTxt = `${citySel.options[citySel.selectedIndex].text} ${street} ${house}`;
-                mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${encodeURIComponent(searchTxt)}`;
+            if (mapTouched) { 
+                mapLink = `https://maps.google.com/?q=${lat},${lng}`; 
+            } else {
+                const searchTxt = `${citySel.options[citySel.selectedIndex].text} ${street} ${house}`.trim();
+                mapLink = `https://maps.google.com/?q=${encodeURIComponent(searchTxt)}`;
             }
 
             let fullAddress = house ? `${street} - مبنى: ${house}` : street;
@@ -530,11 +530,16 @@
                     });
                 }
 
+                // 🔥 سحب رابط موقعك أوتوماتيك لإنشاء رابط الفاتورة 🔥
+                let currentUrl = window.location.href.split('?')[0];
+                let invoiceLink = currentUrl.replace('checkout.html', 'invoice.html') + `?id=${data.id}`;
+
                 let waMsg = `*طلب جديد #${shortId}* 🛍️\n\n👤 الاسم: ${name}\n📞 الموبايل: ${phone}\n📍 المحافظة: ${orderData.customer_city}\n🛣️ الشارع: ${street}\n`;
                 if(house) waMsg += `🏠 المبنى: ${bType} | رقم: ${house} | دور: ${floor||'-'} | شقة: ${apart||'-'}\n`;
                 if(notes) waMsg += `📝 ملاحظات العميل: ${notes}\n`;
                 waMsg += `💳 طريقة الدفع: *${selectedPaymentMethod}*\n`;
                 waMsg += `🗺️ اللوكيشن: ${mapLink}\n`;
+                waMsg += `📄 الفاتورة: ${invoiceLink}\n`; // إضافة لينك الفاتورة هنا
                 waMsg += `\n*المنتجات:*\n`;
                 cart.forEach(i => { const barcode = i.code ? ` (كود: ${i.code})` : ''; waMsg += `▪️ ${i.qty}x ${i.title} ${barcode} - ${i.price}ج\n`; });
                 waMsg += `\n🚚 الشحن: ${shippingCost} ج.م\n💰 *الإجمالي المطلوب: ${orderData.grand_total} ج.م*`;
@@ -553,10 +558,11 @@
             }
         }
 
-        // 🔥 الدالة الجديدة لفتح الفاتورة المربوطة بقاعدة البيانات 🔥
         function openInvoice() {
             if(lastOrder && lastOrder.id) {
-                window.open(`invoice.html?id=${lastOrder.id}`, '_blank');
+                let currentUrl = window.location.href.split('?')[0];
+                let invoiceUrl = currentUrl.replace('checkout.html', 'invoice.html') + `?id=${lastOrder.id}`;
+                window.open(invoiceUrl, '_blank');
             }
         }
 
