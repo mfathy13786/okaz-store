@@ -10,6 +10,7 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -31,7 +32,7 @@
         
         .checkout-wrapper { max-width: 1100px; margin: 30px auto; padding: 0 15px; display: flex; flex-wrap: wrap; gap: 30px; align-items: flex-start;}
         .col-form { flex: 1.5; min-width: 320px; background: var(--surface); padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border);}
-        .col-summary { flex: 1; min-width: 320px; background: var(--surface); padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); position: sticky; top: 90px;}
+        .col-summary { flex: 1; min-width: 320px; background: var(--surface); padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); position: sticky; top: 90px; z-index: 10;}
 
         h2.section-title { font-size: 1.2em; font-weight: 900; border-bottom: 2px solid var(--input-bg); padding-bottom: 15px; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; color: var(--text-main);}
         h2.section-title i { color: var(--primary); background: rgba(230,126,34,0.1); padding: 10px; border-radius: 12px; font-size: 0.9em;}
@@ -45,7 +46,7 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .grid-3 { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 15px; }
 
-        /* القوائم الذكية للمناطق */
+        /* 🔥 القوائم الذكية للمناطق والمحافظات 🔥 */
         .custom-select-wrapper { position: relative; width: 100%; }
         .custom-select-input { padding-left: 35px; }
         .custom-select-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer; padding: 5px; z-index: 2; pointer-events: none;}
@@ -63,11 +64,10 @@
         #map-wrapper { margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 16px; border: 1px dashed var(--border); position: relative; z-index: 1;}
         .map-inst { font-size: 0.85em; color: var(--text-muted); margin-bottom: 10px; line-height: 1.6;}
         .map-container { border-radius: 12px; overflow: hidden; border: 2px solid var(--border); margin-bottom: 10px; z-index: 1;}
-        #map { height: 220px; width: 100%; }
+        #map { height: 220px; width: 100%; z-index: 1; }
         .btn-gps { background: #eff6ff; color: var(--info); border: 1px dashed #bfdbfe; padding: 12px; width: 100%; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95em; border-radius: 12px; transition: 0.3s;}
         .btn-gps:hover { background: var(--info); color: #fff; border-style: solid;}
 
-        /* طرق الدفع */
         .payment-methods { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; margin-bottom: 25px;}
         .pay-method { border: 2px solid var(--border); border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: var(--surface); }
         .pay-method.active { border-color: var(--primary); background: rgba(230,126,34,0.05); }
@@ -106,6 +106,7 @@
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(16, 185, 129, 0.3);}
         .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; transform: none;}
 
+        /* شاشة النجاح */
         .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 99999; display: none; align-items: flex-start; justify-content: center; backdrop-filter: blur(5px); padding: 40px 15px; overflow-y: auto; opacity: 0; transition: opacity 0.3s ease;}
         .modal-overlay.show { opacity: 1; }
         .modal-card { background: var(--surface); padding: 30px 20px; border-radius: 24px; text-align: center; width: 100%; max-width: 450px; margin: auto; transform: scale(0.9) translateY(20px); opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 25px 50px rgba(0,0,0,0.3);}
@@ -125,9 +126,9 @@
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .btn-action { padding: 12px; border-radius: 10px; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; border: none; text-decoration: none; transition: 0.3s;}
         .btn-wa { background: #25D366; color: #fff; grid-column: span 2; font-size: 1em; padding: 14px;}
-        .btn-print { background: #3b82f6; color: #fff; border: 1px solid #2563eb;}
+        .btn-print { background: #3b82f6; color: #fff; border: 1px solid #2563eb; grid-column: span 2;}
         .btn-print:hover { background: #2563eb; }
-        .btn-home { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 14px;}
+        .btn-home { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 14px; grid-column: span 2;}
 
         @media (max-width: 768px) {
             .checkout-wrapper { flex-direction: column-reverse; }
@@ -310,8 +311,8 @@
 
             <div class="action-grid">
                 <a href="#" id="wa-link" target="_blank" class="btn-action btn-wa"><i class="fab fa-whatsapp"></i> تأكيد ومتابعة عبر واتساب</a>
-                <button onclick="openInvoice()" class="btn-action btn-print" style="grid-column: span 2;"><i class="fas fa-receipt"></i> عرض وطباعة الفاتورة</button>
-                <button onclick="window.location.href='index.html'" class="btn-action btn-home" style="grid-column: span 2;">الاستمرار في التسوق <i class="fas fa-arrow-left"></i></button>
+                <button onclick="openInvoice()" class="btn-action btn-print"><i class="fas fa-receipt"></i> عرض وطباعة الفاتورة</button>
+                <button onclick="window.location.href='index.html'" class="btn-action btn-home">الاستمرار في التسوق <i class="fas fa-arrow-left"></i></button>
             </div>
         </div>
     </div>
@@ -327,7 +328,7 @@
         let map; let marker; let lat = 30.0444; let lng = 31.2357; let mapTouched = false;
         let activeUserSession = null; let selectedPaymentMethod = 'الدفع عند الاستلام';
 
-        // قواميس المحافظات والمناطق ثنائية اللغة
+        // قواميس اللغات والمناطق
         const govEnMap = {
             "القاهرة": "Cairo", "الجيزة": "Giza", "الاسكندرية": "Alexandria", "القليوبية": "Qalyubia",
             "الشرقية": "Al Sharqia", "الدقهلية": "Dakahlia", "الغربية": "Gharbia", "المنوفية": "Monufia",
@@ -350,6 +351,10 @@
             "shark": "الشرقيه", "qal": "القليوبيه", "dak": "الدقهليه",
             "ghar": "الغربيه", "men": "المنوفيه", "bah": "البحيره",
             "ismailia": "الاسماعيليه", "suez": "السويس", "port": "بورسعيد",
+            "dam": "دمياط", "kafr": "كفر الشيخ", "fay": "الفيوم",
+            "beni": "بني سويف", "min": "المنيا", "assiut": "اسيوط",
+            "sohag": "سوهاج", "qena": "قنا", "luxor": "الاقصر",
+            "aswan": "اسوان", "matrouh": "مطروح", "sinai": "سيناء",
             "nasr": "نصر", "maadi": "معادي", "tagamo": "تجمع", 
             "zayed": "زايد", "october": "اكتوبر", "haram": "هرم",
             "rehab": "رحاب", "shorouk": "شروق", "madinaty": "مدينتي",
@@ -463,7 +468,10 @@
 
                 const li = document.createElement('li');
                 li.innerHTML = `<span>${arName}</span> <span class="en-text">${enName}</span>`;
-                li.onclick = () => { document.getElementById('co-region').value = arName; toggleDropdown('region-dropdown-list', false); };
+                li.onclick = () => { 
+                    document.getElementById('co-region').value = arName; 
+                    toggleDropdown('region-dropdown-list', false); 
+                };
                 list.appendChild(li);
             });
         }
@@ -512,11 +520,8 @@
                 if(meta.region) document.getElementById('co-region').value = meta.region;
                 if(meta.city) {
                     const matchedRule = shippingRules.find(r => r.city_ar === meta.city);
-                    if(matchedRule) {
-                        document.getElementById('co-city').value = matchedRule.city_ar;
-                        shippingCost = matchedRule.cost;
-                        updateRegions(matchedRule.city_ar);
-                    }
+                    if(matchedRule) selectCity(matchedRule.city_ar, matchedRule.cost);
+                    else document.getElementById('co-city').value = meta.city;
                 }
             }
             
@@ -574,12 +579,14 @@
             }
         }
 
-        // 🔥 الخريطة بتسحب العنوان كاااامل زي ما طلبت من غير فلترة 🔥
+        // 🔥 الخريطة بتسحب العنوان كااامل 🔥
         async function reverseGeocode(l, g) {
             try {
                 const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${l}&lon=${g}&accept-language=ar`);
                 const data = await response.json();
-                if(data && data.display_name) { document.getElementById('co-street').value = data.display_name; }
+                if(data && data.display_name) { 
+                    document.getElementById('co-street').value = data.display_name; 
+                }
             } catch(e) {}
         }
 
@@ -633,7 +640,7 @@
             const phone = document.getElementById('co-phone').value.trim();
             const govName = document.getElementById('co-city').value.trim();
             const region = document.getElementById('co-region').value.trim();
-            const street = document.getElementById('co-street').value.trim();
+            const streetText = document.getElementById('co-street').value.trim();
             
             const house = document.getElementById('co-house').value.trim();
             const floor = document.getElementById('co-floor').value.trim();
@@ -642,28 +649,35 @@
             const notes = document.getElementById('co-notes').value.trim();
             const bType = document.querySelector('.build-btn.active').innerText.trim();
 
-            if(!name || !phone || !govName || !region || !street) return showToast("برجاء ملء البيانات الأساسية (*)");
+            if(!name || !phone || !govName || !region || !streetText) return showToast("برجاء ملء البيانات الأساسية (*)");
 
             const btn = document.getElementById('btn-submit-order');
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
-            // 🔥 رابط الخريطة الذكي السليم 🔥
+            // 🔥 اللينك الرسمي المعتمد لجوجل مابس 🔥
             let mapLink = '';
             if (mapTouched) { 
-                mapLink = `https://maps.google.com/maps?q=${lat},${lng}`; 
+                mapLink = `https://maps.google.com/?q=${lat},${lng}`; 
             } else {
-                let cleanAddress = `${govName} ${region} ${street} ${house}`.replace(/\s+/g, '+');
-                mapLink = `https://maps.google.com/maps?q=${encodeURIComponent(cleanAddress)}`;
+                const searchTxt = `${govName} ${region} ${streetText}`;
+                mapLink = `https://maps.google.com/?q=${encodeURIComponent(searchTxt)}`;
             }
 
+            // تجميع العنوان الدقيق
+            let exactAddress = streetText;
+            if(house) exactAddress += ` - مبنى: ${house}`;
+            if(floor) exactAddress += ` - دور: ${floor}`;
+            if(apart) exactAddress += ` - شقة: ${apart}`;
+
+            const dbCity = `${govName} - ${region}`;
+
             try {
-                // بنحفظ الداتا منفصلة عشان متكررش في اللوحة
                 const orderData = {
-                    customer_name: name, customer_phone: phone, customer_city: govName,
-                    customer_street: street, // شارع الاستلام بس
+                    customer_name: name, customer_phone: phone, customer_city: dbCity,
+                    customer_street: exactAddress, customer_email: email || null,
                     customer_building: bType, customer_floor: floor || null, customer_apartment: apart || null, customer_landmark: notes || null,
                     total_items_price: subtotal, shipping_cost: shippingCost, discount_amount: 0, grand_total: (subtotal + shippingCost),
-                    status: 'قيد المراجعة', cart_info: { items: cart, payment_method: selectedPaymentMethod, region: region, map_link: mapLink }
+                    status: 'قيد المراجعة', cart_info: { items: cart, payment_method: selectedPaymentMethod }
                 };
 
                 const { data, error } = await supabaseClient.from('orders').insert([orderData]).select().single();
@@ -677,26 +691,24 @@
 
                 if (activeUserSession) {
                     supabaseClient.auth.updateUser({
-                        data: { full_name: name, phone: phone, city: govName, region: region, address: street, house: house, floor: floor, apartment: apart }
+                        data: { full_name: name, phone: phone, city: govName, region: region, address: streetText, house: house, floor: floor, apartment: apart }
                     });
                 }
 
                 const currentDomain = window.location.origin; 
                 const invoiceLink = `${currentDomain}/invoice.html?id=${lastOrder.id}`;
 
-                // 🔥 رسالة الواتس مفصولة ومترتبة ومفيهاش تكرار 🔥
+                // 🔥 رسالة الواتساب مفصولة ومترتبة 🔥
                 let waMsg = `*طلب جديد #${shortId}* 🛍️\n\n`;
                 waMsg += `👤 الاسم: ${name}\n📞 الموبايل: ${phone}\n`;
-                waMsg += `📍 منطقة الشحن: ${govName} - ${region}\n`;
-                waMsg += `🛣️ عنوان الاستلام: ${street}\n`;
+                waMsg += `📍 منطقة الشحن: ${dbCity}\n`;
+                waMsg += `🛣️ عنوان الاستلام: ${streetText}\n`;
                 
-                if(house || floor || apart) {
-                    waMsg += `🏠 تفاصيل العقار: ${bType} | رقم: ${house||'-'} | دور: ${floor||'-'} | شقة: ${apart||'-'}\n`;
-                }
-                
+                if(house || floor || apart) waMsg += `🏠 العقار: ${bType} | رقم: ${house||'-'} | دور: ${floor||'-'} | شقة: ${apart||'-'}\n`;
                 if(notes) waMsg += `📝 ملاحظات العميل: ${notes}\n`;
                 waMsg += `💳 طريقة الدفع: *${selectedPaymentMethod}*\n`;
-                waMsg += `🗺️ اللوكيشن: ${mapLink}\n`;
+                waMsg += `🗺️ اللوكيشن:\n${mapLink}\n`;
+                
                 waMsg += `\n*المنتجات:*\n`;
                 cart.forEach(i => { const barcode = i.code ? ` (كود: ${i.code})` : ''; waMsg += `▪️ ${i.qty}x ${i.title} ${barcode} - ${i.price}ج\n`; });
                 waMsg += `\n🚚 الشحن: ${shippingCost} ج.م\n💰 *الإجمالي المطلوب: ${orderData.grand_total} ج.م*\n`;
