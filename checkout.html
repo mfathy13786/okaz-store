@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
@@ -133,7 +132,6 @@
         .btn-print { background: #e0f2fe; color: #3b82f6; border: 1px solid #bae6fd;}
         .btn-home { background: #f1f5f9; color: #0f172a; grid-column: span 2; border: 1px solid #cbd5e1; padding: 14px;}
 
-        /* الموبايل ريسبونسيف */
         @media (max-width: 768px) {
             .checkout-wrapper { flex-direction: column-reverse; }
             .grid-2 { grid-template-columns: 1fr; }
@@ -498,10 +496,10 @@
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
             let mapLink = '';
-            if (mapTouched) { mapLink = `https://www.google.com/maps?q=${lat},${lng}`; } 
+            if (mapTouched) { mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}`; } 
             else {
                 const searchTxt = `${citySel.options[citySel.selectedIndex].text} ${street} ${house}`;
-                mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTxt)}`;
+                mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${encodeURIComponent(searchTxt)}`;
             }
 
             let fullAddress = house ? `${street} - مبنى: ${house}` : street;
@@ -554,20 +552,20 @@
             }
         }
 
-        // 🔥 الدالة الخارقة لبناء الفاتورة نقية (PDF + Print) 🔥
+        // بناء HTML الفاتورة (للطباعة وللـ PDF)
         function getInvoiceHTML() {
             const storeName = systemSettings.store_name || 'المتجر';
             const date = new Date().toLocaleDateString('ar-EG');
             const shortIdText = document.getElementById('success-order-id').innerText.replace('#', '');
             
             let itemsHtml = cart.map((i, index) => {
-                const codeTxt = i.code ? `<br><small style="color:#777;">كود: ${i.code}</small>` : '';
-                const details = (i.size || i.color) ? `<br><small style="color:#777;">(${i.size||'-'} / ${i.color||'-'})</small>` : '';
+                const codeTxt = i.code ? `<br>كود: ${i.code}` : '';
+                const details = (i.size || i.color) ? `<br>(${i.size||'-'} / ${i.color||'-'})` : '';
                 return `<tr>
-                    <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${index + 1}</td>
-                    <td style="border: 1px solid #ddd; padding: 10px; text-align: right;"><b>${i.title}</b>${details}${codeTxt}</td>
-                    <td style="border: 1px solid #ddd; padding: 10px; text-align: center; font-weight: bold;">${i.qty}</td>
-                    <td style="border: 1px solid #ddd; padding: 10px; text-align: left; font-weight: bold;">${i.price} ج.م</td>
+                    <td style="border: 1px solid #ccc; padding: 10px; text-align: center;">${index + 1}</td>
+                    <td style="border: 1px solid #ccc; padding: 10px; text-align: right;"><b>${i.title}</b>${details}${codeTxt}</td>
+                    <td style="border: 1px solid #ccc; padding: 10px; text-align: center; font-weight: bold;">${i.qty}</td>
+                    <td style="border: 1px solid #ccc; padding: 10px; text-align: left; font-weight: bold;">${i.price} ج.م</td>
                 </tr>`;
             }).join('');
             
@@ -578,32 +576,33 @@
             const notes = lastOrder.customer_landmark || 'لا يوجد';
 
             return `
-            <div style="width: 100%; max-width: 800px; margin: 0 auto; direction: rtl; text-align: right; background: #fff; color: #000; padding: 20px; box-sizing: border-box; font-family: sans-serif;">
-                <h1 style="text-align: center; color: #e67e22; margin-bottom: 5px; font-size: 26px;">${storeName}</h1>
-                <p style="text-align: center; color: #555; margin-top: 0; border-bottom: 2px dashed #000; padding-bottom: 15px; font-size: 15px;">فاتورة ضريبية مبسطة</p>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 15px;">
+            <div style="width: 100%; max-width: 800px; margin: 0 auto; direction: rtl; text-align: right; background: #fff; color: #000; padding: 20px; font-family: sans-serif;">
+                <h1 style="text-align: center; color: #333; margin-bottom: 5px;">${storeName}</h1>
+                <p style="text-align: center; color: #555; margin-top: 0; border-bottom: 2px dashed #000; padding-bottom: 15px;">فاتورة ضريبية مبسطة</p>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
                     <div><b>رقم الطلب:</b> #${shortIdText}</div>
                     <div><b>التاريخ:</b> ${date}</div>
                 </div>
-                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px; font-size: 14px; line-height: 1.8;">
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 20px; line-height: 1.8;">
                     <p style="margin: 0;"><b>العميل:</b> ${lastOrder.customer_name} | <b>الهاتف:</b> ${lastOrder.customer_phone}</p>
                     <p style="margin: 0;"><b>العنوان:</b> ${lastOrder.customer_city} - ${lastOrder.customer_street.split('|')[0]}</p>
                     <p style="margin: 0;"><b>العقار:</b> ${bType} | عمارة: ${house} | دور: ${floor} | شقة: ${apart}</p>
                     <p style="margin: 0;"><b>الدفع:</b> ${selectedPaymentMethod}</p>
                     <p style="margin: 0;"><b>ملاحظات:</b> ${notes}</p>
                 </div>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
-                    <thead><tr style="background: #f1f1f1;"><th style="padding: 10px; border: 1px solid #ddd;">#</th><th style="padding: 10px; text-align: right; border: 1px solid #ddd;">المنتج</th><th style="padding: 10px; border: 1px solid #ddd;">الكمية</th><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">السعر</th></tr></thead>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <thead><tr style="background: #eee;"><th style="padding: 10px; border: 1px solid #ccc;">#</th><th style="padding: 10px; border: 1px solid #ccc; text-align: right;">المنتج</th><th style="padding: 10px; border: 1px solid #ccc;">الكمية</th><th style="padding: 10px; border: 1px solid #ccc; text-align: left;">السعر</th></tr></thead>
                     <tbody>${itemsHtml}</tbody>
                 </table>
-                <div style="text-align: left; border-top: 2px dashed #000; padding-top: 15px; font-size: 15px;">
+                <div style="text-align: left; border-top: 2px dashed #000; padding-top: 15px;">
                     <p style="margin: 5px 0;">مجموع المنتجات: <b>${lastOrder.total_items_price} ج.م</b></p>
                     <p style="margin: 5px 0;">مصاريف الشحن: <b>${lastOrder.shipping_cost} ج.م</b></p>
-                    <h2 style="margin: 10px 0 0; color: #000; font-size: 22px;">الإجمالي المطلوب: ${lastOrder.grand_total} ج.م</h2>
+                    <h2 style="margin: 10px 0 0; color: #000;">الإجمالي المطلوب: ${lastOrder.grand_total} ج.م</h2>
                 </div>
             </div>`;
         }
 
+        // الطباعة المباشرة
         function printInvoice() {
             const content = getInvoiceHTML();
             const win = window.open('', '', 'width=800,height=900');
@@ -612,39 +611,34 @@
             setTimeout(() => { win.print(); win.close(); }, 500);
         }
 
-        // 🔥 الحل الجذري للـ PDF من غير ما يطلع شاشة سودة أو بيضة 🔥
+        // 🔥 الحل الجذري (تمرير النص كمُدخل مباشر لمكتبة الـ PDF) مستحيل تطلع بيضة 🔥
         function downloadPDF() {
             const btn = document.getElementById('btn-dl-pdf');
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
             btn.disabled = true;
 
-            const container = document.createElement('div');
-            container.innerHTML = getInvoiceHTML();
-            container.style.position = 'fixed';
-            container.style.top = '0';
-            container.style.left = '0';
-            container.style.width = '800px'; 
-            container.style.zIndex = '-9999'; 
-            container.style.background = '#ffffff';
-            document.body.appendChild(container);
-
             const shortIdText = document.getElementById('success-order-id').innerText.replace('#', '');
+            
+            // نأخذ الـ HTML كنص ونمرره للـ html2pdf بدون إنشاء عنصر في الصفحة
+            const invoiceContent = getInvoiceHTML();
+
             const opt = { 
-                margin: 0.2, 
+                margin: 0.3, 
                 filename: `Invoice_${shortIdText}.pdf`, 
                 image: { type: 'jpeg', quality: 1 }, 
-                html2canvas: { scale: 2, useCORS: true, windowWidth: 800, scrollY: 0 }, 
+                html2canvas: { scale: 2, useCORS: true }, 
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
             };
             
-            html2pdf().set(opt).from(container).save().then(() => {
-                document.body.removeChild(container);
-                btn.innerHTML = originalText; btn.disabled = false;
+            // هنا السحر: .from() بتقبل String وبتعالجه داخلياً
+            html2pdf().set(opt).from(invoiceContent).save().then(() => {
+                btn.innerHTML = originalText; 
+                btn.disabled = false;
                 showToast("تم تحميل الفاتورة بنجاح", "fas fa-check", "var(--success)");
-            }).catch(() => {
-                document.body.removeChild(container);
-                btn.innerHTML = originalText; btn.disabled = false;
+            }).catch((err) => {
+                btn.innerHTML = originalText; 
+                btn.disabled = false;
                 showToast("حدث خطأ أثناء تحميل الفاتورة", "fas fa-times", "var(--danger)");
             });
         }
