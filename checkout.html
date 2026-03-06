@@ -10,7 +10,6 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -59,7 +58,7 @@
         .btn-gps { background: #eff6ff; color: var(--info); border: 1px dashed #bfdbfe; padding: 12px; width: 100%; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95em; border-radius: 12px; transition: 0.3s;}
         .btn-gps:hover { background: var(--info); color: #fff; border-style: solid;}
 
-        /* 🔥 طرق الدفع الجديدة 🔥 */
+        /* 🔥 طرق الدفع 🔥 */
         .payment-methods { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; margin-bottom: 25px;}
         .pay-method { border: 2px solid var(--border); border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; background: var(--surface); }
         .pay-method.active { border-color: var(--primary); background: rgba(230,126,34,0.05); }
@@ -70,22 +69,21 @@
         .pay-text b { color: var(--text-main); font-size: 1em; }
         .pay-text small { color: var(--text-muted); font-size: 0.8em; font-weight: 600;}
         
-        /* معلومات الدفع المنبثقة */
         .pay-info-box { display: none; padding: 15px; background: #fff3e0; border: 1px dashed var(--primary); border-radius: 12px; margin-top: -5px; margin-bottom: 10px; animation: fadeIn 0.3s ease;}
-        .pay-info-box p { margin: 0 0 10px; font-size: 0.9em; font-weight: 700; color: #d35400;}
-        .copy-group { display: flex; gap: 10px; align-items: center;}
-        .copy-input { flex: 1; padding: 10px; border: 1px solid #fbdcba; border-radius: 8px; font-weight: bold; text-align: center; font-family: monospace; font-size: 1.1em; background: #fff;}
+        .pay-info-box p { margin: 0 0 10px; font-size: 0.9em; font-weight: 700; color: #d35400; line-height:1.6;}
+        .copy-group { display: flex; gap: 10px; align-items: center; margin-bottom:10px;}
+        .copy-input { flex: 1; padding: 10px; border: 1px solid #fbdcba; border-radius: 8px; font-weight: bold; text-align: center; font-family: monospace; font-size: 1.1em; background: #fff; direction: ltr;}
         .btn-copy-pay { background: var(--primary); color: #fff; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold;}
-        .btn-open-app { background: #5a2a82; color: #fff; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 5px; justify-content: center;}
+        .btn-open-app { background: #5a2a82; color: #fff; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 5px; justify-content: center; width: 100%;}
         
         @keyframes fadeIn { from {opacity: 0; transform: translateY(-5px);} to {opacity: 1; transform: translateY(0);} }
 
-        /* 🔥 أزرار التحكم في السلة 🔥 */
+        /* 🔥 السلة وأزرار الكمية 🔥 */
         .cart-item { display: flex; gap: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--border); margin-bottom: 15px;}
         .cart-item img { width: 65px; height: 65px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border);}
         .item-details { flex: 1; display: flex; flex-direction: column; justify-content: center;}
         .item-title { font-weight: 800; color: var(--text-main); font-size: 0.95em; line-height: 1.4;}
-        .item-price { color: var(--primary); font-weight: 900; font-size: 1em;}
+        .item-price { color: var(--primary); font-weight: 900; font-size: 1.05em;}
         .qty-controls { display: flex; align-items: center; gap: 10px; background: var(--input-bg); padding: 4px 8px; border-radius: 8px;}
         .qty-btn { background: #fff; border: 1px solid #ddd; border-radius:6px; width:28px; height:28px; display:flex; justify-content:center; align-items:center; font-weight:bold; cursor: pointer; color: #555; transition: 0.2s;}
         .qty-btn:active { transform: scale(0.9); }
@@ -122,8 +120,9 @@
         .btn-print { background: #e0f2fe; color: #3b82f6; border: 1px solid #bae6fd;}
         .btn-home { background: #f1f5f9; color: #0f172a; grid-column: span 2; border: 1px solid #cbd5e1; padding: 14px;}
 
-        #invoice-template { display: none; }
-
+        /* حاوية الفاتورة المخفية تماماً - بس متاحة للـ PDF */
+        #invoice-container { display: none; }
+        
         @media (max-width: 768px) {
             .checkout-wrapper { flex-direction: column-reverse; }
             .grid-2 { grid-template-columns: 1fr; }
@@ -218,13 +217,13 @@
                 <label class="pay-method" onclick="setPaymentMethod(this, 'ewallet')">
                     <input type="radio" name="pay_method" value="ewallet">
                     <i class="fas fa-mobile-alt"></i>
-                    <div class="pay-text"><b>المحافظ الإلكترونية</b><small>فودافون كاش، اتصالات، أورانج</small></div>
+                    <div class="pay-text"><b>المحافظ الإلكترونية</b><small>فودافون، أورانج، اتصالات كاش</small></div>
                 </label>
                 <div id="ewallet-info" class="pay-info-box">
-                    <p>يرجى تحويل الإجمالي على هذا الرقم:</p>
-                    <div class="copy-group">
-                        <input type="text" class="copy-input" id="wallet-num" value="01090921815" readonly>
-                        <button class="btn-copy-pay" onclick="copyText('wallet-num')"><i class="fas fa-copy"></i> نسخ</button>
+                    <p id="txt-wallet-inst">يرجى تحويل الإجمالي على هذا الرقم، وإرسال لقطة شاشة (سكرين شوت) على الواتساب عند إتمام الطلب:</p>
+                    <div class="copy-group" id="grp-wallet-num">
+                        <input type="text" class="copy-input" id="wallet-num" readonly>
+                        <button class="btn-copy-pay" type="button" onclick="copyText('wallet-num')"><i class="fas fa-copy"></i> نسخ</button>
                     </div>
                 </div>
 
@@ -234,10 +233,14 @@
                     <div class="pay-text"><b>إنستاباي (InstaPay)</b><small>تحويل بنكي فوري وسريع</small></div>
                 </label>
                 <div id="instapay-info" class="pay-info-box">
-                    <p>يرجى التحويل على معرف إنستاباي (Handle):</p>
-                    <div class="copy-group" style="margin-bottom:10px;">
-                        <input type="text" class="copy-input" id="insta-user" value="okaz@instapay" readonly>
-                        <button class="btn-copy-pay" onclick="copyText('insta-user')"><i class="fas fa-copy"></i> نسخ</button>
+                    <p id="txt-insta-inst">يرجى تحويل الإجمالي على الحساب التالي، وإرسال لقطة شاشة (سكرين شوت) على الواتساب عند إتمام الطلب:</p>
+                    <div class="copy-group" id="grp-insta-handle">
+                        <input type="text" class="copy-input" id="insta-handle" readonly>
+                        <button class="btn-copy-pay" type="button" onclick="copyText('insta-handle')"><i class="fas fa-copy"></i> نسخ</button>
+                    </div>
+                    <div class="copy-group" id="grp-insta-num">
+                        <input type="text" class="copy-input" id="insta-num" readonly>
+                        <button class="btn-copy-pay" type="button" onclick="copyText('insta-num')"><i class="fas fa-copy"></i> نسخ</button>
                     </div>
                     <a href="instapay://" class="btn-open-app"><i class="fas fa-external-link-alt"></i> فتح تطبيق InstaPay</a>
                 </div>
@@ -296,7 +299,9 @@
         </div>
     </div>
 
-    <div id="invoice-template"></div>
+    <div id="invoice-container">
+        <div id="invoice-template" style="width:100%; max-width:800px; margin:0 auto; direction:rtl; text-align:right; font-family:'Cairo', sans-serif; padding:20px; background:#fff; color:#000;"></div>
+    </div>
 
     <script>
         const SUPABASE_URL = 'https://wkfiocqhkspsvqgyjpea.supabase.co';
@@ -306,7 +311,7 @@
         let cart = JSON.parse(localStorage.getItem('okaz_cart')) || [];
         let systemSettings = {}; let shippingRules = [];
         let subtotal = 0; let shippingCost = 0; let lastOrder = null;
-        let map; let marker; let lat = 30.0444; let lng = 31.2357;
+        let map; let marker; let lat = 30.0444; let lng = 31.2357; let mapTouched = false;
         let activeUserSession = null;
         let selectedPaymentMethod = 'الدفع عند الاستلام';
 
@@ -330,9 +335,18 @@
                 document.getElementById('store-title').innerText = systemSettings.store_name || 'المتجر';
                 if(systemSettings.theme_color) document.documentElement.style.setProperty('--primary', systemSettings.theme_color);
                 
-                // سحب بيانات الدفع من اللوحة
+                // جلب تعليمات الدفع وبياناته من لوحة التحكم
+                if(systemSettings.pay_text_ewallet) document.getElementById('txt-wallet-inst').innerText = systemSettings.pay_text_ewallet;
+                if(systemSettings.pay_text_instapay) document.getElementById('txt-insta-inst').innerText = systemSettings.pay_text_instapay;
+
                 if(systemSettings.wallet_number) document.getElementById('wallet-num').value = systemSettings.wallet_number;
-                if(systemSettings.instapay_handle) document.getElementById('insta-user').value = systemSettings.instapay_handle;
+                else document.getElementById('grp-wallet-num').style.display = 'none';
+
+                if(systemSettings.instapay_handle) document.getElementById('insta-handle').value = systemSettings.instapay_handle;
+                else document.getElementById('grp-insta-handle').style.display = 'none';
+
+                if(systemSettings.instapay_number) document.getElementById('insta-num').value = systemSettings.instapay_number;
+                else document.getElementById('grp-insta-num').style.display = 'none';
             }
             
             shippingRules = shipReq.data || [];
@@ -362,7 +376,6 @@
             el.classList.add('active'); el.querySelector('input').checked = true;
         }
 
-        // 🔥 التحكم في وسائل الدفع 🔥
         function setPaymentMethod(el, methodCode) {
             if (methodCode === 'card') {
                 showToast("عذراً، الدفع بالبطاقات قيد التطوير وسيتوفر قريباً 🚀", "fas fa-clock", "var(--info)");
@@ -380,7 +393,6 @@
             if(methodCode === 'instapay') selectedPaymentMethod = 'إنستاباي';
         }
 
-        // نسخ النصوص (للدفع ورقم الطلب)
         function copyText(elementId, isTextContent = false) {
             const el = document.getElementById(elementId);
             const text = isTextContent ? el.innerText : el.value;
@@ -394,7 +406,6 @@
             });
         }
 
-        // الخريطة الاحترافية بتبديل القمر الصناعي والشوارع
         function initMap() {
             const streetLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&hl=ar', { attribution: '© Google Maps' });
             const satelliteLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&hl=ar', { attribution: '© Google Maps' });
@@ -405,13 +416,18 @@
 
             const customIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [40, 40], iconAnchor: [20, 40] });
             marker = L.marker([lat, lng], {icon: customIcon, draggable: true}).addTo(map);
-            marker.on('dragend', () => { lat = marker.getLatLng().lat; lng = marker.getLatLng().lng; reverseGeocode(lat, lng); });
+            marker.on('dragend', () => { 
+                mapTouched = true;
+                lat = marker.getLatLng().lat; lng = marker.getLatLng().lng; 
+                reverseGeocode(lat, lng); 
+            });
         }
 
         function getUserLocation() {
             if (navigator.geolocation) {
                 showToast("جاري التحديد...", "fas fa-spinner fa-spin", "#3b82f6");
                 navigator.geolocation.getCurrentPosition((p) => {
+                    mapTouched = true;
                     lat = p.coords.latitude; lng = p.coords.longitude;
                     map.setView([lat, lng], 18); marker.setLatLng([lat, lng]);
                     reverseGeocode(lat, lng);
@@ -428,7 +444,6 @@
             } catch(e) {}
         }
 
-        // 🔥 تحديث السلة بأزرار (+) و (-) 🔥
         function renderCart() {
             subtotal = 0;
             document.getElementById('cart-items-container').innerHTML = cart.map((i, idx) => {
@@ -449,7 +464,6 @@
                                 <button class="qty-btn" onclick="updateQty(${idx}, -1)">-</button>
                                 <button class="del-btn" onclick="removeCartItem(${idx})"><i class="fas fa-trash"></i></button>
                             </div>
-
                         </div>
                     </div>
                 </div>`;
@@ -500,11 +514,19 @@
             const btn = document.getElementById('btn-submit-order');
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
+            // 🔥 رابط اللوكيشن السحري (يشتغل في كل الحالات) 🔥
             let mapLink = '';
-            // لينك جوجل مابس سليم للواتساب
-            if(lat !== 30.0444) { mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}`; }
+            if (mapTouched) {
+                // لو حرك الدبوس، ياخد الإحداثيات المظبوطة
+                mapLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+            } else {
+                // لو محركش الدبوس وكتب العنوان، ياخد العنوان المكتوب يبحث بيه في جوجل مابس
+                const searchTxt = `${citySel.options[citySel.selectedIndex].text} ${street} ${house}`;
+                mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTxt)}`;
+            }
+
             let fullAddress = house ? `${street} - مبنى: ${house}` : street;
-            if(mapLink) fullAddress += ` | اللوكيشن: ${mapLink}`;
+            fullAddress += ` | اللوكيشن: ${mapLink}`;
 
             try {
                 const orderData = {
@@ -531,12 +553,12 @@
                     });
                 }
 
-                // 🌟 رسالة الواتس الشاملة 🌟
+                // رسالة الواتس
                 let waMsg = `*طلب جديد #${shortId}* 🛍️\n\n👤 الاسم: ${name}\n📞 الموبايل: ${phone}\n📍 المحافظة: ${orderData.customer_city}\n🛣️ الشارع: ${street}\n`;
                 if(house) waMsg += `🏠 المبنى: ${bType} | رقم: ${house} | دور: ${floor||'-'} | شقة: ${apart||'-'}\n`;
                 if(notes) waMsg += `📝 ملاحظات العميل: ${notes}\n`;
                 waMsg += `💳 طريقة الدفع: *${selectedPaymentMethod}*\n`;
-                if(mapLink) waMsg += `🗺️ اللوكيشن: ${mapLink}\n`;
+                waMsg += `🗺️ اللوكيشن: ${mapLink}\n`;
                 waMsg += `\n*المنتجات:*\n`;
                 cart.forEach(i => { 
                     const barcode = i.code ? ` (كود: ${i.code})` : '';
@@ -559,61 +581,88 @@
             }
         }
 
-        // 🔥 بناء الفاتورة (للطباعة A4 / ريسيت وللـ PDF بدون مشاكل) 🔥
+        // 🔥 بناء الفاتورة (مجهزة عشان تتطبع للـ A4 والـ Xprinter ومتطلعش بيضاء) 🔥
         function buildInvoiceHTML(shortId) {
             const storeName = systemSettings.store_name || 'المتجر';
             const date = new Date().toLocaleDateString('ar-EG');
             
             let itemsHtml = cart.map((i, index) => {
-                const codeTxt = i.code ? `<br>كود: ${i.code}` : '';
-                return `<tr><td style="border:1px solid #ddd; padding:8px; text-align:center;">${index + 1}</td><td style="border:1px solid #ddd; padding:8px; text-align:right;"><b>${i.title}</b><br><small>(${i.size||'-'} / ${i.color||'-'})${codeTxt}</small></td><td style="border:1px solid #ddd; padding:8px; text-align:center;">${i.qty}</td><td style="border:1px solid #ddd; padding:8px; text-align:left;">${i.price} ج.م</td></tr>`;
+                const codeTxt = i.code ? `<br><small style="color:#777;">كود: ${i.code}</small>` : '';
+                const details = (i.size || i.color) ? `<small style="color:#777;">(${i.size||'-'} / ${i.color||'-'})</small>` : '';
+                return `<tr><td style="border-bottom:1px solid #ddd; padding:10px; text-align:center;">${index + 1}</td><td style="border-bottom:1px solid #ddd; padding:10px; text-align:right;"><b>${i.title}</b><br>${details}${codeTxt}</td><td style="border-bottom:1px solid #ddd; padding:10px; text-align:center; font-weight:bold;">${i.qty}</td><td style="border-bottom:1px solid #ddd; padding:10px; text-align:left; font-weight:bold;">${i.price} ج.م</td></tr>`;
             }).join('');
             
+            const bType = lastOrder.customer_building || '-';
+            const house = document.getElementById('co-house').value.trim() || '-';
+            const floor = lastOrder.customer_floor || '-';
+            const apart = lastOrder.customer_apartment || '-';
+            const notes = lastOrder.customer_landmark || 'لا يوجد';
+
             const html = `
-            <div id="print-area" style="width:100%; max-width:800px; margin:0 auto; direction:rtl; text-align:right; font-family:sans-serif; padding:20px; background:#fff; color:#000;">
-                <h1 style="text-align:center; border-bottom:2px dashed #000; padding-bottom:10px;">${storeName}</h1>
-                <p><b>رقم الطلب:</b> #${shortId}<br><b>التاريخ:</b> ${date}</p>
-                <div style="border:1px solid #000; padding:10px; margin-bottom:15px;">
-                    <p style="margin:0;"><b>العميل:</b> ${lastOrder.customer_name} | <b>الهاتف:</b> ${lastOrder.customer_phone}</p>
-                    <p style="margin:5px 0 0;"><b>العنوان:</b> ${lastOrder.customer_city} - ${lastOrder.customer_street.split('|')[0]}</p>
-                    <p style="margin:5px 0 0;"><b>الدفع:</b> ${selectedPaymentMethod}</p>
+                <h1 style="text-align:center; color:#e67e22; margin-bottom:5px;">${storeName}</h1>
+                <p style="text-align:center; color:#555; margin-top:0; border-bottom:2px dashed #000; padding-bottom:15px;">فاتورة ضريبية مبسطة</p>
+                
+                <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                    <div><b>رقم الطلب:</b> #${shortId}</div>
+                    <div><b>التاريخ:</b> ${date}</div>
                 </div>
-                <table style="width:100%; border-collapse:collapse; margin-bottom:15px;">
-                    <tr style="background:#eee;"><th style="border:1px solid #ddd; padding:8px;">#</th><th style="border:1px solid #ddd; padding:8px;">المنتج</th><th style="border:1px solid #ddd; padding:8px;">الكمية</th><th style="border:1px solid #ddd; padding:8px;">السعر</th></tr>
+                
+                <div style="background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #ddd; margin-bottom:20px;">
+                    <p style="margin:0 0 8px 0;"><b>العميل:</b> ${lastOrder.customer_name}</p>
+                    <p style="margin:0 0 8px 0;"><b>الهاتف:</b> ${lastOrder.customer_phone}</p>
+                    <p style="margin:0 0 8px 0;"><b>العنوان:</b> ${lastOrder.customer_city} - ${lastOrder.customer_street.split('|')[0]}</p>
+                    <p style="margin:0 0 8px 0;"><b>العقار:</b> ${bType} | عمارة: ${house} | دور: ${floor} | شقة: ${apart}</p>
+                    <p style="margin:0 0 8px 0;"><b>الدفع:</b> ${selectedPaymentMethod}</p>
+                    <p style="margin:0;"><b>ملاحظات:</b> ${notes}</p>
+                </div>
+
+                <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+                    <tr style="background:#f1f1f1;"><th style="padding:10px; text-align:center; border-bottom:2px solid #ccc;">#</th><th style="padding:10px; text-align:right; border-bottom:2px solid #ccc;">المنتج</th><th style="padding:10px; text-align:center; border-bottom:2px solid #ccc;">الكمية</th><th style="padding:10px; text-align:left; border-bottom:2px solid #ccc;">السعر</th></tr>
                     ${itemsHtml}
                 </table>
-                <h3 style="text-align:left; margin:5px 0;">الشحن: ${lastOrder.shipping_cost} ج.م</h3>
-                <h2 style="text-align:left; border-top:2px solid #000; padding-top:10px;">الإجمالي: ${lastOrder.grand_total} ج.م</h2>
-            </div>`;
+                
+                <div style="text-align:left; border-top:2px dashed #000; padding-top:15px;">
+                    <p style="margin:5px 0;">مجموع المنتجات: <b>${lastOrder.total_items_price} ج.م</b></p>
+                    <p style="margin:5px 0;">مصاريف الشحن: <b>${lastOrder.shipping_cost} ج.م</b></p>
+                    <h2 style="margin:10px 0 0; color:#000;">الإجمالي المطلوب: ${lastOrder.grand_total} ج.م</h2>
+                </div>
+            `;
             document.getElementById('invoice-template').innerHTML = html;
         }
 
+        // الطباعة المباشرة (هتظبط على الماكينات الصغيرة والكبيرة)
         function printInvoice() {
             const content = document.getElementById('invoice-template').innerHTML;
             const win = window.open('', '', 'width=800,height=900');
-            win.document.write(`<html><head><title>طباعة الفاتورة</title><style>body{margin:0; padding:0;}</style></head><body>${content}</body></html>`);
+            win.document.write(`<html dir="rtl"><head><title>طباعة الفاتورة</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet"><style>body{font-family:'Cairo', sans-serif; padding:20px; color:#000;}</style></head><body>${content}</body></html>`);
             win.document.close();
-            setTimeout(() => { win.print(); win.close(); }, 500);
+            setTimeout(() => { win.print(); win.close(); }, 800);
         }
 
-        // تحميل الفاتورة بشكل سليم 100%
+        // الحل النهائي للفاتورة البيضاء للـ PDF
         function downloadPDF() {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = document.getElementById('invoice-template').innerHTML;
-            tempDiv.style.position = 'absolute'; tempDiv.style.left = '-9999px'; tempDiv.style.top = '0';
-            tempDiv.style.width = '800px'; tempDiv.style.background = '#fff';
-            document.body.appendChild(tempDiv);
+            const template = document.getElementById('invoice-template');
+            // بنعمل عنصر مرئي ونحطه بره الشاشة، عشان html2pdf يشوفه ويصوره صح
+            template.style.display = 'block';
+            template.style.position = 'absolute';
+            template.style.left = '-9999px';
+            template.style.top = '0';
+            template.style.width = '800px'; 
+            template.style.background = '#fff';
+            template.style.padding = '30px';
 
             const shortIdText = document.getElementById('success-order-id').innerText.replace('#', '');
             const opt = { 
-                margin: 0.5, 
+                margin: 0.2, 
                 filename: `Invoice_${shortIdText}.pdf`, 
-                image: { type: 'jpeg', quality: 0.98 }, 
-                html2canvas: { scale: 2 }, 
+                image: { type: 'jpeg', quality: 1 }, 
+                html2canvas: { scale: 2, useCORS: true }, 
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
             };
             
-            html2pdf().set(opt).from(tempDiv).save().then(() => document.body.removeChild(tempDiv));
+            html2pdf().set(opt).from(template).save().then(() => {
+                template.style.display = 'none'; // نرجع نخفيه تاني
+            });
         }
 
         initCheckout();
