@@ -127,8 +127,7 @@
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .btn-action { padding: 12px; border-radius: 10px; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; border: none; text-decoration: none; transition: 0.3s;}
         .btn-wa { background: #25D366; color: #fff; grid-column: span 2; font-size: 1em; padding: 14px;}
-        .btn-print { background: #3b82f6; color: #fff; border: 1px solid #2563eb;}
-        .btn-print:hover { background: #2563eb; }
+        .btn-print { background: #e0f2fe; color: #3b82f6; border: 1px solid #bae6fd;}
         .btn-home { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 14px;}
 
         @media (max-width: 768px) {
@@ -154,14 +153,20 @@
                 <input type="text" id="co-name" class="input-style" placeholder="الاسم الثلاثي لضمان التسليم">
             </div>
             
+            <div class="input-group" id="wrap-phone">
+                <label>رقم الهاتف للتواصل <span class="req">*</span></label>
+                <input type="tel" id="co-phone" class="input-style" placeholder="01xxxxxxxxx">
+            </div>
+
             <div class="grid-2">
-                <div class="input-group" id="wrap-phone">
-                    <label>رقم الهاتف للتواصل <span class="req">*</span></label>
-                    <input type="tel" id="co-phone" class="input-style" placeholder="01xxxxxxxxx">
-                </div>
                 <div class="input-group" id="wrap-city">
                     <label>المحافظة <span class="req">*</span></label>
-                    <select id="co-city" class="input-style" onchange="calculateTotals()"><option value="">-- اختر --</option></select>
+                    <select id="co-city" class="input-style" onchange="updateRegions(); calculateTotals();"><option value="">-- اختر المحافظة --</option></select>
+                </div>
+                <div class="input-group" id="wrap-region">
+                    <label>المدينة / المنطقة <span class="req">*</span></label>
+                    <input type="text" id="co-region" class="input-style" list="regions-list" placeholder="اختر أو اكتب منطقتك">
+                    <datalist id="regions-list"></datalist>
                 </div>
             </div>
             
@@ -176,7 +181,7 @@
             </div>
             
             <div class="input-group" id="wrap-street">
-                <label>اسم الشارع أو المنطقة تفصيلياً <span class="req">*</span></label>
+                <label>اسم الشارع تفصيلياً <span class="req">*</span></label>
                 <textarea id="co-street" class="input-style" rows="2" placeholder="اكتب اسم الشارع، الميدان، أو أقرب معلم..."></textarea>
             </div>
             
@@ -215,7 +220,6 @@
 
             <h2 class="section-title" style="margin-top:30px;"><i class="fas fa-wallet"></i> طريقة الدفع</h2>
             <div class="payment-methods">
-                
                 <label class="pay-method active" onclick="setPaymentMethod(this, 'cash')">
                     <input type="radio" name="pay_method" value="cash" checked>
                     <i class="fas fa-money-bill-wave"></i>
@@ -300,7 +304,7 @@
             <div class="action-grid">
                 <a href="#" id="wa-link" target="_blank" class="btn-action btn-wa"><i class="fab fa-whatsapp"></i> تأكيد ومتابعة عبر واتساب</a>
                 
-                <button onclick="openInvoice()" class="btn-action btn-print" style="grid-column: span 2;"><i class="fas fa-receipt"></i> عرض وطباعة الفاتورة</button>
+                <button onclick="openInvoice()" class="btn-action btn-print" style="grid-column: span 2; background: #3b82f6; color: #fff;"><i class="fas fa-receipt"></i> عرض وطباعة الفاتورة</button>
                 
                 <button onclick="window.location.href='index.html'" class="btn-action btn-home" style="grid-column: span 2;">الاستمرار في التسوق <i class="fas fa-arrow-left"></i></button>
             </div>
@@ -317,6 +321,16 @@
         let subtotal = 0; let shippingCost = 0; let lastOrder = null;
         let map; let marker; let lat = 30.0444; let lng = 31.2357; let mapTouched = false;
         let activeUserSession = null; let selectedPaymentMethod = 'الدفع عند الاستلام';
+
+        // 🔥 قاموس المحافظات والمناطق (الداتا الذكية) 🔥
+        const egyRegionsData = {
+            "القاهرة": ["مدينة نصر", "مصر الجديدة", "المعادي", "التجمع الخامس", "الرحاب", "الشروق", "مدينتي", "حلوان", "شبرا", "وسط البلد", "الزمالك", "المرج"],
+            "الجيزة": ["المهندسين", "الدقي", "الهرم", "فيصل", "6 أكتوبر", "الشيخ زايد", "العجوزة", "إمبابة", "البدرشين"],
+            "القليوبية": ["العبور", "شبرا الخيمة", "بنها", "القناطر الخيرية", "الخانكة", "قليوب"],
+            "الاسكندرية": ["سموحة", "ميامي", "سيدي بشر", "المنتزه", "لوران", "العجمي", "محطة الرمل", "سيدي جابر"],
+            "الشرقية": ["الزقازيق", "العاشر من رمضان", "بلبيس", "منيا القمح", "أبو حماد"],
+            "الدقهلية": ["المنصورة", "ميت غمر", "طلخا", "دكرنس"]
+        };
 
         function showToast(msg, icon='fas fa-info-circle', color='#ef4444') {
             const exist = document.querySelector('.toast-msg'); if(exist) exist.remove();
@@ -340,15 +354,9 @@
                 
                 if(systemSettings.pay_text_ewallet) document.getElementById('txt-wallet-inst').innerText = systemSettings.pay_text_ewallet;
                 if(systemSettings.pay_text_instapay) document.getElementById('txt-insta-inst').innerText = systemSettings.pay_text_instapay;
-
-                if(systemSettings.wallet_number) document.getElementById('wallet-num').value = systemSettings.wallet_number;
-                else document.getElementById('grp-wallet-num').style.display = 'none';
-
-                if(systemSettings.instapay_handle) document.getElementById('insta-handle').value = systemSettings.instapay_handle;
-                else document.getElementById('grp-insta-handle').style.display = 'none';
-
-                if(systemSettings.instapay_number) document.getElementById('insta-num').value = systemSettings.instapay_number;
-                else document.getElementById('grp-insta-num').style.display = 'none';
+                if(systemSettings.wallet_number) document.getElementById('wallet-num').value = systemSettings.wallet_number; else document.getElementById('grp-wallet-num').style.display = 'none';
+                if(systemSettings.instapay_handle) document.getElementById('insta-handle').value = systemSettings.instapay_handle; else document.getElementById('grp-insta-handle').style.display = 'none';
+                if(systemSettings.instapay_number) document.getElementById('insta-num').value = systemSettings.instapay_number; else document.getElementById('grp-insta-num').style.display = 'none';
             }
             
             shippingRules = shipReq.data || [];
@@ -366,10 +374,36 @@
                 if(meta.house) document.getElementById('co-house').value = meta.house;
                 if(meta.floor) document.getElementById('co-floor').value = meta.floor;
                 if(meta.apartment) document.getElementById('co-apartment').value = meta.apartment;
-                for(let i=0; i<citySel.options.length; i++) { if(citySel.options[i].text === meta.city) { citySel.selectedIndex = i; break; } }
+                if(meta.region) document.getElementById('co-region').value = meta.region;
+                for(let i=0; i<citySel.options.length; i++) { 
+                    if(citySel.options[i].text === meta.city) { 
+                        citySel.selectedIndex = i; 
+                        updateRegions(); // تحديث قائمة المناطق بناءً على المحافظة
+                        break; 
+                    } 
+                }
             }
             
             renderCart(); initMap();
+        }
+
+        // 🔥 تحديث الـ Datalist الخاصة بالمناطق حسب المحافظة 🔥
+        function updateRegions() {
+            const citySel = document.getElementById('co-city');
+            const dataList = document.getElementById('regions-list');
+            const regionInput = document.getElementById('co-region');
+            
+            dataList.innerHTML = ''; // تفريغ القائمة القديمة
+            
+            if(citySel.selectedIndex > 0) {
+                const selectedGov = citySel.options[citySel.selectedIndex].text;
+                // لو المحافظة موجودة في القاموس، هنعبي المناطق
+                if(egyRegionsData[selectedGov]) {
+                    egyRegionsData[selectedGov].forEach(region => {
+                        dataList.innerHTML += `<option value="${region}">`;
+                    });
+                }
+            }
         }
 
         function setBuildingType(el, val) {
@@ -482,7 +516,9 @@
             const name = document.getElementById('co-name').value.trim();
             const phone = document.getElementById('co-phone').value.trim();
             const citySel = document.getElementById('co-city');
+            const region = document.getElementById('co-region').value.trim();
             const street = document.getElementById('co-street').value.trim();
+            
             const house = document.getElementById('co-house').value.trim();
             const floor = document.getElementById('co-floor').value.trim();
             const apart = document.getElementById('co-apartment').value.trim();
@@ -490,27 +526,28 @@
             const notes = document.getElementById('co-notes').value.trim();
             const bType = document.querySelector('.build-btn.active').innerText.trim();
 
-            if(!name || !phone || citySel.selectedIndex === 0 || !street) return showToast("برجاء ملء البيانات الأساسية (*)");
+            if(!name || !phone || citySel.selectedIndex === 0 || !region || !street) return showToast("برجاء ملء البيانات الأساسية (*)");
 
             const btn = document.getElementById('btn-submit-order');
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
-            // 🔥 تصليح رابط اللوكيشن السحري في جميع الحالات 🔥
+            const govName = citySel.options[citySel.selectedIndex].text;
+
+            // 🔥 تصليح رابط اللوكيشن السحري 🔥
             let mapLink = '';
-            if (mapTouched) {
-                mapLink = `https://maps.google.com/?q=${lat},${lng}`;
+            if (mapTouched) { 
+                mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}`; 
             } else {
-                // دمج العنوان وإزالة المسافات الزائدة واستبدالها بـ +
-                let cleanAddress = `${citySel.options[citySel.selectedIndex].text} ${street} ${house}`.replace(/\s+/g, '+');
-                mapLink = `https://maps.google.com/?q=${cleanAddress}`;
+                let cleanAddress = `${govName} ${region} ${street} ${house}`.replace(/\s+/g, '+');
+                mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${cleanAddress}`;
             }
 
-            let fullAddress = house ? `${street} - مبنى: ${house}` : street;
+            let fullAddress = house ? `${region} - ${street} - مبنى: ${house}` : `${region} - ${street}`;
             fullAddress += ` | اللوكيشن: ${mapLink}`;
 
             try {
                 const orderData = {
-                    customer_name: name, customer_phone: phone, customer_city: citySel.options[citySel.selectedIndex].text,
+                    customer_name: name, customer_phone: phone, customer_city: govName,
                     customer_street: fullAddress, customer_email: email || null,
                     customer_building: bType, customer_floor: floor || null, customer_apartment: apart || null, customer_landmark: notes || null,
                     total_items_price: subtotal, shipping_cost: shippingCost, discount_amount: 0, grand_total: (subtotal + shippingCost),
@@ -528,16 +565,14 @@
 
                 if (activeUserSession) {
                     supabaseClient.auth.updateUser({
-                        data: { full_name: name, phone: phone, city: citySel.options[citySel.selectedIndex].text, address: street, house: house, floor: floor, apartment: apart }
+                        data: { full_name: name, phone: phone, city: govName, region: region, address: street, house: house, floor: floor, apartment: apart }
                     });
                 }
 
-                // رابط الفاتورة المخصص للعميل
                 const currentDomain = window.location.origin; 
                 const invoiceLink = `${currentDomain}/invoice.html?id=${lastOrder.id}`;
 
-                // 🌟 رسالة الواتس الشاملة 🌟
-                let waMsg = `*طلب جديد #${shortId}* 🛍️\n\n👤 الاسم: ${name}\n📞 الموبايل: ${phone}\n📍 المحافظة: ${orderData.customer_city}\n🛣️ الشارع: ${street}\n`;
+                let waMsg = `*طلب جديد #${shortId}* 🛍️\n\n👤 الاسم: ${name}\n📞 الموبايل: ${phone}\n📍 العنوان: ${govName} - ${region}\n🛣️ الشارع: ${street}\n`;
                 if(house) waMsg += `🏠 المبنى: ${bType} | رقم: ${house} | دور: ${floor||'-'} | شقة: ${apart||'-'}\n`;
                 if(notes) waMsg += `📝 ملاحظات العميل: ${notes}\n`;
                 waMsg += `💳 طريقة الدفع: *${selectedPaymentMethod}*\n`;
@@ -561,7 +596,6 @@
             }
         }
 
-        // 🔥 الدالة لفتح رابط الفاتورة المخصص 🔥
         function openInvoice() {
             if(lastOrder && lastOrder.id) {
                 window.open(`invoice.html?id=${lastOrder.id}`, '_blank');
