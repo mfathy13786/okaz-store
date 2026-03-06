@@ -45,7 +45,6 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .grid-3 { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 15px; }
 
-        /* القوائم الذكية للمناطق */
         .custom-select-wrapper { position: relative; width: 100%; }
         .custom-select-input { padding-left: 35px; }
         .custom-select-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer; padding: 5px; z-index: 2; pointer-events: none;}
@@ -307,7 +306,7 @@
 
             <div class="action-grid">
                 <a href="#" id="wa-link" target="_blank" class="btn-action btn-wa"><i class="fab fa-whatsapp"></i> تأكيد ومتابعة عبر واتساب</a>
-                <button onclick="openInvoice()" class="btn-action btn-print" style="grid-column: span 2;"><i class="fas fa-receipt"></i> عرض الفاتورة (طباعة / PDF)</button>
+                <button onclick="openInvoice()" class="btn-action btn-print" style="grid-column: span 2;"><i class="fas fa-receipt"></i> عرض وطباعة الفاتورة</button>
                 <button onclick="window.location.href='index.html'" class="btn-action btn-home" style="grid-column: span 2;">الاستمرار في التسوق <i class="fas fa-arrow-left"></i></button>
             </div>
         </div>
@@ -329,14 +328,32 @@
             "الجيزة": ["المهندسين", "الدقي", "الهرم", "فيصل", "6 أكتوبر", "الشيخ زايد", "العجوزة", "إمبابة", "البدرشين", "العمرانية", "بولاق الدكرور", "حدائق الأهرام", "الحوامدية", "أبو النمرس", "العياط", "الصف"],
             "الاسكندرية": ["سموحة", "ميامي", "سيدي بشر", "المنتزه", "لوران", "العجمي", "محطة الرمل", "سيدي جابر", "المندرة", "جليم", "ستانلي", "كليوباترا", "رشدي", "سبورتنج", "برج العرب", "العامرية", "أبو قير"],
             "القليوبية": ["العبور", "شبرا الخيمة", "بنها", "القناطر الخيرية", "الخانكة", "قليوب", "طوخ", "الخصوص", "شبين القناطر", "قها"],
-            "الشرقية": ["الزقازيق", "العاشر من رمضان", "بلبيس", "منيا القمح", "أبو حماد", "فاقوس", "أبو كبير", "ديرب نجم", "مشتول السوق", "الحسينية"]
+            "الشرقية": ["الزقازيق", "العاشر من رمضان", "بلبيس", "منيا القمح", "أبو حماد", "فاقوس", "أبو كبير", "ديرب نجم", "مشتول السوق", "الحسينية"],
+            "الدقهلية": ["المنصورة", "ميت غمر", "طلخا", "دكرنس", "بلقاس", "السنبلاوين", "شربين", "أجا", "منية النصر"],
+            "الغربية": ["طنطا", "المحلة الكبرى", "زفتى", "كفر الزيات", "سمنود", "السنطة", "قطور", "بسيون"],
+            "المنوفية": ["شبين الكوم", "منوف", "أشمون", "قويسنا", "الباجور", "تلا", "السادات", "بركة السبع"],
+            "البحيرة": ["دمنهور", "كفر الدوار", "إيتاي البارود", "أبو حمص", "كوم حمادة", "رشيد", "وادي النطرون"],
+            "الإسماعيلية": ["حي أول", "حي ثاني", "حي ثالث", "فايد", "القصاصين", "التل الكبير", "القنطرة"],
+            "السويس": ["حي السويس", "حي الأربعين", "حي عتاقة", "حي فيصل", "حي الجناين"],
+            "بورسعيد": ["الشرق", "العرب", "المناخ", "الضواحي", "الزهور", "بورفؤاد", "جنوب"]
         };
 
-        // 🔥 القاموس الذكي المؤقت للبحث باللغة الإنجليزية عن المحافظات المشهورة 🔥
-        // (لحين نقل التحكم بالكامل لقاعدة البيانات)
+        // 🔥 القاموس الذكي لحل مشكلة التاء المربوطة والهمزات، وإضافة البحث بالإنجليزي 🔥
         const smartEnMap = {
-            "cairo": "القاهرة", "alex": "الاسكندرية", "giza": "الجيزة", 
-            "shark": "الشرقية", "qal": "القليوبية"
+            "cairo": "القاهره", "alex": "الاسكندريه", "giza": "الجيزه", 
+            "shark": "الشرقيه", "qal": "القليوبيه", "dak": "الدقهليه",
+            "ghar": "الغربيه", "men": "المنوفيه", "bah": "البحيره",
+            "ismailia": "الاسماعيليه", "suez": "السويس", "port": "بورسعيد",
+            "dam": "دمياط", "kafr": "كفر الشيخ", "fay": "الفيوم",
+            "beni": "بني سويف", "min": "المنيا", "assiut": "اسيوط",
+            "sohag": "سوهاج", "qena": "قنا", "luxor": "الاقصر",
+            "aswan": "اسوان", "matrouh": "مطروح", "sinai": "سيناء",
+            // أشهر المناطق بالإنجليزي عشان تشتغل فوراً
+            "nasr": "نصر", "maadi": "معادي", "tagamo": "تجمع", 
+            "zayed": "زايد", "october": "اكتوبر", "haram": "هرم",
+            "rehab": "رحاب", "shorouk": "شروق", "madinaty": "مدينتي",
+            "mohandeseen": "مهندسين", "dokki": "دقي", "zamalek": "زمالك",
+            "smouha": "سموحه", "miami": "ميامي", "agami": "عجمي"
         };
 
         function showToast(msg, icon='fas fa-info-circle', color='#ef4444') {
@@ -346,12 +363,14 @@
             document.body.appendChild(div); setTimeout(() => { if(div) div.remove(); }, 4000);
         }
 
+        // دالة الفلترة المعالجة (بتحول الكلمة للأساس وتمنع الأخطاء)
         function normalizeAr(str) {
             if(!str) return '';
             let s = str.trim().toLowerCase();
-            // تفعيل البحث السريع بالإنجليزي
+            s = s.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+            // لو كتب إنجليزي، نرجعله الترجمة المعالجة
             for (let enKey in smartEnMap) { if (s.includes(enKey)) return smartEnMap[enKey]; }
-            return s.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+            return s;
         }
 
         let activeDropdown = null;
@@ -372,7 +391,6 @@
             }
         });
 
-        // 🔥 دالة البحث الذكي للمحافظات 🔥
         function renderCityOptions(rulesArray) {
             const list = document.getElementById('city-dropdown-list');
             list.innerHTML = '';
@@ -385,6 +403,7 @@
             });
         }
 
+        // البحث الذكي للمحافظات (بيعالج الداتا بيز والمكتوب عشان يتطابقوا)
         function smartFilterCities() {
             const query = normalizeAr(document.getElementById('co-city').value);
             const filtered = shippingRules.filter(r => normalizeAr(r.city_ar).includes(query));
@@ -411,7 +430,6 @@
             }, 200);
         }
 
-        // 🔥 دالة البحث الذكي للمناطق 🔥
         let currentGovRegions = [];
         function updateRegions(govName) {
             currentGovRegions = egyRegionsData[govName] ? [...egyRegionsData[govName]].sort() : [];
@@ -431,6 +449,7 @@
             });
         }
 
+        // البحث الذكي للمناطق
         function smartFilterRegions() {
             const query = normalizeAr(document.getElementById('co-region').value);
             const filtered = currentGovRegions.filter(r => normalizeAr(r).includes(query));
@@ -606,13 +625,12 @@
             const btn = document.getElementById('btn-submit-order');
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
-            // 🔥 الروابط الرسمية المعتمدة لخرائط جوجل 🔥
             let mapLink = '';
             if (mapTouched) { 
-                mapLink = `https://www.google.com/maps?q=${lat},${lng}`; 
+                mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}`; 
             } else {
                 let cleanAddress = `${govName} ${region} ${street} ${house}`.replace(/\s+/g, '+');
-                mapLink = `https://www.google.com/maps/search/?api=1&query=${cleanAddress}`;
+                mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${cleanAddress}`;
             }
 
             let fullAddress = house ? `${region} - ${street} - مبنى: ${house}` : `${region} - ${street}`;
