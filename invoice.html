@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فاتورة الطلب</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body { font-family: 'Cairo', sans-serif; background: #f1f5f9; color: #0f172a; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .invoice-box { background: #fff; width: 100%; max-width: 800px; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        
+        .header { display: flex; justify-content: space-between; border-bottom: 3px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 20px; }
+        .store-name { color: #e67e22; margin: 0; font-size: 2.2em; font-weight: 900; }
+        .invoice-details { text-align: left; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; }
+        
+        .customer-info { background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #e2e8f0; line-height: 1.8; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th { background: #0f172a; color: #fff; padding: 12px; text-align: right; }
+        td { border-bottom: 1px solid #e2e8f0; padding: 12px; text-align: right; }
+        
+        .totals { border-top: 2px dashed #cbd5e1; padding-top: 20px; text-align: left; }
+        .grand-total { font-size: 1.5em; font-weight: 900; color: #e67e22; margin-top: 10px; }
+
+        .btn-controls { display: flex; gap: 15px; width: 100%; max-width: 800px; margin-bottom: 20px; }
+        .btn { flex: 1; padding: 15px; border-radius: 12px; border: none; cursor: pointer; font-weight: bold; font-family: 'Cairo'; font-size: 1.1em; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+        .btn-print { background: #3b82f6; color: #fff; }
+        .btn-print:hover { background: #2563eb; }
+        .btn-back { background: #cbd5e1; color: #0f172a; }
+
+        /* إعدادات الطباعة عشان تظبط على الـ PDF والورق */
+        @media print {
+            body { background: #fff; padding: 0; }
+            .btn-controls { display: none; }
+            .invoice-box { box-shadow: none; padding: 0; max-width: 100%; }
+        }
+        
+        .loading { text-align: center; font-size: 1.5em; color: #e67e22; font-weight: bold; padding: 50px; }
+    </style>
+</head>
+<body>
+
+    <div class="btn-controls" id="controls" style="display: none;">
+        <button class="btn btn-back" onclick="window.close()"><i class="fas fa-arrow-right"></i> رجوع</button>
+        <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> طباعة / حفظ PDF</button>
+    </div>
+
+    <div id="content"><div class="loading"><i class="fas fa-spinner fa-spin"></i> جاري جلب بيانات الفاتورة...</div></div>
+
+    <script>
+        const SUPABASE_URL = 'https://wkfiocqhkspsvqgyjpea.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_l2vgR8Xbt0Csw8W_Slo_1Q_9glKlIoN'; 
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadInvoice() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id');
+
+            if(!orderId) {
+                document.getElementById('content').innerHTML = '<div class="loading" style="color:red;">رقم الطلب غير صحيح!</div>';
+                return;
+            }
+
+            try {
+                // جلب اسم المتجر
+                let storeName = 'المتجر';
+                const { data: setReq } = await supabaseClient.from('store_settings').select('*').eq('setting_key', 'store_name').single();
+                if(setReq) storeName = setReq.setting_value;
+
+                // جلب تفاصيل الطلب من الداتا بيز
+                const { data: order, error } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
+                if(error) throw error;
+
+                const shortId = `OKZ-${order.id.split('-')[0].toUpperCase()}`;
+                const date = new Date(order.created_at).toLocaleString('ar-EG');
+                
+                let itemsHtml = '';
+                if(order.cart_info && order.cart_info.items) {
+                    itemsHtml = order.cart_info.items.map((i, index) => {
+                        const codeTxt = i.code ? `<br><small style="color:#64748b;">كود: ${i.code}</small>` : '';
+                        const details = (i.size || i.color) ? `<br><small style="color:#64748b;">(${i.size||'-'} / ${i.color||'-'})</small>` : '';
+                        return `
+                        <tr>
+                            <td style="text-align: center;">${index + 1}</td>
+                            <td><b>${i.title}</b>${details}${codeTxt}</td>
+                            <td style="text-align: center; font-weight: bold;">${i.qty}</td>
+                            <td style="font-weight: bold; direction: ltr;">${i.price} EGP</td>
+                        </tr>`;
+                    }).join('');
+                }
+
+                const bType = order.customer_building || '-';
+                const floor = order.customer_floor || '-';
+                const apart = order.customer_apartment || '-';
+                const notes = order.customer_landmark || 'لا يوجد';
+                const payMethod = (order.cart_info && order.cart_info.payment_method) ? order.cart_info.payment_method : 'غير محدد';
+
+                const html = `
+                <div class="invoice-box">
+                    <div class="header">
+                        <div>
+                            <h1 class="store-name">${storeName}</h1>
+                            <p style="color:#64748b; margin:5px 0 0;">فاتورة ضريبية مبسطة</p>
+                        </div>
+                        <div class="invoice-details">
+                            <h3 style="margin:0; font-family:monospace; font-size:1.3em;">#${shortId}</h3>
+                            <p style="margin:5px 0 0; color:#64748b; font-size:0.9em;">${date}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="customer-info">
+                        <h3 style="color:#e67e22; margin-top:0; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">بيانات العميل</h3>
+                        <p><b>الاسم:</b> ${order.customer_name} &nbsp;&nbsp;|&nbsp;&nbsp; <b>الهاتف:</b> <span style="font-family:monospace;">${order.customer_phone}</span></p>
+                        <p><b>العنوان:</b> ${order.customer_city} - ${order.customer_street.split('|')[0]}</p>
+                        <p><b>تفاصيل العقار:</b> ${bType} | دور: ${floor} | شقة: ${apart}</p>
+                        <p><b>طريقة الدفع:</b> ${payMethod}</p>
+                        <p style="margin-bottom:0;"><b>ملاحظات:</b> ${notes}</p>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; width: 5%;">#</th>
+                                <th>المنتج</th>
+                                <th style="text-align: center; width: 15%;">الكمية</th>
+                                <th style="width: 20%;">السعر</th>
+                            </tr>
+                        </thead>
+                        <tbody>${itemsHtml}</tbody>
+                    </table>
+                    
+                    <div class="totals">
+                        <p style="color:#64748b; font-weight:bold;">مجموع المنتجات: <span style="float:left; color:#0f172a;">${order.total_items_price} ج.م</span></p>
+                        <p style="color:#64748b; font-weight:bold;">مصاريف الشحن: <span style="float:left; color:#0f172a;">${order.shipping_cost} ج.م</span></p>
+                        <div class="grand-total">
+                            الإجمالي المطلوب: <span style="float:left;">${order.grand_total} ج.م</span>
+                        </div>
+                    </div>
+                </div>`;
+                
+                document.getElementById('content').innerHTML = html;
+                document.getElementById('controls').style.display = 'flex';
+
+                // تفعيل الطباعة التلقائية (اللي بتفتح شاشة الـ PDF في الموبايل) بعد نص ثانية
+                setTimeout(() => { window.print(); }, 800);
+
+            } catch(e) {
+                document.getElementById('content').innerHTML = '<div class="loading" style="color:red;">حدث خطأ في تحميل الفاتورة!</div>';
+            }
+        }
+
+        window.onload = loadInvoice;
+    </script>
+</body>
+</html>
