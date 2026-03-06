@@ -81,7 +81,6 @@
         .success-icon { font-size: 4em; color: var(--success); margin-bottom: 10px; animation: popIn 0.5s forwards;}
         @keyframes popIn { 0% { transform: scale(0); opacity:0; } 100% { transform: scale(1); opacity:1; } }
         
-        /* تصميم رقم الطلب وزرار النسخ */
         .order-badge { background: #fff3e0; border: 1px dashed var(--primary); padding: 15px; border-radius: 12px; margin: 15px 0; display: flex; flex-direction: column; align-items: center; gap: 5px;}
         .order-badge span { color: #d35400; font-size: 0.9em; font-weight: 700;}
         .order-id-wrapper { display: flex; align-items: center; gap: 15px;}
@@ -226,7 +225,7 @@
         let systemSettings = {}; let shippingRules = [];
         let subtotal = 0; let shippingCost = 0; let lastOrder = null;
         let map; let marker; let lat = 30.0444; let lng = 31.2357;
-        let activeUserSession = null; // لحفظ حالة العميل المسجل
+        let activeUserSession = null;
 
         function showToast(msg, icon='fas fa-info-circle', color='#ef4444') {
             const exist = document.querySelector('.toast-msg'); if(exist) exist.remove();
@@ -275,7 +274,7 @@
             
             const { data: { session } } = await supabaseClient.auth.getSession();
             if(session && session.user) {
-                activeUserSession = session; // نحفظه عشان تحديث البيانات بعدين
+                activeUserSession = session;
                 const meta = session.user.user_metadata || {};
                 
                 if(meta.full_name) document.getElementById('co-name').value = meta.full_name;
@@ -306,7 +305,7 @@
             el.classList.add('active'); el.querySelector('input').checked = true;
         }
 
-        // 🔥 استخدام HTTPS لخريطة جوجل الآمنة 🔥
+        // 🔥 التعديل الخارق لسحب تفاصيل العنوان بشكل أدق مجاناً 🔥
         function initMap() {
             map = L.map('map').setView([lat, lng], 13);
             L.tileLayer('https://mt0.google.com/vt/lyrs=m&hl=ar&x={x}&y={y}&z={z}', {
@@ -329,16 +328,36 @@
             }
         }
 
+        // 🔥 دالة فك تشفير العنوان المعدلة 🔥
         async function reverseGeocode(l, g) {
             try {
                 const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${l}&lon=${g}&accept-language=ar`);
                 const data = await response.json();
-                if(data && data.display_name) {
+                if(data && data.address) {
+                    const addr = data.address;
+                    let details = [];
+                    
+                    // استخراج أدق تفاصيل ممكنة بالترتيب (شارع، حي، مدينة/محافظة)
+                    if(addr.road) details.push(addr.road);
+                    if(addr.neighbourhood || addr.suburb || addr.residential || addr.quarter) details.push(addr.neighbourhood || addr.suburb || addr.residential || addr.quarter);
+                    if(addr.city_district || addr.town || addr.city) details.push(addr.city_district || addr.town || addr.city);
+                    if(addr.state || addr.province) details.push(addr.state || addr.province);
+                    
                     const addrField = document.getElementById('co-street');
-                    addrField.value = data.display_name; 
-                    addrField.placeholder = "يمكنك تعديل العنوان أو إضافة تفاصيل..."; 
+                    
+                    if(details.length > 0) {
+                        // تنقية التكرار ودمج العنوان
+                        let uniqueDetails = [...new Set(details)];
+                        addrField.value = uniqueDetails.join('، ');
+                    } else if (data.display_name) {
+                        addrField.value = data.display_name.split(',').slice(0,4).join('، ');
+                    }
+                    
+                    addrField.placeholder = "يمكنك إضافة أو تعديل تفاصيل العنوان هنا..."; 
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.error("Geocoding error", e);
+            }
         }
 
         function renderCart() {
@@ -423,14 +442,12 @@
                 
                 lastOrder = data; 
                 
-                // 🌟 بادئة رقم الطلب من لوحة التحكم 🌟
                 const prefix = systemSettings.order_id_prefix || 'ORD-';
                 const shortId = `${prefix}${data.id.split('-')[0].toUpperCase()}`;
 
                 const orderItems = cart.map(item => ({ order_id: data.id, product_name: item.title, selected_size: item.size || '', selected_color: item.color || '', quantity: item.qty, price: item.price, image: item.image, code: item.code }));
                 await supabaseClient.from('order_items').insert(orderItems);
 
-                // 🌟 تحديث بيانات العميل في الخلفية لو مسجل دخول 🌟
                 if (activeUserSession) {
                     supabaseClient.auth.updateUser({
                         data: {
