@@ -46,13 +46,13 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .grid-3 { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 15px; }
 
-        /* 🔥 القائمة الذكية للمناطق (Custom Select) 🔥 */
+        /* 🔥 القوائم الذكية الجديدة (للمحافظة والمنطقة) 🔥 */
         .custom-select-wrapper { position: relative; width: 100%; }
-        .custom-select-input { padding-left: 35px; } /* مساحة للسهم */
-        .custom-select-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer; padding: 5px; }
-        .custom-select-list { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--border); border-radius: 12px; z-index: 1000; max-height: 220px; overflow-y: auto; display: none; box-shadow: 0 15px 35px rgba(0,0,0,0.1); list-style: none; padding: 5px; margin-top: 5px; }
-        .custom-select-list li { padding: 10px 15px; cursor: pointer; border-radius: 8px; transition: 0.2s; font-weight: 600; color: var(--text-main); margin-bottom: 2px;}
-        .custom-select-list li:hover { background: rgba(230,126,34,0.1); color: var(--primary); }
+        .custom-select-input { padding-left: 35px; }
+        .custom-select-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer; padding: 5px; z-index: 2; pointer-events: none;}
+        .custom-select-list { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--border); border-radius: 12px; z-index: 9999; max-height: 220px; overflow-y: auto; display: none; box-shadow: 0 15px 35px rgba(0,0,0,0.15); list-style: none; padding: 5px; margin-top: 5px; margin-bottom: 0;}
+        .custom-select-list li { padding: 12px 15px; cursor: pointer; border-radius: 8px; transition: 0.2s; font-weight: 700; color: var(--text-main); margin-bottom: 2px;}
+        .custom-select-list li:hover { background: rgba(230,126,34,0.1); color: var(--primary); padding-right: 20px;}
         .custom-select-list li.no-results { color: var(--danger); text-align: center; background: none; cursor: default; }
 
         .building-type-group { display: flex; gap: 10px; margin-bottom: 20px; }
@@ -60,7 +60,7 @@
         .build-btn.active { background: rgba(230,126,34,0.1); color: var(--primary); border-color: var(--primary); transform: translateY(-2px);}
         .build-btn input { display: none; }
 
-        #map-wrapper { margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 16px; border: 1px dashed var(--border);}
+        #map-wrapper { margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 16px; border: 1px dashed var(--border); position: relative; z-index: 1;}
         .map-inst { font-size: 0.85em; color: var(--text-muted); margin-bottom: 10px; line-height: 1.6;}
         .map-container { border-radius: 12px; overflow: hidden; border: 2px solid var(--border); margin-bottom: 10px; z-index: 1;}
         #map { height: 220px; width: 100%; }
@@ -160,14 +160,18 @@
             <div class="grid-2">
                 <div class="input-group" id="wrap-city">
                     <label>المحافظة <span class="req">*</span></label>
-                    <select id="co-city" class="input-style" onchange="updateRegions(); calculateTotals();"><option value="">-- اختر المحافظة --</option></select>
+                    <div class="custom-select-wrapper">
+                        <input type="text" id="co-city" class="input-style custom-select-input" placeholder="اختر أو اكتب محافظتك" autocomplete="off" onfocus="toggleDropdown('city-dropdown-list', true)" oninput="filterCities()" onblur="handleCityBlur()">
+                        <i class="fas fa-chevron-down custom-select-icon" onclick="toggleDropdown('city-dropdown-list')"></i>
+                        <ul id="city-dropdown-list" class="custom-select-list"></ul>
+                    </div>
                 </div>
                 
                 <div class="input-group" id="wrap-region">
                     <label>المدينة / المنطقة <span class="req">*</span></label>
                     <div class="custom-select-wrapper">
-                        <input type="text" id="co-region" class="input-style custom-select-input" placeholder="اختر أو اكتب منطقتك" autocomplete="off" onfocus="toggleRegionDropdown(true)" onkeyup="filterRegions()">
-                        <i class="fas fa-chevron-down custom-select-icon" onclick="toggleRegionDropdown()"></i>
+                        <input type="text" id="co-region" class="input-style custom-select-input" placeholder="اختر أو اكتب منطقتك" autocomplete="off" onfocus="toggleDropdown('region-dropdown-list', true)" oninput="filterRegions()">
+                        <i class="fas fa-chevron-down custom-select-icon" onclick="toggleDropdown('region-dropdown-list')"></i>
                         <ul id="region-dropdown-list" class="custom-select-list"></ul>
                     </div>
                 </div>
@@ -323,35 +327,34 @@
         let map; let marker; let lat = 30.0444; let lng = 31.2357; let mapTouched = false;
         let activeUserSession = null; let selectedPaymentMethod = 'الدفع عند الاستلام';
 
-        // 🔥 قاموس مصر الشامل (أكثر من 150 منطقة مغطية 90% من الأوردرات) 🔥
+        // 🔥 القاموس الشامل للمناطق والمدن (متوفر فوري بدون تحميل) 🔥
         const egyRegionsData = {
             "القاهرة": ["مدينة نصر", "مصر الجديدة", "المعادي", "التجمع الخامس", "الرحاب", "الشروق", "مدينتي", "حلوان", "شبرا", "وسط البلد", "الزمالك", "المرج", "عين شمس", "المقطم", "العباسية", "دار السلام", "الزاوية الحمراء", "حدائق القبة", "النزهة", "بدر", "العاصمة الإدارية"],
             "الجيزة": ["المهندسين", "الدقي", "الهرم", "فيصل", "6 أكتوبر", "الشيخ زايد", "العجوزة", "إمبابة", "البدرشين", "العمرانية", "بولاق الدكرور", "حدائق الأهرام", "الحوامدية", "أبو النمرس", "العياط", "الصف"],
             "الاسكندرية": ["سموحة", "ميامي", "سيدي بشر", "المنتزه", "لوران", "العجمي", "محطة الرمل", "سيدي جابر", "المندرة", "جليم", "ستانلي", "كليوباترا", "رشدي", "سبورتنج", "برج العرب", "العامرية", "أبو قير"],
             "القليوبية": ["العبور", "شبرا الخيمة", "بنها", "القناطر الخيرية", "الخانكة", "قليوب", "طوخ", "الخصوص", "شبين القناطر", "قها"],
             "الشرقية": ["الزقازيق", "العاشر من رمضان", "بلبيس", "منيا القمح", "أبو حماد", "فاقوس", "أبو كبير", "ديرب نجم", "مشتول السوق", "الحسينية"],
-            "الدقهلية": ["المنصورة", "ميت غمر", "طلخا", "دكرنس", "بلقاس", "السنبلاوين", "شربين", "أجا", "منية النصر", "نbaroh"],
+            "الدقهلية": ["المنصورة", "ميت غمر", "طلخا", "دكرنس", "بلقاس", "السنبلاوين", "شربين", "أجا", "منية النصر"],
             "الغربية": ["طنطا", "المحلة الكبرى", "زفتى", "كفر الزيات", "سمنود", "السنطة", "قطور", "بسيون"],
             "المنوفية": ["شبين الكوم", "منوف", "أشمون", "قويسنا", "الباجور", "تلا", "السادات", "بركة السبع"],
-            "البحيرة": ["دمنهور", "كفر الدوار", "إيتاي البارود", "أبو حمص", "كوم حمادة", "رشيد", "وادي النطرون", "شبراخيت"],
-            "الإسماعيلية": ["حي أول", "حي ثاني", "حي ثالث", "فايد", "القصاصين", "التل الكبير", "القنطرة شرق", "القنطرة غرب"],
+            "البحيرة": ["دمنهور", "كفر الدوار", "إيتاي البارود", "أبو حمص", "كوم حمادة", "رشيد", "وادي النطرون"],
+            "الإسماعيلية": ["حي أول", "حي ثاني", "حي ثالث", "فايد", "القصاصين", "التل الكبير", "القنطرة"],
             "السويس": ["حي السويس", "حي الأربعين", "حي عتاقة", "حي فيصل", "حي الجناين"],
             "بورسعيد": ["الشرق", "العرب", "المناخ", "الضواحي", "الزهور", "بورفؤاد", "جنوب"],
-            "دمياط": ["دمياط", "دمياط الجديدة", "رأس البر", "عزبة البرج", "فارسكور", "كفر سعد", "الزرقا"],
+            "دمياط": ["دمياط", "دمياط الجديدة", "رأس البر", "عزبة البرج", "فارسكور", "كفر سعد"],
             "كفر الشيخ": ["كفر الشيخ", "دسوق", "فوه", "مطوبس", "بيلا", "قلين", "سيدي سالم", "الرياض", "بلطيم"],
-            "الفيوم": ["الفيوم", "سنورس", "إطسا", "طامية", "إبشواي", "يوسف الصديق"],
-            "بني سويف": ["بني سويف", "الواسطى", "ناصر", "إهناسيا", "ببا", "الفشن", "سمسطا"],
-            "المنيا": ["المنيا", "مغاغة", "بني مزار", "أبو قرقاص", "مطاي", "سمالوط", "ملوي", "دير مواس", "العدوة"],
-            "أسيوط": ["أسيوط", "أسيوط الجديدة", "ديروط", "القوصية", "أبنوب", "منفلوط", "أبو تيج", "الغنايم", "ساحل سليم", "البداري"],
+            "الفيوم": ["الفيوم", "سنورس", "إطسا", "طامية", "إبشواي"],
+            "بني سويف": ["بني سويف", "الواسطى", "ناصر", "إهناسيا", "ببا", "الفشن"],
+            "المنيا": ["المنيا", "مغاغة", "بني مزار", "أبو قرقاص", "مطاي", "سمالوط", "ملوي"],
+            "أسيوط": ["أسيوط", "أسيوط الجديدة", "ديروط", "القوصية", "أبنوب", "منفلوط", "أبو تيج"],
             "سوهاج": ["سوهاج", "أخميم", "البلينا", "المراغة", "المنشأة", "دار السلام", "جرجا", "جهينة", "طما", "طهطا"],
-            "قنا": ["قنا", "نجع حمادي", "دشنا", "قوص", "قفط", "نقادة", "فرشوط", "أبو تشت", "الوقف"],
+            "قنا": ["قنا", "نجع حمادي", "دشنا", "قوص", "قفط", "نقادة"],
             "الأقصر": ["الأقصر", "إسنا", "أرمنت", "الطود", "البياضية", "القرنة"],
-            "أسوان": ["أسوان", "إدفو", "كوم أمبو", "دراو", "نصر النوبة", "أبو سمبل"],
-            "البحر الأحمر": ["الغردقة", "رأس غارب", "سفاجا", "القصير", "مرسى علم", "شلاتين", "حلايب"],
+            "أسوان": ["أسوان", "إدفو", "كوم أمبو", "دراو", "نصر النوبة"],
+            "البحر الأحمر": ["الغردقة", "رأس غارب", "سفاجا", "القصير", "مرسى علم"],
             "مطروح": ["مرسى مطروح", "العلمين", "الحمام", "النجيلة", "الضبعة", "سيوة"],
-            "الوادي الجديد": ["الخارجة", "الداخلة", "الفرافرة", "باريس", "بلاط"],
-            "شمال سيناء": ["العريش", "بئر العبد", "الشيخ زويد", "رفح", "الحسنة", "نخل"],
-            "جنوب سيناء": ["الطور", "شرم الشيخ", "دهب", "نويبع", "طابا", "سانت كاترين", "رأس سدر", "أبو رديس", "أبو زنيمة"]
+            "شمال سيناء": ["العريش", "بئر العبد", "الشيخ زويد", "رفح"],
+            "جنوب سيناء": ["الطور", "شرم الشيخ", "دهب", "نويبع", "طابا"]
         };
 
         function showToast(msg, icon='fas fa-info-circle', color='#ef4444') {
@@ -360,6 +363,98 @@
             div.innerHTML = `<i class="${icon}"></i> <span>${msg}</span>`;
             document.body.appendChild(div); setTimeout(() => { if(div) div.remove(); }, 4000);
         }
+
+        // 🔥 خوارزمية ذكية لتجاهل الفروق في الحروف العربية (أ، إ، ا، ة، ه، ي، ى) 🔥
+        function normalizeAr(str) {
+            if(!str) return '';
+            return str.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').trim().toLowerCase();
+        }
+
+        // 🔥 التحكم في القوائم الذكية 🔥
+        let activeDropdown = null;
+        function toggleDropdown(id, forceShow = null) {
+            document.querySelectorAll('.custom-select-list').forEach(el => { if(el.id !== id) el.style.display = 'none'; });
+            const list = document.getElementById(id);
+            if(!list) return;
+            const isShowing = list.style.display === 'block';
+            if(forceShow === true) { list.style.display = 'block'; activeDropdown = id; }
+            else if(forceShow === false) { list.style.display = 'none'; if(activeDropdown === id) activeDropdown = null; }
+            else { list.style.display = isShowing ? 'none' : 'block'; activeDropdown = list.style.display === 'block' ? id : null; }
+        }
+
+        document.addEventListener('click', function(e) {
+            if(!e.target.closest('.custom-select-wrapper')) {
+                document.querySelectorAll('.custom-select-list').forEach(el => el.style.display = 'none');
+                activeDropdown = null;
+            }
+        });
+
+        // 🔥 فلترة المحافظات 🔥
+        function renderCityOptions(rulesArray) {
+            const list = document.getElementById('city-dropdown-list');
+            list.innerHTML = '';
+            if(rulesArray.length === 0) { list.innerHTML = '<li class="no-results">لا توجد نتائج</li>'; return; }
+            rulesArray.forEach(rule => {
+                const li = document.createElement('li');
+                li.innerText = rule.city_ar;
+                li.onclick = () => selectCity(rule.city_ar, rule.cost);
+                list.appendChild(li);
+            });
+        }
+
+        function filterCities() {
+            const query = normalizeAr(document.getElementById('co-city').value);
+            const filtered = shippingRules.filter(r => normalizeAr(r.city_ar).includes(query));
+            renderCityOptions(filtered);
+            toggleDropdown('city-dropdown-list', true);
+        }
+
+        function selectCity(cityName, cost) {
+            document.getElementById('co-city').value = cityName;
+            shippingCost = parseFloat(cost) || 0;
+            calculateTotals();
+            updateRegions(cityName);
+            toggleDropdown('city-dropdown-list', false);
+            document.getElementById('co-region').focus(); // توجيه العميل للمنطقة تلقائياً
+        }
+
+        function handleCityBlur() {
+            setTimeout(() => {
+                const val = document.getElementById('co-city').value.trim();
+                const matched = shippingRules.find(r => r.city_ar === val);
+                if (matched) { shippingCost = matched.cost; updateRegions(val); } 
+                else { shippingCost = 0; updateRegions(val); }
+                calculateTotals();
+            }, 200);
+        }
+
+        // 🔥 فلترة المناطق 🔥
+        let currentGovRegions = [];
+        function updateRegions(govName) {
+            currentGovRegions = egyRegionsData[govName] ? [...egyRegionsData[govName]].sort() : [];
+            document.getElementById('co-region').value = ''; 
+            renderRegionOptions(currentGovRegions);
+        }
+
+        function renderRegionOptions(regionsArray) {
+            const list = document.getElementById('region-dropdown-list');
+            list.innerHTML = '';
+            if(regionsArray.length === 0) { list.innerHTML = '<li class="no-results">اكتب منطقتك يدوياً</li>'; return; }
+            regionsArray.forEach(region => {
+                const li = document.createElement('li');
+                li.innerText = region;
+                li.onclick = () => { document.getElementById('co-region').value = region; toggleDropdown('region-dropdown-list', false); };
+                list.appendChild(li);
+            });
+        }
+
+        function filterRegions() {
+            const query = normalizeAr(document.getElementById('co-region').value);
+            const filtered = currentGovRegions.filter(r => normalizeAr(r).includes(query));
+            renderRegionOptions(filtered);
+            toggleDropdown('region-dropdown-list', true);
+        }
+
 
         async function initCheckout() {
             if(cart.length === 0) { window.location.href='index.html'; return; }
@@ -376,20 +471,13 @@
                 
                 if(systemSettings.pay_text_ewallet) document.getElementById('txt-wallet-inst').innerText = systemSettings.pay_text_ewallet;
                 if(systemSettings.pay_text_instapay) document.getElementById('txt-insta-inst').innerText = systemSettings.pay_text_instapay;
-
-                if(systemSettings.wallet_number) document.getElementById('wallet-num').value = systemSettings.wallet_number;
-                else document.getElementById('grp-wallet-num').style.display = 'none';
-
-                if(systemSettings.instapay_handle) document.getElementById('insta-handle').value = systemSettings.instapay_handle;
-                else document.getElementById('grp-insta-handle').style.display = 'none';
-
-                if(systemSettings.instapay_number) document.getElementById('insta-num').value = systemSettings.instapay_number;
-                else document.getElementById('grp-insta-num').style.display = 'none';
+                if(systemSettings.wallet_number) document.getElementById('wallet-num').value = systemSettings.wallet_number; else document.getElementById('grp-wallet-num').style.display = 'none';
+                if(systemSettings.instapay_handle) document.getElementById('insta-handle').value = systemSettings.instapay_handle; else document.getElementById('grp-insta-handle').style.display = 'none';
+                if(systemSettings.instapay_number) document.getElementById('insta-num').value = systemSettings.instapay_number; else document.getElementById('grp-insta-num').style.display = 'none';
             }
             
             shippingRules = shipReq.data || [];
-            const citySel = document.getElementById('co-city');
-            shippingRules.forEach(c => { citySel.innerHTML += `<option value="${c.id}" data-cost="${c.cost}">${c.city_ar}</option>`; });
+            renderCityOptions(shippingRules); // رسم القائمة الذكية للمحافظات
             
             const { data: { session } } = await supabaseClient.auth.getSession();
             if(session && session.user) {
@@ -402,81 +490,18 @@
                 if(meta.house) document.getElementById('co-house').value = meta.house;
                 if(meta.floor) document.getElementById('co-floor').value = meta.floor;
                 if(meta.apartment) document.getElementById('co-apartment').value = meta.apartment;
-                if(meta.region) document.getElementById('co-region').value = meta.region;
-                for(let i=0; i<citySel.options.length; i++) { 
-                    if(citySel.options[i].text === meta.city) { 
-                        citySel.selectedIndex = i; 
-                        updateRegions(); 
-                        break; 
-                    } 
+                
+                // ملء المحافظة والمنطقة تلقائياً للعميل المسجل
+                if(meta.city) {
+                    const matchedRule = shippingRules.find(r => r.city_ar === meta.city);
+                    if(matchedRule) selectCity(matchedRule.city_ar, matchedRule.cost);
+                    else document.getElementById('co-city').value = meta.city;
                 }
+                if(meta.region) document.getElementById('co-region').value = meta.region;
             }
             
             renderCart(); initMap();
         }
-
-        // 🔥 برمجة قائمة المناطق الذكية (Custom Combobox) 🔥
-        let currentGovRegions = [];
-
-        function updateRegions() {
-            const citySel = document.getElementById('co-city');
-            const dataList = document.getElementById('region-dropdown-list');
-            const input = document.getElementById('co-region');
-            
-            dataList.innerHTML = '';
-            currentGovRegions = [];
-            
-            if(citySel.selectedIndex > 0) {
-                const selectedGov = citySel.options[citySel.selectedIndex].text;
-                if(egyRegionsData[selectedGov]) {
-                    currentGovRegions = egyRegionsData[selectedGov].sort();
-                    renderRegionOptions(currentGovRegions);
-                } else {
-                    dataList.innerHTML = '<li class="no-results">الرجاء كتابة منطقتك يدوياً</li>';
-                }
-            }
-        }
-
-        function renderRegionOptions(regionsArray) {
-            const dataList = document.getElementById('region-dropdown-list');
-            dataList.innerHTML = '';
-            if(regionsArray.length === 0) {
-                dataList.innerHTML = '<li class="no-results">غير موجودة، يمكنك كتابتها.</li>';
-                return;
-            }
-            regionsArray.forEach(region => {
-                const li = document.createElement('li');
-                li.innerText = region;
-                li.onclick = () => {
-                    document.getElementById('co-region').value = region;
-                    toggleRegionDropdown(false);
-                };
-                dataList.appendChild(li);
-            });
-        }
-
-        function filterRegions() {
-            const inputVal = document.getElementById('co-region').value.trim.toLowerCase();
-            const filtered = currentGovRegions.filter(r => r.toLowerCase().includes(inputVal));
-            renderRegionOptions(filtered);
-            toggleRegionDropdown(true);
-        }
-
-        function toggleRegionDropdown(forceShow = null) {
-            const list = document.getElementById('region-dropdown-list');
-            const isShowing = list.style.display === 'block';
-            
-            if(forceShow === true) list.style.display = 'block';
-            else if(forceShow === false) list.style.display = 'none';
-            else list.style.display = isShowing ? 'none' : 'block';
-        }
-
-        // قفل القائمة لو داس بره
-        document.addEventListener('click', function(event) {
-            const wrapper = document.querySelector('.custom-select-wrapper');
-            if (!wrapper.contains(event.target)) { toggleRegionDropdown(false); }
-        });
-
 
         function setBuildingType(el, val) {
             document.querySelectorAll('.build-btn').forEach(b=>b.classList.remove('active'));
@@ -577,8 +602,6 @@
         }
 
         function calculateTotals() {
-            const citySel = document.getElementById('co-city');
-            shippingCost = citySel.selectedIndex > 0 ? parseFloat(citySel.options[citySel.selectedIndex].getAttribute('data-cost')) : 0;
             document.getElementById('sum-subtotal').innerText = `${subtotal} ج.م`;
             document.getElementById('sum-shipping').innerText = `${shippingCost} ج.م`;
             document.getElementById('sum-grandtotal').innerText = `${subtotal + shippingCost} ج.م`;
@@ -587,7 +610,7 @@
         async function submitOrder() {
             const name = document.getElementById('co-name').value.trim();
             const phone = document.getElementById('co-phone').value.trim();
-            const citySel = document.getElementById('co-city');
+            const govName = document.getElementById('co-city').value.trim();
             const region = document.getElementById('co-region').value.trim();
             const street = document.getElementById('co-street').value.trim();
             
@@ -598,19 +621,17 @@
             const notes = document.getElementById('co-notes').value.trim();
             const bType = document.querySelector('.build-btn.active').innerText.trim();
 
-            if(!name || !phone || citySel.selectedIndex === 0 || !region || !street) return showToast("برجاء ملء البيانات الأساسية (*)");
+            if(!name || !phone || !govName || !region || !street) return showToast("برجاء ملء البيانات الأساسية (الاسم، الهاتف، المحافظة، المنطقة، الشارع)");
 
             const btn = document.getElementById('btn-submit-order');
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
-            const govName = citySel.options[citySel.selectedIndex].text;
-
             let mapLink = '';
             if (mapTouched) { 
-                mapLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`; 
+                mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}`; 
             } else {
                 let cleanAddress = `${govName} ${region} ${street} ${house}`.replace(/\s+/g, '+');
-                mapLink = `https://www.google.com/maps/search/?api=1&query=${cleanAddress}`;
+                mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${cleanAddress}`;
             }
 
             let fullAddress = house ? `${region} - ${street} - مبنى: ${house}` : `${region} - ${street}`;
