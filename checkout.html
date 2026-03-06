@@ -127,7 +127,8 @@
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .btn-action { padding: 12px; border-radius: 10px; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; border: none; text-decoration: none; transition: 0.3s;}
         .btn-wa { background: #25D366; color: #fff; grid-column: span 2; font-size: 1em; padding: 14px;}
-        .btn-print { background: #e0f2fe; color: #3b82f6; border: 1px solid #bae6fd;}
+        .btn-print { background: #3b82f6; color: #fff; border: 1px solid #2563eb;}
+        .btn-print:hover { background: #2563eb; }
         .btn-home { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 14px;}
 
         @media (max-width: 768px) {
@@ -299,7 +300,7 @@
             <div class="action-grid">
                 <a href="#" id="wa-link" target="_blank" class="btn-action btn-wa"><i class="fab fa-whatsapp"></i> تأكيد ومتابعة عبر واتساب</a>
                 
-                <button onclick="openInvoice()" class="btn-action btn-print" style="grid-column: span 2;"><i class="fas fa-receipt"></i> عرض الفاتورة (طباعة / PDF)</button>
+                <button onclick="openInvoice()" class="btn-action btn-print" style="grid-column: span 2;"><i class="fas fa-receipt"></i> عرض وطباعة الفاتورة</button>
                 
                 <button onclick="window.location.href='index.html'" class="btn-action btn-home" style="grid-column: span 2;">الاستمرار في التسوق <i class="fas fa-arrow-left"></i></button>
             </div>
@@ -494,13 +495,14 @@
             const btn = document.getElementById('btn-submit-order');
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
 
-            // 🔥 التصليح النهائي للينك الخريطة 🔥
+            // 🔥 تصليح رابط اللوكيشن السحري في جميع الحالات 🔥
             let mapLink = '';
-            if (mapTouched) { 
-                mapLink = `https://maps.google.com/?q=${lat},${lng}`; 
+            if (mapTouched) {
+                mapLink = `https://maps.google.com/?q=${lat},${lng}`;
             } else {
-                const searchTxt = `${citySel.options[citySel.selectedIndex].text} ${street} ${house}`.trim();
-                mapLink = `https://maps.google.com/?q=${encodeURIComponent(searchTxt)}`;
+                // دمج العنوان وإزالة المسافات الزائدة واستبدالها بـ +
+                let cleanAddress = `${citySel.options[citySel.selectedIndex].text} ${street} ${house}`.replace(/\s+/g, '+');
+                mapLink = `https://maps.google.com/?q=${cleanAddress}`;
             }
 
             let fullAddress = house ? `${street} - مبنى: ${house}` : street;
@@ -530,19 +532,20 @@
                     });
                 }
 
-                // 🔥 سحب رابط موقعك أوتوماتيك لإنشاء رابط الفاتورة 🔥
-                let currentUrl = window.location.href.split('?')[0];
-                let invoiceLink = currentUrl.replace('checkout.html', 'invoice.html') + `?id=${data.id}`;
+                // رابط الفاتورة المخصص للعميل
+                const currentDomain = window.location.origin; 
+                const invoiceLink = `${currentDomain}/invoice.html?id=${lastOrder.id}`;
 
+                // 🌟 رسالة الواتس الشاملة 🌟
                 let waMsg = `*طلب جديد #${shortId}* 🛍️\n\n👤 الاسم: ${name}\n📞 الموبايل: ${phone}\n📍 المحافظة: ${orderData.customer_city}\n🛣️ الشارع: ${street}\n`;
                 if(house) waMsg += `🏠 المبنى: ${bType} | رقم: ${house} | دور: ${floor||'-'} | شقة: ${apart||'-'}\n`;
                 if(notes) waMsg += `📝 ملاحظات العميل: ${notes}\n`;
                 waMsg += `💳 طريقة الدفع: *${selectedPaymentMethod}*\n`;
-                waMsg += `🗺️ اللوكيشن: ${mapLink}\n`;
-                waMsg += `📄 الفاتورة: ${invoiceLink}\n`; // إضافة لينك الفاتورة هنا
+                waMsg += `🗺️ اللوكيشن:\n${mapLink}\n`;
                 waMsg += `\n*المنتجات:*\n`;
                 cart.forEach(i => { const barcode = i.code ? ` (كود: ${i.code})` : ''; waMsg += `▪️ ${i.qty}x ${i.title} ${barcode} - ${i.price}ج\n`; });
-                waMsg += `\n🚚 الشحن: ${shippingCost} ج.م\n💰 *الإجمالي المطلوب: ${orderData.grand_total} ج.م*`;
+                waMsg += `\n🚚 الشحن: ${shippingCost} ج.م\n💰 *الإجمالي المطلوب: ${orderData.grand_total} ج.م*\n`;
+                waMsg += `\n📄 *رابط الفاتورة:*\n${invoiceLink}`;
                 
                 document.getElementById('wa-link').href = `https://wa.me/${systemSettings.social_whatsapp || ''}?text=${encodeURIComponent(waMsg)}`;
                 
@@ -558,11 +561,10 @@
             }
         }
 
+        // 🔥 الدالة لفتح رابط الفاتورة المخصص 🔥
         function openInvoice() {
             if(lastOrder && lastOrder.id) {
-                let currentUrl = window.location.href.split('?')[0];
-                let invoiceUrl = currentUrl.replace('checkout.html', 'invoice.html') + `?id=${lastOrder.id}`;
-                window.open(invoiceUrl, '_blank');
+                window.open(`invoice.html?id=${lastOrder.id}`, '_blank');
             }
         }
 
